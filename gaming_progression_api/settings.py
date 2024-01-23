@@ -8,9 +8,12 @@ class Settings(
 ):
     project_name: str
     debug: bool
-    db_url: str
+    database_url: str
+    jwt_secret: str
+    jwt_algoritm: str
+    access_token_expire_minutes: int
 
-    model_config = SettingsConfigDict(env_prefix='API_', env_file='.env')
+    model_config = SettingsConfigDict(env_file='.env', env_prefix='API_')
 
 
 @lru_cache

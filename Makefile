@@ -1,4 +1,4 @@
-SOURCE_DIR_API=service_api
+SOURCE_DIR_API=gaming_progression_api
 TESTS_DIR=tests
 LINE_LENGTH=120
 

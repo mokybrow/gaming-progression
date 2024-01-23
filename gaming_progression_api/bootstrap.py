@@ -2,13 +2,14 @@ from functools import lru_cache
 
 from fastapi import APIRouter, FastAPI
 
-from service_api.settings import get_settings
+from gaming_progression_api.settings import get_settings
+from gaming_progression_api.transport.handlers.auth import router
 
 
 def _setup_api_routers(
     api: APIRouter,
 ) -> None:
-    pass
+    api.include_router(router)
 
 
 @lru_cache

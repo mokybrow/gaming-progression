@@ -5,25 +5,25 @@ repos:
         name: black
         entry: black
         language: system
-        files: ^(service_api|tests)/.+\.py$
+        files: ^(gaming_progression_api|tests)/.+\.py$
 
       - id: isort
         name: isort
         entry: isort
         language: system
-        files: ^(service_api|tests)/.+\.py$
+        files: ^(gaming_progression_api|tests)/.+\.py$
 
       - id: ruff
         name: ruff
         entry: ruff check --fix
         language: system
-        files: ^(service_api|tests)/.+\.py$
+        files: ^(gaming_progression_api|tests)/.+\.py$
 
       - id: mypy
         name: mypy
         entry: mypy
         language: system
-        files: ^(service_api|tests)/.+\.py$
+        files: ^(gaming_progression_api|tests)/.+\.py$
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: 'v4.3.0'

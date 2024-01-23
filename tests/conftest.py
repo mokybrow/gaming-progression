@@ -6,8 +6,8 @@ from fastapi import FastAPI
 from httpx import AsyncClient
 from pytest import fixture
 
-from service_api.bootstrap import make_app
-from service_api.settings import Settings, get_settings
+from gaming_progression_api.bootstrap import make_app
+from gaming_progression_api.settings import Settings, get_settings
 
 
 @fixture
