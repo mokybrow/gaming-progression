@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import UUID4, BaseModel
 
 
 class Token(BaseModel):
@@ -6,5 +6,20 @@ class Token(BaseModel):
     token_type: str
 
 
+class VerifyToken(BaseModel):
+    verify_token: str
+    token_type: str
+
+
+class RecoveryToken(BaseModel):
+    recovery_token: str
+    token_type: str
+
+
 class TokenData(BaseModel):
     username: str | None = None
+    id: UUID4 | None = None
+
+
+class TokenRequest(BaseModel):
+    token: str

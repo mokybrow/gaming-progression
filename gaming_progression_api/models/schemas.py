@@ -5,7 +5,7 @@ from uuid import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from gaming_progression_api.integrations.database import Base
-from gaming_progression_api.models.users import UserCreate
+from gaming_progression_api.models.users import User, UserCreate, UserSchema
 
 
 class Users(Base):
@@ -18,8 +18,8 @@ class Users(Base):
     password: Mapped[str] = mapped_column(nullable=False)
     disabled: Mapped[bool] = mapped_column(default=False)
 
-    def to_read_model(self) -> UserCreate:
-        return UserCreate(
+    def to_read_model(self) -> UserSchema:
+        return UserSchema(
             id=self.id,
             username=self.username,
             full_name=self.full_name,

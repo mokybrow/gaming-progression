@@ -13,6 +13,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
 class UsersService:
     async def add_user(self, uow: IUnitOfWork, user: UserCreate):
         user_dict = user.model_dump()
+        print(user_dict)
         user_dict['password'] = await AuthService.hash_password(user.password)
         async with uow:
             unique_username = await uow.users.find_one(username=user.username)
@@ -38,9 +39,9 @@ class UsersService:
             users = await uow.users.find_all()
             return users
 
-    async def get_user(self, uow: IUnitOfWork, username: str):
+    async def get_user(self, uow: IUnitOfWork, email: str):
         async with uow:
-            users = await uow.users.find_one(username=username)
+            users = await uow.users.find_one(email=email)
             return users
 
     async def authenticate_user(self, uow: IUnitOfWork, username: str, password: str):

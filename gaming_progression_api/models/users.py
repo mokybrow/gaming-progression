@@ -17,3 +17,13 @@ class UserCreate(BaseUser):
 
 class User(BaseUser):
     id: UUID4
+
+
+class UserSchema(BaseUser):
+    id: UUID4
+    password: str
+
+
+class ChangeUserPassword(BaseModel):
+    token: str
+    password: str

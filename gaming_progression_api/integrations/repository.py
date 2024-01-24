@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
-from sqlalchemy import insert, select
+from pydantic import UUID4
+from sqlalchemy import insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -37,5 +38,10 @@ class SQLAlchemyRepository(AbstractRepository):
         try:
             result = result.scalar_one().to_read_model()
             return result
-        except NotImplemented:
+        except:
             return False
+
+    async def edit_one(self, id: UUID4, data: dict) -> UUID4:
+        stmt = update(self.model).values(data).filter_by(id=id).returning(self.model.id)
+        res = await self.session.execute(stmt)
+        return res.scalar_one()
