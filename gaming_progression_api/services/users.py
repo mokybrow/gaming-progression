@@ -1,7 +1,8 @@
 from fastapi import HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+from pydantic import UUID4
 
-from gaming_progression_api.models.users import UserCreate
+from gaming_progression_api.models.users import PatchUser, UserCreate
 from gaming_progression_api.services.auth import AuthService
 from gaming_progression_api.services.unitofwork import IUnitOfWork
 from gaming_progression_api.settings import get_settings
@@ -13,7 +14,6 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
 class UsersService:
     async def add_user(self, uow: IUnitOfWork, user: UserCreate):
         user_dict = user.model_dump()
-        print(user_dict)
         user_dict['password'] = await AuthService.hash_password(user.password)
         async with uow:
             unique_username = await uow.users.find_one(username=user.username)
@@ -52,3 +52,17 @@ class UsersService:
         if not await AuthService.verify_password(password, user.password):
             return False
         return user
+
+    async def edit_user(self, uow: IUnitOfWork, user_id: UUID4, user: PatchUser):
+        user_dict = user.model_dump()
+        async with uow:
+            try:
+                await uow.users.edit_one(user_dict, id=user_id)
+                await uow.commit()
+                return True
+            except:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail='An error occurred while changing data',
+                    headers={'WWW-Authenticate': 'Bearer'},
+                )

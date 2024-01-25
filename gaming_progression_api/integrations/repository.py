@@ -41,7 +41,7 @@ class SQLAlchemyRepository(AbstractRepository):
         except:
             return False
 
-    async def edit_one(self, id: UUID4, data: dict) -> UUID4:
-        stmt = update(self.model).values(data).filter_by(id=id).returning(self.model.id)
+    async def edit_one(self, data: dict, **filter_by) -> UUID4:
+        stmt = update(self.model).values(data).filter_by(**filter_by).returning(self.model.id)
         res = await self.session.execute(stmt)
         return res.scalar_one()

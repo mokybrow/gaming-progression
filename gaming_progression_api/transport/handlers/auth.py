@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Form, HTTPException, status
+from fastapi import APIRouter, Body, Depends, Form, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import UUID4
 
@@ -11,8 +11,8 @@ from gaming_progression_api.dependencies import (
     reset_token_expires,
     verify_token_expires,
 )
-from gaming_progression_api.models.tokens import RecoveryToken, Token, TokenRequest, VerifyToken
-from gaming_progression_api.models.users import BaseUser, ChangeUserPassword, User, UserCreate
+from gaming_progression_api.models.tokens import RecoveryToken, Token,  VerifyToken
+from gaming_progression_api.models.users import  BaseUser, ChangeUserPassword, PatchUser, User, UserCreate
 from gaming_progression_api.services.auth import AuthService
 from gaming_progression_api.services.users import UsersService
 from gaming_progression_api.settings import get_settings
@@ -50,11 +50,11 @@ async def read_users_me(current_user: Annotated[User, Depends(get_current_user)]
 async def add_user(user: UserCreate, uow: UOWDep) -> UUID4:
     user_id = await UsersService().add_user(uow, user)
 
-    return {'user_id': user_id}
+    return user_id
 
 
 @router.post('/verify/request', response_model=VerifyToken)
-async def verify_user_request(email: str, uow: UOWDep) -> VerifyToken:
+async def verify_user_request(uow: UOWDep, email: str = Body(..., embed=True)) -> VerifyToken:
     user = await UsersService().get_user(uow, email)
     verify_token = await AuthService().create_token(
         {'sub': str(user.id), 'aud': settings.verify_audience}, verify_token_expires
@@ -64,13 +64,13 @@ async def verify_user_request(email: str, uow: UOWDep) -> VerifyToken:
 
 
 @router.post('/verify')
-async def verify_user(token: TokenRequest, uow: UOWDep) -> UUID4:
+async def verify_user(uow: UOWDep, token: str = Body(..., embed=True)) -> UUID4:
     verify_user = await AuthService().verify_user(uow, token.token)
     return verify_user
 
 
 @router.post('/password/recovery', response_model=RecoveryToken)
-async def password_recovery(email: str, uow: UOWDep) -> RecoveryToken:
+async def password_recovery(uow: UOWDep, email: str = Body(..., embed=True)) -> RecoveryToken:
     credentials_exception = HTTPException(
         status_code=status.HTTP_400_BAD_REQUEST,
         detail="User doesn't exist",
@@ -90,3 +90,15 @@ async def password_recovery(email: str, uow: UOWDep) -> RecoveryToken:
 async def password_reset(new_data: ChangeUserPassword, uow: UOWDep) -> UUID4:
     reset_user = await AuthService().reset_password(uow, new_data)
     return reset_user
+
+
+@router.patch('/users/me')
+async def password_reset(new_data: PatchUser, uow: UOWDep, current_user: Annotated[User, Depends(get_current_user)]):
+    patch_user = await UsersService().edit_user(uow, current_user.id ,new_data)
+    if patch_user:
+        raise HTTPException(
+                    status_code=status.HTTP_200_OK,
+                    detail='Data changed successfully',
+                    headers={'WWW-Authenticate': 'Bearer'},
+                )
+    return patch_user

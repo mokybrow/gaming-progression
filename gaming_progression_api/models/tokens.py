@@ -19,7 +19,3 @@ class RecoveryToken(BaseModel):
 class TokenData(BaseModel):
     username: str | None = None
     id: UUID4 | None = None
-
-
-class TokenRequest(BaseModel):
-    token: str

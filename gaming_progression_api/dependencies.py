@@ -24,7 +24,7 @@ async def get_current_user(uow: UOWDep, token: Annotated[str, Depends(oauth2_sch
     return await AuthService().get_current_user(uow, token)
 
 
-async def get_current_active_user(current_user: Annotated[BaseUser, Depends(get_current_user)]) -> User:
-    if current_user.disabled:
+async def get_current_active_user(current_user: Annotated[User, Depends(get_current_user)]) -> User:
+    if current_user.is_verified:
         raise HTTPException(status_code=400, detail='Inactive user')
     return current_user

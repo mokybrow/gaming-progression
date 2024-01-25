@@ -74,7 +74,7 @@ class AuthService:
             raise credentials_exception from exc
 
         async with uow:
-            user = await uow.users.edit_one(token_data.id, {"disabled": True})
+            user = await uow.users.edit_one({"is_verified": True}, id=token_data.id)
             await uow.commit()
 
         if user is None:
@@ -102,7 +102,7 @@ class AuthService:
             raise credentials_exception from exc
 
         async with uow:
-            user = await uow.users.edit_one(token_data.id, {"password": await self.hash_password(new_data.password)})
+            user = await uow.users.edit_one({"password": await self.hash_password(new_data.password)}, id=token_data.id)
             await uow.commit()
 
         if user is None:
