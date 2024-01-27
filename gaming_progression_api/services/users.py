@@ -21,18 +21,19 @@ class UsersService:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail='A user with the same username already exists',
-                    headers={'WWW-Authenticate': 'Bearer'},
                 )
             unique_email = await uow.users.find_one(email=user.email)
             if unique_email:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail='A user with this email already exists',
-                    headers={'WWW-Authenticate': 'Bearer'},
                 )
             user_id = await uow.users.add_one(user_dict)
             await uow.commit()
-            return user_id
+            raise HTTPException(
+                status_code=status.HTTP_201_CREATED,
+                detail=f'User has been successfully created',
+            )
 
     async def get_users(self, uow: IUnitOfWork):
         async with uow:

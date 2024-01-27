@@ -23,6 +23,12 @@ bcrypt = "^4.1.2"
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 
 
+[tool.pytest.ini_options]
+pythonpath = [
+  ".", "gaming_progression_api",
+]
+asyncio_mode="auto"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

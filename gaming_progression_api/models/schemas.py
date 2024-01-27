@@ -2,8 +2,8 @@ import datetime
 import uuid
 
 from uuid import UUID
-from sqlalchemy import func, text
 
+from sqlalchemy import func, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from gaming_progression_api.integrations.database import Base
@@ -27,7 +27,9 @@ class Users(Base):
     is_moderator: Mapped[bool] = mapped_column(default=False)
 
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
-    updated_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"), onupdate=datetime.datetime.utcnow)
+    updated_at: Mapped[datetime.datetime] = mapped_column(
+        server_default=text("TIMEZONE('utc', now())"), onupdate=datetime.datetime.utcnow
+    )
 
     def to_read_model(self) -> UserSchema:
         return UserSchema(
@@ -43,5 +45,5 @@ class Users(Base):
             is_superuser=self.is_superuser,
             is_moderator=self.is_moderator,
             created_at=self.created_at,
-            updated_at=self.updated_at
+            updated_at=self.updated_at,
         )

@@ -11,8 +11,8 @@ from gaming_progression_api.dependencies import (
     reset_token_expires,
     verify_token_expires,
 )
-from gaming_progression_api.models.tokens import RecoveryToken, Token,  VerifyToken
-from gaming_progression_api.models.users import  BaseUser, ChangeUserPassword, PatchUser, User, UserCreate
+from gaming_progression_api.models.tokens import RecoveryToken, Token, VerifyToken
+from gaming_progression_api.models.users import BaseUser, ChangeUserPassword, PatchUser, User, UserCreate
 from gaming_progression_api.services.auth import AuthService
 from gaming_progression_api.services.users import UsersService
 from gaming_progression_api.settings import get_settings
@@ -26,7 +26,7 @@ router = APIRouter(
 )
 
 
-@router.post('/sign-in')
+@router.post('/sign-in', description='Выдача пользователю токена доступа')
 async def login_for_access_token(uow: UOWDep, form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> Token:
     user = await UsersService().authenticate_user(uow, form_data.username, form_data.password)
     if not user:
@@ -46,8 +46,8 @@ async def read_users_me(current_user: Annotated[User, Depends(get_current_user)]
     return current_user
 
 
-@router.post('/sign-up')
-async def add_user(user: UserCreate, uow: UOWDep) -> UUID4:
+@router.post('/sign-up', description='Регистрация пользователя')
+async def add_user(user: UserCreate, uow: UOWDep):
     user_id = await UsersService().add_user(uow, user)
 
     return user_id
@@ -94,11 +94,11 @@ async def password_reset(new_data: ChangeUserPassword, uow: UOWDep) -> UUID4:
 
 @router.patch('/users/me')
 async def password_reset(new_data: PatchUser, uow: UOWDep, current_user: Annotated[User, Depends(get_current_user)]):
-    patch_user = await UsersService().edit_user(uow, current_user.id ,new_data)
+    patch_user = await UsersService().edit_user(uow, current_user.id, new_data)
     if patch_user:
         raise HTTPException(
-                    status_code=status.HTTP_200_OK,
-                    detail='Data changed successfully',
-                    headers={'WWW-Authenticate': 'Bearer'},
-                )
+            status_code=status.HTTP_200_OK,
+            detail='Data changed successfully',
+            headers={'WWW-Authenticate': 'Bearer'},
+        )
     return patch_user

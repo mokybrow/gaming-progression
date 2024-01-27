@@ -17,5 +17,7 @@ checks:
 
 	poetry run pytest -vv ${TESTS_DIR}
 
+test:
+	poetry run pytest -vv -s ${TESTS_DIR}
 run:
 	poetry run python -m $(SOURCE_DIR_API)

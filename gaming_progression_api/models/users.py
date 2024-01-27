@@ -1,5 +1,7 @@
 import datetime
+
 from typing import Optional
+
 from pydantic import UUID4, BaseModel, EmailStr
 
 
@@ -31,6 +33,7 @@ class UserSchema(BaseUser):
     is_moderator: bool
     created_at: datetime.datetime
     updated_at: datetime.datetime
+
 
 class ChangeUserPassword(BaseModel):
     token: str

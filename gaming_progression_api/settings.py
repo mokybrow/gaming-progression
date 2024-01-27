@@ -17,6 +17,7 @@ class Settings(
     auth_audience: str
     verify_audience: str
     reset_audience: str
+    database_url_test: str
 
     model_config = SettingsConfigDict(env_file='.env', env_prefix='API_')
 
