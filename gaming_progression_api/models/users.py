@@ -2,7 +2,8 @@ import datetime
 
 from typing import Optional
 
-from pydantic import UUID4, BaseModel, EmailStr
+from pydantic import UUID4, BaseModel, ConfigDict, EmailStr
+from pydantic_settings import SettingsConfigDict
 
 
 class BaseUser(BaseModel):
@@ -11,8 +12,7 @@ class BaseUser(BaseModel):
     full_name: Optional[str]
     disabled: bool = False
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class UserCreate(BaseUser):

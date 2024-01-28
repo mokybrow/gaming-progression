@@ -42,15 +42,23 @@ class UsersService:
 
     async def get_user(self, uow: IUnitOfWork, email: str):
         async with uow:
-            users = await uow.users.find_one(email=email)
-            return users
+            user = await uow.users.find_one(email=email)
+            print(user)
+            return user
+
+    async def get_user_for_verify(self, uow: IUnitOfWork, email: str):
+        async with uow:
+            user = await uow.users.find_one(email=email)
+            if not user.is_verified:
+                return user
+            return False
 
     async def authenticate_user(self, uow: IUnitOfWork, username: str, password: str):
         async with uow:
             user = await uow.users.find_one(username=username)
         if not user:
             return False
-        if not await AuthService.verify_password(password, user.password):
+        if not await AuthService.verify_password(plain_password=password, hashed_password=user.password):
             return False
         return user
 

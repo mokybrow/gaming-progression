@@ -4,9 +4,11 @@ from fastapi import HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.hash import bcrypt
+from pydantic import UUID4
 
+from gaming_progression_api.models.service import ServiceResponseModel
 from gaming_progression_api.models.tokens import TokenData
-from gaming_progression_api.models.users import ChangeUserPassword
+from gaming_progression_api.models.users import ChangeUserPassword, UserSchema
 from gaming_progression_api.services.unitofwork import IUnitOfWork
 from gaming_progression_api.settings import get_settings
 
@@ -56,11 +58,10 @@ class AuthService:
             raise credentials_exception
         return user
 
-    async def verify_user(self, uow: IUnitOfWork, token: str):
+    async def verify_user(self, uow: IUnitOfWork, token: str) -> UUID4 | ServiceResponseModel:
         credentials_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail='Could not validate credentials',
-            headers={'WWW-Authenticate': 'Bearer'},
         )
         try:
             payload = jwt.decode(
@@ -74,7 +75,7 @@ class AuthService:
             raise credentials_exception from exc
 
         async with uow:
-            user = await uow.users.edit_one({"is_verified": True}, id=token_data.id)
+            user = await uow.users.edit_one(data={"is_verified": True}, id=token_data.id)
             await uow.commit()
 
         if user is None:

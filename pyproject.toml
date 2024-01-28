@@ -22,6 +22,7 @@ python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 bcrypt = "^4.1.2"
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 pytest-dotenv = "^0.5.2"
+types-passlib = "^1.7.7.20240106"
 
 
 [tool.pytest.ini_options]
@@ -53,7 +54,7 @@ exclude = '''
 '''
 
 [tool.mypy]
-python_version = 3.11
+python_version = 3.12
 plugins = [
 "pydantic.mypy"
 ]
@@ -70,6 +71,7 @@ exclude = [
 'prometheus_data\.py',
 '.venv/',
 'venv/',
+'migrations.*'
 ]
 
 [tool.isort]

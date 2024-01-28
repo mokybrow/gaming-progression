@@ -2,6 +2,7 @@ import pytest
 
 from httpx import AsyncClient
 
+from gaming_progression_api.models.users import User
 from gaming_progression_api.settings import Settings
 
 
@@ -52,7 +53,6 @@ async def test_sign_in(
         },
     )
     assert response.status_code == 200
-    print(response.json()['access_token'])
     token = response.json()['access_token']
 
 
@@ -64,4 +64,18 @@ async def test_users_me(
     headers = {'Authorization': f'Bearer {token}'}
     response = await client.get("auth/users/me", headers=headers)
     assert response.status_code == 200
-    print(response.text)
+    assert User.model_validate_json(response.text)
+
+
+@pytest.mark.asyncio
+async def test_users_me_patch(
+    client: AsyncClient,
+    settings: Settings,
+) -> None:
+    headers = {'Authorization': f'Bearer {token}'}
+    response = await client.patch(
+        "auth/users/me",
+        headers=headers,
+        json={"email": "user@example2.com", "full_name": "string2", "biography": "string2", "birthdate": "2024-01-28"},
+    )
+    assert response.status_code == 200

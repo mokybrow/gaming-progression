@@ -11,6 +11,7 @@ from gaming_progression_api.dependencies import (
     reset_token_expires,
     verify_token_expires,
 )
+from gaming_progression_api.models.service import ServiceResponseModel
 from gaming_progression_api.models.tokens import RecoveryToken, Token, VerifyToken
 from gaming_progression_api.models.users import BaseUser, ChangeUserPassword, PatchUser, User, UserCreate
 from gaming_progression_api.services.auth import AuthService
@@ -26,7 +27,7 @@ router = APIRouter(
 )
 
 
-@router.post('/sign-in', description='Выдача пользователю токена доступа')
+@router.post('/sign-in', description='Выдача пользователю токена доступа', response_model=Token)
 async def login_for_access_token(uow: UOWDep, form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> Token:
     user = await UsersService().authenticate_user(uow, form_data.username, form_data.password)
     if not user:
@@ -46,16 +47,21 @@ async def read_users_me(current_user: Annotated[User, Depends(get_current_user)]
     return current_user
 
 
-@router.post('/sign-up', description='Регистрация пользователя')
-async def add_user(user: UserCreate, uow: UOWDep):
-    user_id = await UsersService().add_user(uow, user)
+@router.post('/sign-up', description='Регистрация пользователя', response_model=ServiceResponseModel)
+async def add_user(user: UserCreate, uow: UOWDep) -> ServiceResponseModel:
+    result = await UsersService().add_user(uow, user)
 
-    return user_id
+    return result
 
 
 @router.post('/verify/request', response_model=VerifyToken)
 async def verify_user_request(uow: UOWDep, email: str = Body(..., embed=True)) -> VerifyToken:
-    user = await UsersService().get_user(uow, email)
+    user = await UsersService().get_user_for_verify(uow, email)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='User already verified or incorrect email',
+        )
     verify_token = await AuthService().create_token(
         {'sub': str(user.id), 'aud': settings.verify_audience}, verify_token_expires
     )
@@ -63,10 +69,10 @@ async def verify_user_request(uow: UOWDep, email: str = Body(..., embed=True)) -
     return VerifyToken(verify_token=verify_token, token_type='bearer')
 
 
-@router.post('/verify')
-async def verify_user(uow: UOWDep, token: str = Body(..., embed=True)) -> UUID4:
-    verify_user = await AuthService().verify_user(uow, token.token)
-    return verify_user
+@router.post('/verify', response_model=ServiceResponseModel)
+async def verify_user(uow: UOWDep, token: str = Body(..., embed=True)) -> ServiceResponseModel:
+    verified_user = await AuthService().verify_user(uow, token)
+    return ServiceResponseModel(details=f'user with id {verified_user} has been successfully verified')
 
 
 @router.post('/password/recovery', response_model=RecoveryToken)
@@ -86,14 +92,20 @@ async def password_recovery(uow: UOWDep, email: str = Body(..., embed=True)) -> 
     return RecoveryToken(recovery_token=recovery_token, token_type='bearer')
 
 
-@router.post('/password/reset')
-async def password_reset(new_data: ChangeUserPassword, uow: UOWDep) -> UUID4:
+@router.post(
+    '/password/reset',
+    response_model=ServiceResponseModel,
+    description='To reset your password, you must send a reset token and a new password',
+)
+async def password_reset(new_data: ChangeUserPassword, uow: UOWDep) -> ServiceResponseModel:
     reset_user = await AuthService().reset_password(uow, new_data)
-    return reset_user
+    return ServiceResponseModel(details=f'Password for {reset_user} successfully changed')
 
 
-@router.patch('/users/me')
-async def password_reset(new_data: PatchUser, uow: UOWDep, current_user: Annotated[User, Depends(get_current_user)]):
+@router.patch('/users/me', response_model=ServiceResponseModel)
+async def edit_user(
+    new_data: PatchUser, uow: UOWDep, current_user: Annotated[User, Depends(get_current_user)]
+) -> ServiceResponseModel:
     patch_user = await UsersService().edit_user(uow, current_user.id, new_data)
     if patch_user:
         raise HTTPException(

@@ -1,6 +1,7 @@
 import asyncio
 
 from collections.abc import AsyncGenerator
+from typing import Generator
 
 import pytest
 import pytest_asyncio
@@ -8,41 +9,32 @@ import pytest_asyncio
 from fastapi import FastAPI
 from httpx import AsyncClient
 from pytest import fixture
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession, async_sessionmaker, create_async_engine
 
 from gaming_progression_api.bootstrap import make_app
 from gaming_progression_api.integrations.database import Base, engine, get_async_session
 from gaming_progression_api.models.schemas import Users
 from gaming_progression_api.settings import Settings, get_settings
 
-settings = get_settings()
+main_settings = get_settings()
 
 
-engine_test = create_async_engine(settings.database_url)
-async_session_maker_testing = async_sessionmaker(engine_test, expire_on_commit=False)
-
-Base.metadata.bind = engine_test
-
-
-# async def override_get_async_session() -> AsyncGenerator[AsyncSession, None]:
-#     async with async_session_maker_testing() as session:
-#         yield session
+engine_test = create_async_engine(main_settings.database_url)
 
 
 @pytest.fixture(autouse=True, scope='session')
-async def prepare_database():
+async def prepare_database() -> AsyncGenerator[AsyncConnection, None]:
     async with engine_test.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
-    yield
-    # async with engine_test.begin() as conn:
-    #     await conn.run_sync(Base.metadata.drop_all)
+    yield conn
+    async with engine_test.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
 
 
 # SETUP
 @pytest.fixture(scope='session')
-def event_loop(request):
-    """Create an instance of the default event loop for each test case."""
+def event_loop() -> Generator[asyncio.AbstractEventLoop, asyncio.AbstractEventLoopPolicy, None]:
     loop = asyncio.get_event_loop_policy().new_event_loop()
     yield loop
     loop.close()
