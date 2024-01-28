@@ -21,7 +21,7 @@ class AbstractRepository(ABC):
 class SQLAlchemyRepository(AbstractRepository):
     model = None
 
-    def __init__(self, session: AsyncSession = Depends(get_async_session)):
+    def __init__(self, session: AsyncSession):
         self.session = session
 
     async def add_one(self, data: dict):

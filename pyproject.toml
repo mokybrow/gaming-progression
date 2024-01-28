@@ -21,12 +21,14 @@ pre-commit = "^3.6.0"
 python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 bcrypt = "^4.1.2"
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+pytest-dotenv = "^0.5.2"
 
 
 [tool.pytest.ini_options]
 pythonpath = [
   ".", "gaming_progression_api",
 ]
+env_files = [".test.env"]
 asyncio_mode="auto"
 
 [build-system]
