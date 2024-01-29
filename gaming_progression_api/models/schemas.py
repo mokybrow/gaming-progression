@@ -7,6 +7,7 @@ from sqlalchemy import func, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from gaming_progression_api.integrations.database import Base
+from gaming_progression_api.models.games import Games
 from gaming_progression_api.models.users import User, UserCreate, UserSchema
 
 
@@ -46,4 +47,38 @@ class Users(Base):
             is_moderator=self.is_moderator,
             created_at=self.created_at,
             updated_at=self.updated_at,
+        )
+
+
+
+class Games(Base):
+    __tablename__ = 'games'
+
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    title: Mapped[str] 
+    cover: Mapped[str] 
+    description: Mapped[str]
+    slug: Mapped[str] = mapped_column(nullable=False, unique=True)
+    release_date: Mapped[datetime.datetime] = mapped_column(nullable=True)
+    playtime: Mapped[int] 
+    completed_count: Mapped[int] 
+    wishlist_count: Mapped[int] 
+    favorite_count: Mapped[int] 
+    avg_rate: Mapped[float] 
+
+
+
+    def to_read_model(self) -> Games:
+        return Games(
+    id=self.id,
+    title=self.title,
+    cover=self.cover,
+    description=self.description,
+    slug=self.slug,
+    release_date=self.release_date,
+    playtime=self.playtime,
+    completed_count=self.completed_count,
+    wishlist_count =self.wishlist_count,
+    favorite_count =self.favorite_count,
+    avg_rate =self.avg_rate,
         )
