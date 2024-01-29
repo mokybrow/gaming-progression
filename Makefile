@@ -15,7 +15,7 @@ checks:
 	poetry run mypy ${TESTS_DIR}
 	poetry run mypy ${SOURCE_DIR_API}
 
-	poetry run pytest -vv ${TESTS_DIR}
+	poetry run pytest -vv --disable-warnings ${TESTS_DIR}
 
 test:
 	poetry run pytest -vv -s --disable-warnings ${TESTS_DIR}

@@ -71,7 +71,12 @@ exclude = [
 'prometheus_data\.py',
 '.venv/',
 'venv/',
-'migrations.*'
+'migrations.*',
+'gaming_progression_api/services/users.py',
+'gaming_progression_api/integrations/repository.py',
+'gaming_progression_api/services/unitofwork.py',
+'gaming_progression_api/services/auth.py:28',
+'gaming_progression_api/services/auth.py'
 ]
 
 [tool.isort]

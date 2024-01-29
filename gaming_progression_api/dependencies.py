@@ -4,7 +4,8 @@ from typing import Annotated
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 
-from gaming_progression_api.models.users import BaseUser, User
+from gaming_progression_api.models.service import ServiceResponseModel
+from gaming_progression_api.models.users import UserSchema
 from gaming_progression_api.services.auth import AuthService
 from gaming_progression_api.services.unitofwork import IUnitOfWork, UnitOfWork
 from gaming_progression_api.settings import get_settings
@@ -20,11 +21,13 @@ reset_token_expires = timedelta(minutes=settings.reset_token_expire_minutes)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='auth/sign-in')
 
 
-async def get_current_user(uow: UOWDep, token: Annotated[str, Depends(oauth2_scheme)]) -> User:
+async def get_current_user(
+    uow: UOWDep, token: Annotated[str, Depends(oauth2_scheme)],
+) -> dict | bool | ServiceResponseModel:
     return await AuthService().get_current_user(uow, token)
 
 
-async def get_current_active_user(current_user: Annotated[User, Depends(get_current_user)]) -> User:
+async def get_current_active_user(current_user: Annotated[UserSchema, Depends(get_current_user)]) -> UserSchema:
     if current_user.is_verified:
         raise HTTPException(status_code=400, detail='Inactive user')
     return current_user

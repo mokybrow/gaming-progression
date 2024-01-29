@@ -1,14 +1,13 @@
 from datetime import UTC, datetime, timedelta
 
 from fastapi import HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.hash import bcrypt
 from pydantic import UUID4
 
 from gaming_progression_api.models.service import ServiceResponseModel
 from gaming_progression_api.models.tokens import TokenData
-from gaming_progression_api.models.users import ChangeUserPassword, UserSchema
+from gaming_progression_api.models.users import ChangeUserPassword
 from gaming_progression_api.services.unitofwork import IUnitOfWork
 from gaming_progression_api.settings import get_settings
 
@@ -25,7 +24,7 @@ class AuthService:
         return bcrypt.using(rounds=15).hash(password)
 
     @classmethod
-    async def create_token(cls, data: dict, expires_delta: timedelta | None = None):
+    async def create_token(cls, data: dict, expires_delta: timedelta | None = None) -> str:
         to_encode = data.copy()
         if expires_delta:
             expire = datetime.now(UTC) + expires_delta
@@ -35,7 +34,7 @@ class AuthService:
         encoded_jwt = jwt.encode(to_encode, settings.jwt_secret, algorithm=settings.jwt_algoritm)
         return encoded_jwt
 
-    async def get_current_user(self, uow: IUnitOfWork, token: str):
+    async def get_current_user(self, uow: IUnitOfWork, token: str) -> dict | bool | ServiceResponseModel:
         credentials_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail='Could not validate credentials',
@@ -43,7 +42,7 @@ class AuthService:
         )
         try:
             payload = jwt.decode(
-                token, settings.jwt_secret, algorithms=[settings.jwt_algoritm], audience=settings.auth_audience
+                token, settings.jwt_secret, algorithms=[settings.jwt_algoritm], audience=settings.auth_audience,
             )
             username: str = payload.get('sub')
             if username is None:
@@ -54,7 +53,7 @@ class AuthService:
         async with uow:
             user = await uow.users.find_one(username=token_data.username)
 
-        if user is None:
+        if not user:
             raise credentials_exception
         return user
 
@@ -65,7 +64,7 @@ class AuthService:
         )
         try:
             payload = jwt.decode(
-                token, settings.jwt_secret, algorithms=[settings.jwt_algoritm], audience=settings.verify_audience
+                token, settings.jwt_secret, algorithms=[settings.jwt_algoritm], audience=settings.verify_audience,
             )
             id: str = payload.get('sub')
             if id is None:
@@ -75,14 +74,14 @@ class AuthService:
             raise credentials_exception from exc
 
         async with uow:
-            user = await uow.users.edit_one(data={"is_verified": True}, id=token_data.id)
+            user = await uow.users.edit_one(data={'is_verified': True}, id=token_data.id)
             await uow.commit()
 
         if user is None:
             raise credentials_exception
         return user
 
-    async def reset_password(self, uow: IUnitOfWork, new_data: ChangeUserPassword):
+    async def reset_password(self, uow: IUnitOfWork, new_data: ChangeUserPassword) -> UUID4 | ServiceResponseModel:
         credentials_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail='Could not validate credentials',
@@ -103,7 +102,9 @@ class AuthService:
             raise credentials_exception from exc
 
         async with uow:
-            user = await uow.users.edit_one({"password": await self.hash_password(new_data.password)}, id=token_data.id)
+            user = await uow.users.edit_one(
+                data={'password': await self.hash_password(new_data.password)}, id=token_data.id,
+            )
             await uow.commit()
 
         if user is None:

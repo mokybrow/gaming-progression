@@ -1,12 +1,10 @@
 from abc import ABC, abstractmethod
+from typing import Any
 
-from fastapi import Depends
 from pydantic import UUID4
 from sqlalchemy import insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from gaming_progression_api.integrations.database import get_async_session
-from gaming_progression_api.models.users import UserSchema
 
 
 class AbstractRepository(ABC):
@@ -20,7 +18,7 @@ class AbstractRepository(ABC):
 
 
 class SQLAlchemyRepository(AbstractRepository):
-    model = None
+    model = Any
 
     def __init__(self, session: AsyncSession) -> None:
         self.session = session

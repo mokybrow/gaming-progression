@@ -1,7 +1,7 @@
 import asyncio
 
 from collections.abc import AsyncGenerator
-from typing import Generator
+from collections.abc import Generator
 
 import pytest
 import pytest_asyncio
@@ -9,11 +9,10 @@ import pytest_asyncio
 from fastapi import FastAPI
 from httpx import AsyncClient
 from pytest import fixture
-from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncConnection, create_async_engine
 
 from gaming_progression_api.bootstrap import make_app
-from gaming_progression_api.integrations.database import Base, engine, get_async_session
-from gaming_progression_api.models.schemas import Users
+from gaming_progression_api.integrations.database import Base
 from gaming_progression_api.settings import Settings, get_settings
 
 main_settings = get_settings()
@@ -28,8 +27,8 @@ async def prepare_database() -> AsyncGenerator[AsyncConnection, None]:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
     yield conn
-    async with engine_test.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
+    # async with engine_test.begin() as conn:
+    #     await conn.run_sync(Base.metadata.drop_all)
 
 
 # SETUP

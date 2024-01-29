@@ -3,7 +3,6 @@ import datetime
 from typing import Optional
 
 from pydantic import UUID4, BaseModel, ConfigDict, EmailStr
-from pydantic_settings import SettingsConfigDict
 
 
 class BaseUser(BaseModel):
@@ -45,3 +44,4 @@ class PatchUser(BaseModel):
     full_name: Optional[str]
     biography: Optional[str]
     birthdate: Optional[datetime.date]
+    password: Optional[str]

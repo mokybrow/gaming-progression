@@ -32,7 +32,7 @@ class UsersService:
             await uow.commit()
             raise HTTPException(
                 status_code=status.HTTP_201_CREATED,
-                detail=f'User has been successfully created',
+                detail='User has been successfully created',
             )
 
     async def get_users(self, uow: IUnitOfWork):
@@ -43,7 +43,6 @@ class UsersService:
     async def get_user(self, uow: IUnitOfWork, email: str):
         async with uow:
             user = await uow.users.find_one(email=email)
-            print(user)
             return user
 
     async def get_user_for_verify(self, uow: IUnitOfWork, email: str):
@@ -62,11 +61,15 @@ class UsersService:
             return False
         return user
 
-    async def edit_user(self, uow: IUnitOfWork, user_id: UUID4, user: PatchUser):
+    async def patch_user(self, uow: IUnitOfWork, user_id: UUID4, user: PatchUser):
         user_dict = user.model_dump()
         async with uow:
             try:
-                await uow.users.edit_one(user_dict, id=user_id)
+                user_data = await uow.users.find_one(id=user_id)
+                if user_data.email != user_dict['email']:
+                    await uow.users.edit_one(data={'is_verified': False}, id=user_id)
+                user_dict['password'] = await AuthService.hash_password(user_dict['password'])
+                await uow.users.edit_one(data=user_dict, id=user_id)
                 await uow.commit()
                 return True
             except:
