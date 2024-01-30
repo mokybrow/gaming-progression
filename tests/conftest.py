@@ -1,7 +1,6 @@
 import asyncio
 
-from collections.abc import AsyncGenerator
-from collections.abc import Generator
+from collections.abc import AsyncGenerator, Generator
 
 import pytest
 import pytest_asyncio

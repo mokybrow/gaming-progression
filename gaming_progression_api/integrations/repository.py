@@ -4,7 +4,9 @@ from typing import Any
 from pydantic import UUID4
 from sqlalchemy import insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
+from gaming_progression_api.models.schemas import GameGenres, Games
 
 
 class AbstractRepository(ABC):
@@ -47,3 +49,18 @@ class SQLAlchemyRepository(AbstractRepository):
         stmt = update(self.model).values(data).filter_by(**filter_by).returning(self.model.id)
         res = await self.session.execute(stmt)
         return res.scalar_one()
+
+
+    async def find_one_relation(self, **filter_by) :
+        query = (select(self.model)
+                 .options(selectinload(Games.genre))
+                 .filter_by(**filter_by)
+                 )
+        result = await self.session.execute(query)
+        self.session.expunge_all()
+
+        try:
+            result = result.scalars().all()
+            return result
+        except:
+            return False

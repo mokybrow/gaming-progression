@@ -22,7 +22,8 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl='auth/sign-in')
 
 
 async def get_current_user(
-    uow: UOWDep, token: Annotated[str, Depends(oauth2_scheme)],
+    uow: UOWDep,
+    token: Annotated[str, Depends(oauth2_scheme)],
 ) -> dict | bool | ServiceResponseModel:
     return await AuthService().get_current_user(uow, token)
 

@@ -1,11 +1,13 @@
 from abc import ABC, abstractmethod
 
 from gaming_progression_api.integrations.database import async_session_maker
+from gaming_progression_api.integrations.games import GamesRepository
 from gaming_progression_api.integrations.users import UsersRepository
 
 
 class IUnitOfWork(ABC):
     users: type[UsersRepository]
+    games: type[GamesRepository]
 
     @abstractmethod
     def __init__(self) -> None:
@@ -36,6 +38,7 @@ class UnitOfWork:
         self.session = self.session_factory()
 
         self.users = UsersRepository(self.session)
+        self.games = GamesRepository(self.session)
 
     async def __aexit__(self, *args) -> None:
         await self.rollback()

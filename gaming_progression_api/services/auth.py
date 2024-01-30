@@ -42,7 +42,10 @@ class AuthService:
         )
         try:
             payload = jwt.decode(
-                token, settings.jwt_secret, algorithms=[settings.jwt_algoritm], audience=settings.auth_audience,
+                token,
+                settings.jwt_secret,
+                algorithms=[settings.jwt_algoritm],
+                audience=settings.auth_audience,
             )
             username: str = payload.get('sub')
             if username is None:
@@ -64,7 +67,10 @@ class AuthService:
         )
         try:
             payload = jwt.decode(
-                token, settings.jwt_secret, algorithms=[settings.jwt_algoritm], audience=settings.verify_audience,
+                token,
+                settings.jwt_secret,
+                algorithms=[settings.jwt_algoritm],
+                audience=settings.verify_audience,
             )
             id: str = payload.get('sub')
             if id is None:
@@ -103,7 +109,8 @@ class AuthService:
 
         async with uow:
             user = await uow.users.edit_one(
-                data={'password': await self.hash_password(new_data.password)}, id=token_data.id,
+                data={'password': await self.hash_password(new_data.password)},
+                id=token_data.id,
             )
             await uow.commit()
 

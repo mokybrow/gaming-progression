@@ -36,7 +36,8 @@ async def login_for_access_token(uow: UOWDep, form_data: Annotated[OAuth2Passwor
             headers={'WWW-Authenticate': 'Bearer'},
         )
     access_token = await AuthService().create_token(
-        {'sub': user.username, 'aud': settings.auth_audience}, access_token_expires,
+        {'sub': user.username, 'aud': settings.auth_audience},
+        access_token_expires,
     )
     return Token(access_token=access_token, token_type='bearer')
 
@@ -62,7 +63,8 @@ async def verify_user_request(uow: UOWDep, email: str = Body(..., embed=True)) -
             detail='User already verified or incorrect email',
         )
     verify_token = await AuthService().create_token(
-        {'sub': str(user.id), 'aud': settings.verify_audience}, verify_token_expires,
+        {'sub': str(user.id), 'aud': settings.verify_audience},
+        verify_token_expires,
     )
 
     return VerifyToken(verify_token=verify_token, token_type='bearer')
@@ -85,7 +87,8 @@ async def password_recovery(uow: UOWDep, email: str = Body(..., embed=True)) -> 
     if not user:
         raise credentials_exception
     recovery_token = await AuthService().create_token(
-        {'sub': str(user.id), 'aud': settings.reset_audience}, reset_token_expires,
+        {'sub': str(user.id), 'aud': settings.reset_audience},
+        reset_token_expires,
     )
 
     return RecoveryToken(recovery_token=recovery_token, token_type='bearer')
@@ -103,7 +106,9 @@ async def password_reset(new_data: ChangeUserPassword, uow: UOWDep) -> ServiceRe
 
 @router.patch('/users/me', response_model=ServiceResponseModel)
 async def edit_user(
-    new_data: PatchUser, uow: UOWDep, current_user: Annotated[User, Depends(get_current_user)],
+    new_data: PatchUser,
+    uow: UOWDep,
+    current_user: Annotated[User, Depends(get_current_user)],
 ) -> ServiceResponseModel:
     patch_user = await UsersService().patch_user(uow, current_user.id, new_data)
     if patch_user:

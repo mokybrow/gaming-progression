@@ -32,7 +32,7 @@ class UserSchema(BaseUser):
     is_moderator: bool
     created_at: datetime.datetime
     updated_at: datetime.datetime
-    
+
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
