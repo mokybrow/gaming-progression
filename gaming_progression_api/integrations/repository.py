@@ -4,9 +4,9 @@ from typing import Any
 from pydantic import UUID4
 from sqlalchemy import insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, subqueryload
 
-from gaming_progression_api.models.schemas import GameGenres, Games
+from gaming_progression_api.models.schemas import AgeRatingsGames, GameGenres, GamePlatforms, Games
 
 
 class AbstractRepository(ABC):
@@ -50,12 +50,14 @@ class SQLAlchemyRepository(AbstractRepository):
         res = await self.session.execute(stmt)
         return res.scalar_one()
 
-
-    async def find_one_relation(self, **filter_by) :
-        query = (select(self.model)
-                 .options(selectinload(Games.genre))
-                 .filter_by(**filter_by)
-                 )
+    async def find_one_relation(self, **filter_by):
+        query = (
+            select(self.model)
+            .options(selectinload(Games.platfroms).selectinload(GamePlatforms.platform))
+            .options(selectinload(Games.genres).selectinload(GameGenres.genre))
+            .options(selectinload(Games.age_ratings).selectinload(AgeRatingsGames.age))
+            .filter_by(**filter_by)
+        )
         result = await self.session.execute(query)
         self.session.expunge_all()
 

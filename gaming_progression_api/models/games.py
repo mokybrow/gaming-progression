@@ -1,6 +1,7 @@
 import datetime
 
-from typing import Optional
+from ast import List
+from typing import Any, Optional
 
 from pydantic import UUID4, BaseModel, ConfigDict
 
@@ -21,5 +22,40 @@ class GamesModel(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
-class SearchGame(BaseModel):
+class GenreDTO(BaseModel):
     id: UUID4
+    name: str
+    name_ru: Optional[str]
+    code: Optional[int]
+
+
+class Genre(BaseModel):
+    genre: GenreDTO
+
+
+class PlatformDTO(BaseModel):
+    id: UUID4
+    platform_name: str
+    platform_slug: str
+    code: Optional[int]
+
+
+class Platfrom(BaseModel):
+    platform: PlatformDTO
+
+
+class AgeRatingDTO(BaseModel):
+    id: UUID4
+    name: str
+    type: Optional[str]
+    code: Optional[int]
+
+
+class AgeRating(BaseModel):
+    age: AgeRatingDTO
+
+
+class GamesResponseModel(GamesModel):
+    age_ratings: list["AgeRating"]
+    genres: list["Genre"]
+    platfroms: list["Platfrom"]

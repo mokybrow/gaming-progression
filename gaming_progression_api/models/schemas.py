@@ -69,8 +69,9 @@ class Games(Base):
     title_tsv = mapped_column(TSVECTOR, nullable=True, unique=False)
     __table_args__ = (Index('title_tsv_idx', 'title_tsv', postgresql_using='gin'),)
 
-    genre: Mapped[list["GameGenres"]] = relationship(back_populates="game",)
-
+    genres: Mapped[list["GameGenres"]] = relationship("GameGenres")
+    age_ratings: Mapped[list["AgeRatingsGames"]] = relationship("AgeRatingsGames")
+    platfroms: Mapped[list["GamePlatforms"]] = relationship("GamePlatforms")
 
     def to_read_model(self) -> GamesModel:
         return GamesModel(
@@ -86,7 +87,6 @@ class Games(Base):
             favorite_count=self.favorite_count,
             avg_rate=self.avg_rate,
         )
-    
 
 
 class AgeRatings(Base):
@@ -98,7 +98,6 @@ class AgeRatings(Base):
     code: Mapped[int] = mapped_column(nullable=True)
 
 
-
 class AgeRatingsGames(Base):
     __tablename__ = 'age_rating_games'
 
@@ -107,6 +106,7 @@ class AgeRatingsGames(Base):
     age_rating_id: Mapped[UUID] = mapped_column(ForeignKey("age_ratings.id"))
     __table_args__ = (UniqueConstraint('game_id', 'age_rating_id', name='_age_rating_game_uc'),)
 
+    age: Mapped["AgeRatings"] = relationship("AgeRatings")
 
 
 class Genres(Base):
@@ -117,8 +117,6 @@ class Genres(Base):
     name_ru: Mapped[str] = mapped_column(nullable=True)
     code: Mapped[int] = mapped_column(nullable=True)
 
-    game_genres: Mapped[list["GameGenres"]] = relationship(back_populates="genre",)
-
 
 class GameGenres(Base):
     __tablename__ = 'game_genres'
@@ -127,10 +125,9 @@ class GameGenres(Base):
     game_id: Mapped[UUID] = mapped_column(ForeignKey("games.id", ondelete="CASCADE"))
     genre_id: Mapped[UUID] = mapped_column(ForeignKey("genres.id"))
     __table_args__ = (UniqueConstraint('game_id', 'genre_id', name='_game_genre_uc'),)
-   
-    game: Mapped[list["Games"]] = relationship(back_populates="genre",)
 
-    genre: Mapped["Genres"] = relationship(back_populates="game_genres",)
+    genre: Mapped["Genres"] = relationship("Genres")
+
 
 class Platforms(Base):
     __tablename__ = 'platforms'
@@ -140,7 +137,6 @@ class Platforms(Base):
     platform_name_ru: Mapped[str] = mapped_column(nullable=True)
     platform_slug: Mapped[str]
     code: Mapped[int] = mapped_column(nullable=True)
-    # game_platforms: Mapped[list["GamePlatforms"]] = relationship()
 
 
 class GamePlatforms(Base):
@@ -151,7 +147,8 @@ class GamePlatforms(Base):
     platform_id: Mapped[UUID] = mapped_column(ForeignKey("platforms.id"))
 
     __table_args__ = (UniqueConstraint('game_id', 'platform_id', name='_game_platform_uc'),)
-    # platforms: Mapped["Platforms"] = relationship()
+
+    platform: Mapped["Platforms"] = relationship("Platforms")
 
 
 class UserLists(Base):
