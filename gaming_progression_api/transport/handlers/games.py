@@ -21,7 +21,13 @@ router = APIRouter(
 )
 
 
-@router.post('', response_model=GamesResponseModel)
-async def get_games(uow: UOWDep, slug: str) -> GamesResponseModel:
+@router.get('/{slug}', response_model=list[GamesResponseModel])
+async def get_game_data(uow: UOWDep, slug: str) -> list[GamesResponseModel]:
     result = await GamesService().get_game(uow, slug=slug)
+    return result
+
+
+@router.post('', response_model=list[GamesResponseModel])
+async def get_games(uow: UOWDep) -> list[GamesResponseModel]:
+    result = await GamesService().get_games(uow)
     return result

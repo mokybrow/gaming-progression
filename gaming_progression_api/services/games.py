@@ -10,14 +10,17 @@ settings = get_settings()
 
 
 class GamesService:
-    async def get_games(self, uow: IUnitOfWork):
+    async def get_games(self, uow: IUnitOfWork, **filter_by):
         async with uow:
-            games = await uow.games.find_all()
-            return games
+            games = await uow.games.find_many_relation(**filter_by)
+
+            games_response = [GamesResponseModel.model_validate(row, from_attributes=True) for row in games]
+
+            return games_response
 
     async def get_game(self, uow: IUnitOfWork, **filter_by):
         async with uow:
             game = await uow.games.find_one_relation(**filter_by)
-            game = [GamesResponseModel.model_validate(row, from_attributes=True) for row in game]
+            game_response = [GamesResponseModel.model_validate(row, from_attributes=True) for row in game]
 
-            return game
+            return game_response

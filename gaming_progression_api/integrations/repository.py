@@ -66,3 +66,21 @@ class SQLAlchemyRepository(AbstractRepository):
             return result
         except:
             return False
+        
+    async def find_many_relation(self, **filter_by):
+        query = (
+            select(self.model)
+            .options(selectinload(Games.platfroms).selectinload(GamePlatforms.platform))
+            .options(selectinload(Games.genres).selectinload(GameGenres.genre))
+            .options(selectinload(Games.age_ratings).selectinload(AgeRatingsGames.age))
+            .filter_by(**filter_by)
+            .limit(20)
+        )
+        result = await self.session.execute(query)
+        self.session.expunge_all()
+
+        try:
+            result = result.scalars().all()
+            return result
+        except:
+            return False
