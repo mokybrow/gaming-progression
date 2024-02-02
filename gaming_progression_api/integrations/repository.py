@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Optional
 
 from pydantic import UUID4
-from sqlalchemy import insert, select, update
+from sqlalchemy import delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload, subqueryload
 
-from gaming_progression_api.models.schemas import AgeRatingsGames, GameGenres, GamePlatforms, Games
+from gaming_progression_api.models.schemas import AgeRatingsGames, GameGenres, GamePlatforms, Games, Genres, Platforms
 
 
 class AbstractRepository(ABC):
@@ -45,6 +45,17 @@ class SQLAlchemyRepository(AbstractRepository):
         except:
             return False
 
+    async def delete_one(self, **filter_by) -> dict | bool:
+        query = delete(self.model).filter_by(**filter_by)
+        result = await self.session.execute(query)
+        # return result.scalar_one()
+
+        try:
+            result = result.scalar_one().to_read_model()
+            return result
+        except:
+            return False
+
     async def edit_one(self, data: dict, **filter_by) -> UUID4:
         stmt = update(self.model).values(data).filter_by(**filter_by).returning(self.model.id)
         res = await self.session.execute(stmt)
@@ -66,15 +77,23 @@ class SQLAlchemyRepository(AbstractRepository):
             return result
         except:
             return False
-        
-    async def find_many_relation(self, **filter_by):
+
+    async def find_many_relation(self, *filters, limit: Optional[int], sort: Optional[str]):
+        filters = [arg for arg in filters if arg is not None]
         query = (
             select(self.model)
+            .join(Games.genres)
+            .join(GameGenres.genre)
+            .join(Games.platfroms)
+            .join(GamePlatforms.platform)
+            .join(Games.age_ratings)
+            .join(AgeRatingsGames.age)
             .options(selectinload(Games.platfroms).selectinload(GamePlatforms.platform))
             .options(selectinload(Games.genres).selectinload(GameGenres.genre))
             .options(selectinload(Games.age_ratings).selectinload(AgeRatingsGames.age))
-            .filter_by(**filter_by)
-            .limit(20)
+            .filter(*filters)
+            .limit(limit)
+            .order_by(sort)
         )
         result = await self.session.execute(query)
         self.session.expunge_all()

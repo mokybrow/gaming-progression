@@ -9,7 +9,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import UserDefinedType
 
 from gaming_progression_api.integrations.database import Base
-from gaming_progression_api.models.games import GamesModel
+from gaming_progression_api.models.games import ChangeGameStatus, GamesModel
 from gaming_progression_api.models.users import User, UserCreate, UserSchema
 
 
@@ -224,7 +224,14 @@ class UserActivity(Base):
     activity_id: Mapped[UUID] = mapped_column(ForeignKey("activity_types.id"))
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
 
-    __table_args__ = (UniqueConstraint('user_id', 'game_id', name='_user_activity_uc'),)
+    __table_args__ = (UniqueConstraint('user_id', 'game_id', 'activity_id', name='_user_activity_uc'),)
+
+    def to_read_model(self) -> ChangeGameStatus:
+        return ChangeGameStatus(
+            user_id=self.user_id,
+            game_id=self.game_id,
+            activity_id=self.activity_id,
+        )
 
 
 class Comments(Base):

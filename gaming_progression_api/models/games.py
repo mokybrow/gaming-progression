@@ -59,3 +59,9 @@ class GamesResponseModel(GamesModel):
     age_ratings: list["AgeRating"]
     genres: list["Genre"]
     platfroms: list["Platfrom"]
+
+
+class ChangeGameStatus(BaseModel):
+    user_id: Optional[UUID4 | str]
+    game_id: Optional[UUID4 | str]
+    activity_id: Optional[UUID4 | str]
