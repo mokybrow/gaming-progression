@@ -48,8 +48,6 @@ class SQLAlchemyRepository(AbstractRepository):
     async def delete_one(self, **filter_by) -> dict | bool:
         query = delete(self.model).filter_by(**filter_by)
         result = await self.session.execute(query)
-        # return result.scalar_one()
-
         try:
             result = result.scalar_one().to_read_model()
             return result

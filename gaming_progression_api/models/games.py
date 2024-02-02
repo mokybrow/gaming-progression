@@ -65,3 +65,14 @@ class ChangeGameStatus(BaseModel):
     user_id: Optional[UUID4 | str]
     game_id: Optional[UUID4 | str]
     activity_id: Optional[UUID4 | str]
+
+
+class ChangeGameFavorite(BaseModel):
+    user_id: Optional[UUID4 | str]
+    game_id: Optional[UUID4 | str]
+
+
+class RateGame(BaseModel):
+    user_id: Optional[UUID4 | str]
+    game_id: UUID4
+    grade: int

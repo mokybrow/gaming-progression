@@ -4,7 +4,7 @@ from fastapi import HTTPException, status
 from pydantic import UUID4
 from sqlalchemy import asc, desc
 
-from gaming_progression_api.models.games import GamesResponseModel
+from gaming_progression_api.models.games import GamesResponseModel, RateGame
 from gaming_progression_api.models.schemas import AgeRatings, Games, Genres, Platforms
 from gaming_progression_api.models.service import FilterAdd
 from gaming_progression_api.models.users import PatchUser, UserCreate
@@ -50,3 +50,39 @@ class GamesService:
             game_response = [GamesResponseModel.model_validate(row, from_attributes=True) for row in game]
 
             return game_response
+
+    async def rate_game(self, uow: IUnitOfWork, rate_game: RateGame, user_id: UUID4):
+        if rate_game.grade > 10 or rate_game.grade < 1:
+            raise HTTPException(
+                        status_code=status.HTTP_200_OK,
+                        detail=f'Invalid grade number',
+                    )
+        async with uow:
+            unique_string = await uow.rates.find_one(user_id=user_id, game_id=rate_game.game_id)
+            if unique_string:
+                await uow.rates.edit_one(data={'grade': rate_game.grade})
+                await uow.commit()
+                raise HTTPException(
+                        status_code=status.HTTP_200_OK,
+                        detail=f'Game {rate_game.game_id} grade changed to {rate_game.grade}',
+                    )
+            rate_game = rate_game.model_dump()
+            rate_game['user_id'] = user_id
+            await uow.rates.add_one(rate_game)
+            await uow.commit()
+            raise HTTPException(
+                status_code=status.HTTP_200_OK,
+                detail=f'Game {rate_game['game_id']} added grade {rate_game['grade']}',
+            )
+        
+    async def delete_rate(self, uow: IUnitOfWork,  game_id: UUID4, user_id: UUID4):
+
+        async with uow:
+            unique_string = await uow.rates.find_one(user_id=user_id, game_id=game_id)
+            if unique_string:
+                await uow.rates.delete_one(user_id=user_id, game_id=game_id)
+                await uow.commit()
+                raise HTTPException(
+                    status_code=status.HTTP_200_OK,
+                    detail=f'Game {game_id} review deleted successfully',
+                )

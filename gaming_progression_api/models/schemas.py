@@ -9,7 +9,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import UserDefinedType
 
 from gaming_progression_api.integrations.database import Base
-from gaming_progression_api.models.games import ChangeGameStatus, GamesModel
+from gaming_progression_api.models.games import ChangeGameFavorite, ChangeGameStatus, GamesModel, RateGame
 from gaming_progression_api.models.users import User, UserCreate, UserSchema
 
 
@@ -184,6 +184,12 @@ class GameReviews(Base):
 
     __table_args__ = (UniqueConstraint('user_id', 'game_id', name='_game_review_uc'),)
 
+    def to_read_model(self) -> RateGame:
+        return RateGame(
+            user_id=self.user_id,
+            game_id=self.game_id,
+            grade=self.grade,
+        )
 
 class Friends(Base):
     __tablename__ = 'friends'
@@ -205,6 +211,12 @@ class UserFavorite(Base):
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
 
     __table_args__ = (UniqueConstraint('user_id', 'game_id', name='_user_favorite_uc'),)
+
+    def to_read_model(self) -> ChangeGameFavorite:
+        return ChangeGameFavorite(
+            user_id=self.user_id,
+            game_id=self.game_id,
+        )
 
 
 class ActivityTypes(Base):
