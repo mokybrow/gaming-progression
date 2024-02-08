@@ -21,6 +21,7 @@ class GamesService:
         platform = None
         release_start = None
         release_end = None
+        sort = None
 
         if filters.genre != None:
             genre = Genres.name == filters.genre
@@ -41,7 +42,7 @@ class GamesService:
             )
 
             games_response = [GamesResponseModel.model_validate(row, from_attributes=True) for row in games]
-
+            
             return games_response
 
     async def get_game(self, uow: IUnitOfWork, **filter_by):
