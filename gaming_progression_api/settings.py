@@ -8,7 +8,7 @@ class Settings(
 ):
     project_name: str
     debug: bool
-    database_url: str
+    database_url2: str
     jwt_secret: str
     jwt_algoritm: str
     access_token_expire_minutes: int
@@ -17,6 +17,7 @@ class Settings(
     auth_audience: str
     verify_audience: str
     reset_audience: str
+    MODE:str
 
     model_config = SettingsConfigDict(env_file='.env', env_prefix='API_')
 

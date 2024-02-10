@@ -92,6 +92,7 @@ class SQLAlchemyRepository(AbstractRepository):
             .filter(*filters)
             .limit(limit)
             .order_by(sort)
+            .distinct()
         )
         result = await self.session.execute(query)
         self.session.expunge_all()

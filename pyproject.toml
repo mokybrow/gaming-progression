@@ -27,10 +27,12 @@ types-passlib = "^1.7.7.20240106"
 
 [tool.pytest.ini_options]
 pythonpath = [
-  ".", "gaming_progression_api",
+  ".", "gaming_progression_api" 
 ]
-env_files = [".test.env"]
 asyncio_mode="auto"
+env_files = [
+  ".test.env",
+  ]
 
 [build-system]
 requires = ["poetry-core"]
