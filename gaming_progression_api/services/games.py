@@ -48,6 +48,7 @@ class GamesService:
     async def get_game(self, uow: IUnitOfWork, **filter_by):
         async with uow:
             game = await uow.games.find_one_relation(**filter_by)
+            print(game)
             game_response = [GamesResponseModel.model_validate(row, from_attributes=True) for row in game]
 
             return game_response

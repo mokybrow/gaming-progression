@@ -5,7 +5,7 @@ from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 
 from gaming_progression_api.models.service import ServiceResponseModel
-from gaming_progression_api.models.users import UserSchema
+from gaming_progression_api.models.users import User, UserSchema
 from gaming_progression_api.services.auth import AuthService
 from gaming_progression_api.services.unitofwork import IUnitOfWork, UnitOfWork
 from gaming_progression_api.settings import get_settings
@@ -24,7 +24,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl='auth/sign-in')
 async def get_current_user(
     uow: UOWDep,
     token: Annotated[str, Depends(oauth2_scheme)],
-) -> dict | bool | ServiceResponseModel:
+) -> User | ServiceResponseModel:
     return await AuthService().get_current_user(uow, token)
 
 

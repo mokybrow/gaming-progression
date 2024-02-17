@@ -7,7 +7,7 @@ from pydantic import UUID4
 
 from gaming_progression_api.models.service import ServiceResponseModel
 from gaming_progression_api.models.tokens import TokenData
-from gaming_progression_api.models.users import ChangeUserPassword
+from gaming_progression_api.models.users import ChangeUserPassword, User
 from gaming_progression_api.services.unitofwork import IUnitOfWork
 from gaming_progression_api.settings import get_settings
 
@@ -34,7 +34,7 @@ class AuthService:
         encoded_jwt = jwt.encode(to_encode, settings.jwt_secret, algorithm=settings.jwt_algoritm)
         return encoded_jwt
 
-    async def get_current_user(self, uow: IUnitOfWork, token: str) -> dict | bool | ServiceResponseModel:
+    async def get_current_user(self, uow: IUnitOfWork, token: str) -> User | ServiceResponseModel:
         credentials_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail='Could not validate credentials',
@@ -54,11 +54,11 @@ class AuthService:
         except JWTError as exc:
             raise credentials_exception from exc
         async with uow:
-            user = await uow.users.find_one(username=token_data.username)
-
+            user = await uow.users.find_one_user(username=token_data.username)
+            user_response = [User.model_validate(row, from_attributes=True) for row in user]
         if not user:
             raise credentials_exception
-        return user
+        return user_response
 
     async def verify_user(self, uow: IUnitOfWork, token: str) -> UUID4 | ServiceResponseModel:
         credentials_exception = HTTPException(

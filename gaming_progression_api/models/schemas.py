@@ -34,6 +34,17 @@ class Users(Base):
         server_default=text("TIMEZONE('utc', now())"), onupdate=datetime.datetime.utcnow
     )
 
+    user_activity: Mapped[list["UserActivity"]] = relationship("UserActivity")
+    user_favorite: Mapped[list["UserFavorite"]] = relationship("UserFavorite")
+    followers: Mapped[list["Friends"]] = relationship("Friends",  
+    primaryjoin="Users.id==Friends.user_id")
+
+    subscriptions: Mapped[list["Friends"]] = relationship("Friends", 
+    primaryjoin="Users.id==Friends.follower_id")
+
+    lists: Mapped[list["UserLists"]] = relationship("UserLists", 
+    primaryjoin="or_(Users.id==UserLists.owner_id, Users.id==UserLists.user_id)")
+
     def to_read_model(self) -> UserSchema:
         return UserSchema(
             id=self.id,
@@ -198,6 +209,11 @@ class Friends(Base):
     follower_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
+    
+    follower_data: Mapped["Users"] = relationship("Users", foreign_keys=[follower_id], 
+    primaryjoin="Friends.follower_id==Users.id")
+    sub_data: Mapped["Users"] = relationship("Users", foreign_keys=[user_id], 
+    primaryjoin="Friends.user_id==Users.id")
 
     __table_args__ = (UniqueConstraint('follower_id', 'user_id', name='_followers_uc'),)
 
@@ -209,6 +225,7 @@ class UserFavorite(Base):
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
     game_id: Mapped[UUID] = mapped_column(ForeignKey("games.id"))
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
+    
 
     __table_args__ = (UniqueConstraint('user_id', 'game_id', name='_user_favorite_uc'),)
 
@@ -235,6 +252,8 @@ class UserActivity(Base):
     game_id: Mapped[UUID] = mapped_column(ForeignKey("games.id"))
     activity_id: Mapped[UUID] = mapped_column(ForeignKey("activity_types.id"))
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
+    
+    activity: Mapped["ActivityTypes"] = relationship("ActivityTypes")
 
     __table_args__ = (UniqueConstraint('user_id', 'game_id', 'activity_id', name='_user_activity_uc'),)
 
