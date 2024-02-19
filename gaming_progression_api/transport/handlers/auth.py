@@ -44,7 +44,7 @@ async def login_for_access_token(uow: UOWDep, form_data: Annotated[OAuth2Passwor
 
 @router.get('/users/me', response_model=User)
 async def read_users_me(current_user: Annotated[User, Depends(get_current_user)]) -> User:
-    return current_user[0]
+    return current_user
 
 
 @router.post('/sign-up', description='Регистрация пользователя', response_model=ServiceResponseModel)

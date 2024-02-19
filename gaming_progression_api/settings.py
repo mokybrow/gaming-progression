@@ -11,7 +11,7 @@ class Settings(
 ):
     project_name: str
     debug: bool
-    database_url2: str
+    database_url: str
     jwt_secret: str
     jwt_algoritm: str
     access_token_expire_minutes: int

@@ -8,7 +8,7 @@ from gaming_progression_api.settings import get_settings
 settings = get_settings()
 
 
-engine = create_async_engine(settings.database_url2)
+engine = create_async_engine(settings.database_url)
 async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 
 

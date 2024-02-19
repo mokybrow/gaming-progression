@@ -55,10 +55,10 @@ class AuthService:
             raise credentials_exception from exc
         async with uow:
             user = await uow.users.find_one_user(username=token_data.username)
-            user_response = [User.model_validate(row, from_attributes=True) for row in user]
+
         if not user:
             raise credentials_exception
-        return user_response
+        return user
 
     async def verify_user(self, uow: IUnitOfWork, token: str) -> UUID4 | ServiceResponseModel:
         credentials_exception = HTTPException(

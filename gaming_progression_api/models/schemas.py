@@ -9,6 +9,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import UserDefinedType
 
 from gaming_progression_api.integrations.database import Base
+from gaming_progression_api.models.comments import CommentsSchema
 from gaming_progression_api.models.games import ChangeGameFavorite, ChangeGameStatus, GamesModel, RateGame
 from gaming_progression_api.models.users import User, UserCreate, UserSchema
 
@@ -36,14 +37,16 @@ class Users(Base):
 
     user_activity: Mapped[list["UserActivity"]] = relationship("UserActivity")
     user_favorite: Mapped[list["UserFavorite"]] = relationship("UserFavorite")
+
     followers: Mapped[list["Friends"]] = relationship("Friends",  
-    primaryjoin="Users.id==Friends.user_id")
+    primaryjoin="Users.id==Friends.user_id", back_populates="follower_data", viewonly=True)
 
     subscriptions: Mapped[list["Friends"]] = relationship("Friends", 
-    primaryjoin="Users.id==Friends.follower_id")
+    primaryjoin="Users.id==Friends.follower_id", back_populates="sub_data", viewonly=True)
+
 
     lists: Mapped[list["UserLists"]] = relationship("UserLists", 
-    primaryjoin="or_(Users.id==UserLists.owner_id, Users.id==UserLists.user_id)")
+    primaryjoin="or_(Users.id==UserLists.owner_id, Users.id==UserLists.user_id)", viewonly=True)
 
     def to_read_model(self) -> UserSchema:
         return UserSchema(
@@ -270,12 +273,26 @@ class Comments(Base):
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
-    item_id: Mapped[UUID]
-    parent_comment_id: Mapped[UUID] = mapped_column(ForeignKey("comments.id", ondelete="RESTRICT"))
+    item_id: Mapped[UUID] = mapped_column(nullable=True)
+    parent_comment_id: Mapped[UUID] = mapped_column(ForeignKey("comments.id", ondelete="RESTRICT"), nullable=True)
+    text: Mapped[str] 
     like_count: Mapped[int] = mapped_column(default=0)
     deleted: Mapped[bool]
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
-
+    
+    child_comment : Mapped["Comments"] = relationship("Comments")
+    
+    def to_read_model(self) -> CommentsSchema:
+        return CommentsSchema(
+                id=self.id,
+                user_id=self.user_id,
+                item_id=self.item_id,
+                parent_comment_id=self.parent_comment_id,
+                text=self.text,
+                like_count=self.like_count,
+                deleted=self.deleted,
+                created_at=self.created_at,
+        )
 
 class WallTypes(Base):
     __tablename__ = 'wall_types'

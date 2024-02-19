@@ -45,7 +45,17 @@ class SQLAlchemyRepository(AbstractRepository):
         except:
             return False
     
-
+    async def find_one_comment(self, **filter_by) -> dict | bool:
+        query = (select(self.model)
+                .options(selectinload(self.model.child_comment)).filter_by(**filter_by))
+        result = await self.session.execute(query)
+        self.session.expunge_all()
+        try:
+            result = result.scalars().all()
+            return result
+        except:
+            return False
+        
     async def find_one_user(self, **filter_by):
         query = (
             select(self.model)
@@ -60,7 +70,7 @@ class SQLAlchemyRepository(AbstractRepository):
         self.session.expunge_all()
 
         try:
-            result = result.scalars().all()
+            result = result.scalars().one()
             return result
         except:
             return False

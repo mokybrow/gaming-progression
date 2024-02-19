@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from gaming_progression_api.integrations.comments import CommentsRepository
 
 from gaming_progression_api.integrations.database import async_session_maker
 from gaming_progression_api.integrations.game_statuses import FavoriteRepository, StatusesRepository
@@ -12,6 +13,7 @@ class IUnitOfWork(ABC):
     statuses: type[StatusesRepository]
     favorite: type[FavoriteRepository]
     rates: type[GamesReviewsRepository]
+    comments: type[CommentsRepository]
 
     @abstractmethod
     def __init__(self) -> None:
@@ -46,6 +48,7 @@ class UnitOfWork:
         self.statuses = StatusesRepository(self.session)
         self.favorite = FavoriteRepository(self.session)
         self.rates = GamesReviewsRepository(self.session)
+        self.comments = CommentsRepository(self.session)
 
     async def __aexit__(self, *args) -> None:
         await self.rollback()
