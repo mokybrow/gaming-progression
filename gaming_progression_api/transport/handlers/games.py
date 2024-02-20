@@ -1,8 +1,10 @@
+import json
 from typing import Annotated
 
 from fastapi import APIRouter, Body, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from pydantic import UUID4
+from pydantic import UUID4, TypeAdapter
+from redis.asyncio import Redis
 from sqlalchemy import insert, select, update
 from sqlalchemy.orm import joinedload, selectinload, subqueryload
 
@@ -23,10 +25,24 @@ router = APIRouter(
     tags=['games'],
 )
 
+redis = Redis(host='localhost', port=6379)
 
 @router.get('/{slug}', response_model=list[GamesResponseModel])
 async def get_game_data(uow: UOWDep, slug: str) -> list[GamesResponseModel]:
-    result = await GamesService().get_game(uow, slug=slug)
+    type_adapter = TypeAdapter(list[GamesResponseModel])
+
+    result = await redis.get(slug)
+    if result is None:
+        result = await GamesService().get_game(uow, slug=slug)
+        encoded = type_adapter.dump_json(result).decode("utf-8")
+        await redis.set(slug, encoded, 2)
+        if not result:
+            raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail='Game not found',
+                )
+        return result
+    result = type_adapter.validate_json(result)
     return result
 
 
