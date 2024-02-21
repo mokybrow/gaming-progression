@@ -1,4 +1,5 @@
 import json
+
 from typing import Annotated
 
 from fastapi import APIRouter, Body, Depends, HTTPException, status
@@ -9,12 +10,19 @@ from sqlalchemy import insert, select, update
 from sqlalchemy.orm import joinedload, selectinload, subqueryload
 
 from gaming_progression_api.dependencies import UOWDep, get_current_user
-from gaming_progression_api.models.games import ChangeGameFavorite, ChangeGameStatus, GamesModel, GamesResponseModel, RateGame
+from gaming_progression_api.models.games import (
+    ChangeGameFavorite,
+    ChangeGameStatus,
+    GamesModel,
+    GamesResponseModel,
+    RateGame,
+)
 from gaming_progression_api.models.schemas import GameGenres, GamePlatforms, Games, Genres, Platforms
 from gaming_progression_api.models.service import FilterAdd
 from gaming_progression_api.models.users import User
 from gaming_progression_api.services.game_statuses import StatusesService
 from gaming_progression_api.services.games import GamesService
+from gaming_progression_api.services.redis import RedisTools
 from gaming_progression_api.settings import get_settings
 
 settings = get_settings()
@@ -27,20 +35,23 @@ router = APIRouter(
 
 redis = Redis(host='localhost', port=6379)
 
+
 @router.get('/{slug}', response_model=list[GamesResponseModel])
 async def get_game_data(uow: UOWDep, slug: str) -> list[GamesResponseModel]:
     type_adapter = TypeAdapter(list[GamesResponseModel])
 
-    result = await redis.get(slug)
+    result = await RedisTools().get_pair(key=slug)
     if result is None:
         result = await GamesService().get_game(uow, slug=slug)
         encoded = type_adapter.dump_json(result).decode("utf-8")
-        await redis.set(slug, encoded, 2)
+
+        await RedisTools().set_pair(slug, encoded, exp=40)
+
         if not result:
             raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail='Game not found',
-                )
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail='Game not found',
+            )
         return result
     result = type_adapter.validate_json(result)
     return result
@@ -49,6 +60,11 @@ async def get_game_data(uow: UOWDep, slug: str) -> list[GamesResponseModel]:
 @router.post('', response_model=list[GamesResponseModel])
 async def get_games(uow: UOWDep, filters: FilterAdd) -> list[GamesResponseModel]:
     result = await GamesService().get_games(uow, filters)
+    if not result:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Games not found',
+        )
     return result
 
 
@@ -69,16 +85,12 @@ async def change_game_status(
 
 
 @router.post('/rate')
-async def rate_game(
-    uow: UOWDep, rate_game: RateGame, current_user: Annotated[User, Depends(get_current_user)]
-):
+async def rate_game(uow: UOWDep, rate_game: RateGame, current_user: Annotated[User, Depends(get_current_user)]):
     result = await GamesService().rate_game(uow, rate_game, user_id=current_user.id)
     return result
 
 
 @router.delete('/rate')
-async def delete_game_grade(
-    uow: UOWDep, game_id: UUID4, current_user: Annotated[User, Depends(get_current_user)]
-):
+async def delete_game_grade(uow: UOWDep, game_id: UUID4, current_user: Annotated[User, Depends(get_current_user)]):
     result = await GamesService().delete_rate(uow, game_id=game_id, user_id=current_user.id)
     return result

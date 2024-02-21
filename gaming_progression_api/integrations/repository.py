@@ -4,9 +4,19 @@ from typing import Any, Optional
 from pydantic import UUID4
 from sqlalchemy import delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload, subqueryload
+from sqlalchemy.orm import joinedload, selectinload
 
-from gaming_progression_api.models.schemas import AgeRatingsGames, Friends, GameGenres, GamePlatforms, Games, Genres, Platforms, UserActivity, UserFavorite
+from gaming_progression_api.models.schemas import (
+    AgeRatingsGames,
+    Friends,
+    GameGenres,
+    GamePlatforms,
+    Games,
+    Genres,
+    Platforms,
+    UserActivity,
+    UserFavorite,
+)
 
 
 class AbstractRepository(ABC):
@@ -37,17 +47,31 @@ class SQLAlchemyRepository(AbstractRepository):
         return result
 
     async def find_one(self, **filter_by) -> dict | bool:
-        query = (select(self.model).filter_by(**filter_by))
+        query = select(self.model).filter_by(**filter_by)
         result = await self.session.execute(query)
         try:
             result = result.scalar_one().to_read_model()
             return result
         except:
             return False
-    
+
+    async def edit_one(self, data: dict, **filter_by) -> UUID4:
+        stmt = update(self.model).values(data).filter_by(**filter_by).returning(self.model.id)
+        res = await self.session.execute(stmt)
+        return res.scalar_one()
+
+    async def delete_one(self, **filter_by) -> dict | bool:
+        query = delete(self.model).filter_by(**filter_by)
+        result = await self.session.execute(query)
+        try:
+            result = result.scalars().all()
+            return result
+        except:
+            return False
+
+    # Дальше идёт бизнес логика
     async def find_one_comment(self, **filter_by) -> dict | bool:
-        query = (select(self.model)
-                .options(selectinload(self.model.child_comment)).filter_by(**filter_by))
+        query = select(self.model).options(selectinload(self.model.child_comment)).filter_by(**filter_by)
         result = await self.session.execute(query)
         self.session.expunge_all()
         try:
@@ -55,7 +79,7 @@ class SQLAlchemyRepository(AbstractRepository):
             return result
         except:
             return False
-        
+
     async def find_one_user(self, **filter_by):
         query = (
             select(self.model)
@@ -74,20 +98,6 @@ class SQLAlchemyRepository(AbstractRepository):
             return result
         except:
             return False
-        
-    async def delete_one(self, **filter_by) -> dict | bool:
-        query = delete(self.model).filter_by(**filter_by)
-        result = await self.session.execute(query)
-        try:
-            result = result.scalars().all()
-            return result
-        except:
-            return False
-
-    async def edit_one(self, data: dict, **filter_by) -> UUID4:
-        stmt = update(self.model).values(data).filter_by(**filter_by).returning(self.model.id)
-        res = await self.session.execute(stmt)
-        return res.scalar_one()
 
     async def find_one_relation(self, **filter_by):
         query = (
@@ -122,13 +132,13 @@ class SQLAlchemyRepository(AbstractRepository):
             .filter(*filters)
             .limit(limit)
             .order_by(sort)
-            .distinct()
+            # .distinct()
         )
         result = await self.session.execute(query)
         self.session.expunge_all()
 
         try:
-            result = result.scalars().all()
+            result = result.unique().scalars().all()
             return result
         except:
             return False

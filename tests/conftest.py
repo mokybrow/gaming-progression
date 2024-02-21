@@ -16,15 +16,16 @@ from gaming_progression_api.settings import Settings, get_settings
 
 main_settings = get_settings()
 
-print(f"{main_settings.database_url=}" )
-print(f"{main_settings.MODE=}" )
+print(f"{main_settings.database_url=}")
+print(f"{main_settings.MODE=}")
 
 
 engine = create_async_engine(main_settings.database_url)
 
+
 @pytest.fixture(autouse=True, scope='session')
 async def prepare_database() -> AsyncGenerator[AsyncConnection, None]:
-    # assert main_settings.MODE == 'test' 
+    # assert main_settings.MODE == 'test'
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)

@@ -1,5 +1,5 @@
 from gaming_progression_api.integrations.repository import SQLAlchemyRepository
-from gaming_progression_api.models.schemas import Games, GameReviews
+from gaming_progression_api.models.schemas import GameReviews, Games
 
 
 class GamesRepository(SQLAlchemyRepository):

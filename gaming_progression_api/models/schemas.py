@@ -38,15 +38,17 @@ class Users(Base):
     user_activity: Mapped[list["UserActivity"]] = relationship("UserActivity")
     user_favorite: Mapped[list["UserFavorite"]] = relationship("UserFavorite")
 
-    followers: Mapped[list["Friends"]] = relationship("Friends",  
-    primaryjoin="Users.id==Friends.user_id", back_populates="follower_data", viewonly=True)
+    followers: Mapped[list["Friends"]] = relationship(
+        "Friends", primaryjoin="Users.id==Friends.user_id", back_populates="follower_data", viewonly=True
+    )
 
-    subscriptions: Mapped[list["Friends"]] = relationship("Friends", 
-    primaryjoin="Users.id==Friends.follower_id", back_populates="sub_data", viewonly=True)
+    subscriptions: Mapped[list["Friends"]] = relationship(
+        "Friends", primaryjoin="Users.id==Friends.follower_id", back_populates="sub_data", viewonly=True
+    )
 
-
-    lists: Mapped[list["UserLists"]] = relationship("UserLists", 
-    primaryjoin="or_(Users.id==UserLists.owner_id, Users.id==UserLists.user_id)", viewonly=True)
+    lists: Mapped[list["UserLists"]] = relationship(
+        "UserLists", primaryjoin="or_(Users.id==UserLists.owner_id, Users.id==UserLists.user_id)", viewonly=True
+    )
 
     def to_read_model(self) -> UserSchema:
         return UserSchema(
@@ -205,6 +207,7 @@ class GameReviews(Base):
             grade=self.grade,
         )
 
+
 class Friends(Base):
     __tablename__ = 'friends'
 
@@ -212,11 +215,11 @@ class Friends(Base):
     follower_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
-    
-    follower_data: Mapped["Users"] = relationship("Users", foreign_keys=[follower_id], 
-    primaryjoin="Friends.follower_id==Users.id")
-    sub_data: Mapped["Users"] = relationship("Users", foreign_keys=[user_id], 
-    primaryjoin="Friends.user_id==Users.id")
+
+    follower_data: Mapped["Users"] = relationship(
+        "Users", foreign_keys=[follower_id], primaryjoin="Friends.follower_id==Users.id"
+    )
+    sub_data: Mapped["Users"] = relationship("Users", foreign_keys=[user_id], primaryjoin="Friends.user_id==Users.id")
 
     __table_args__ = (UniqueConstraint('follower_id', 'user_id', name='_followers_uc'),)
 
@@ -228,7 +231,6 @@ class UserFavorite(Base):
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
     game_id: Mapped[UUID] = mapped_column(ForeignKey("games.id"))
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
-    
 
     __table_args__ = (UniqueConstraint('user_id', 'game_id', name='_user_favorite_uc'),)
 
@@ -255,7 +257,7 @@ class UserActivity(Base):
     game_id: Mapped[UUID] = mapped_column(ForeignKey("games.id"))
     activity_id: Mapped[UUID] = mapped_column(ForeignKey("activity_types.id"))
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
-    
+
     activity: Mapped["ActivityTypes"] = relationship("ActivityTypes")
 
     __table_args__ = (UniqueConstraint('user_id', 'game_id', 'activity_id', name='_user_activity_uc'),)
@@ -275,24 +277,25 @@ class Comments(Base):
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
     item_id: Mapped[UUID] = mapped_column(nullable=True)
     parent_comment_id: Mapped[UUID] = mapped_column(ForeignKey("comments.id", ondelete="RESTRICT"), nullable=True)
-    text: Mapped[str] 
+    text: Mapped[str]
     like_count: Mapped[int] = mapped_column(default=0)
     deleted: Mapped[bool]
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
-    
-    child_comment : Mapped["Comments"] = relationship("Comments")
-    
+
+    child_comment: Mapped["Comments"] = relationship("Comments")
+
     def to_read_model(self) -> CommentsSchema:
         return CommentsSchema(
-                id=self.id,
-                user_id=self.user_id,
-                item_id=self.item_id,
-                parent_comment_id=self.parent_comment_id,
-                text=self.text,
-                like_count=self.like_count,
-                deleted=self.deleted,
-                created_at=self.created_at,
+            id=self.id,
+            user_id=self.user_id,
+            item_id=self.item_id,
+            parent_comment_id=self.parent_comment_id,
+            text=self.text,
+            like_count=self.like_count,
+            deleted=self.deleted,
+            created_at=self.created_at,
         )
+
 
 class WallTypes(Base):
     __tablename__ = 'wall_types'

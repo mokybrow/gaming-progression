@@ -1,5 +1,7 @@
 import datetime
+
 from typing import Optional
+
 from pydantic import UUID4, BaseModel
 
 

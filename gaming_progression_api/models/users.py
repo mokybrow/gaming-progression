@@ -34,8 +34,10 @@ class UserFavorite(BaseModel):
     game_id: UUID4
     created_at: datetime.datetime
 
+
 class UserSubsDTO(BaseModel):
     id: UUID4
+
 
 class UserFriendsDTO(BaseUser):
     id: UUID4
@@ -47,6 +49,7 @@ class UserFriends(BaseModel):
 
 class UserFriends2(BaseModel):
     sub_data: Optional[UserFriendsDTO]
+
 
 class UserListsDTO(BaseModel):
     id: UUID4
@@ -63,7 +66,7 @@ class User(BaseUser):
     is_verified: bool
     is_superuser: bool
     is_moderator: bool
-    user_activity: Optional[list['UserActivity']] 
+    user_activity: Optional[list['UserActivity']]
     user_favorite: Optional[list['UserFavorite']]
     followers: Optional[list['UserFriends']]
     subscriptions: Optional[list['UserFriends2']]

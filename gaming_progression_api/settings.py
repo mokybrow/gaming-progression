@@ -1,10 +1,10 @@
 from functools import lru_cache
-from dotenv import load_dotenv
 
+from dotenv import load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-
 load_dotenv(override=True)
+
 
 class Settings(
     BaseSettings,
@@ -20,7 +20,7 @@ class Settings(
     auth_audience: str
     verify_audience: str
     reset_audience: str
-    MODE:str
+    MODE: str
 
     model_config = SettingsConfigDict(env_file='.env', env_prefix='API_')
 

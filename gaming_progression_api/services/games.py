@@ -40,7 +40,8 @@ class GamesService:
             games = await uow.games.find_many_relation(
                 genre, platform, age_rate, release_start, release_end, limit=filters.limit, sort=sort
             )
-
+            if not games:
+                return False
             games_response = [GamesResponseModel.model_validate(row, from_attributes=True) for row in games]
             
             return games_response

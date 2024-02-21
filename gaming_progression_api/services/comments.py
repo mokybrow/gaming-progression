@@ -1,4 +1,5 @@
 from pydantic import UUID4
+
 from gaming_progression_api.models.comments import AddComment
 from gaming_progression_api.services.unitofwork import IUnitOfWork
 from gaming_progression_api.settings import get_settings
@@ -13,7 +14,6 @@ class CommentsService:
         comment = comment.model_dump()
         comment["user_id"] = user_id
         async with uow:
-
             comm = await uow.comments.add_one(comment)
             await uow.commit()
             return comm

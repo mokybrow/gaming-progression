@@ -12,6 +12,7 @@ from gaming_progression_api.settings import get_settings
 
 UOWDep = Annotated[IUnitOfWork, Depends(UnitOfWork)]
 
+
 settings = get_settings()
 
 access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)

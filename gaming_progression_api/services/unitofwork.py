@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from gaming_progression_api.integrations.comments import CommentsRepository
 
+from gaming_progression_api.integrations.comments import CommentsRepository
 from gaming_progression_api.integrations.database import async_session_maker
 from gaming_progression_api.integrations.game_statuses import FavoriteRepository, StatusesRepository
 from gaming_progression_api.integrations.games import GamesRepository, GamesReviewsRepository

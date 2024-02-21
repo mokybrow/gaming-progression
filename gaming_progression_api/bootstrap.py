@@ -1,13 +1,12 @@
 from functools import lru_cache
 
 from fastapi import APIRouter, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from gaming_progression_api.settings import get_settings
 from gaming_progression_api.transport.handlers.auth import router as auth_router
-from gaming_progression_api.transport.handlers.games import router as games_router
 from gaming_progression_api.transport.handlers.comments import router as comm_router
-
-from fastapi.middleware.cors import CORSMiddleware
+from gaming_progression_api.transport.handlers.games import router as games_router
 
 
 def _setup_api_routers(
