@@ -1,23 +1,11 @@
-import json
-
 from typing import Annotated
 
-from fastapi import APIRouter, Body, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import UUID4, TypeAdapter
 from redis.asyncio import Redis
-from sqlalchemy import insert, select, update
-from sqlalchemy.orm import joinedload, selectinload, subqueryload
 
 from gaming_progression_api.dependencies import UOWDep, get_current_user
-from gaming_progression_api.models.games import (
-    ChangeGameFavorite,
-    ChangeGameStatus,
-    GamesModel,
-    GamesResponseModel,
-    RateGame,
-)
-from gaming_progression_api.models.schemas import GameGenres, GamePlatforms, Games, Genres, Platforms
+from gaming_progression_api.models.games import ChangeGameFavorite, ChangeGameStatus, GamesResponseModel, RateGame
 from gaming_progression_api.models.service import FilterAdd
 from gaming_progression_api.models.users import User
 from gaming_progression_api.services.game_statuses import StatusesService
@@ -32,8 +20,6 @@ router = APIRouter(
     prefix='/games',
     tags=['games'],
 )
-
-redis = Redis(host='localhost', port=6379)
 
 
 @router.get('/{slug}', response_model=list[GamesResponseModel])
@@ -59,18 +45,30 @@ async def get_game_data(uow: UOWDep, slug: str) -> list[GamesResponseModel]:
 
 @router.post('', response_model=list[GamesResponseModel])
 async def get_games(uow: UOWDep, filters: FilterAdd) -> list[GamesResponseModel]:
-    result = await GamesService().get_games(uow, filters)
+    type_adapter_filter = TypeAdapter(FilterAdd)
+    encoded_filters = type_adapter_filter.dump_json(filters).decode("utf-8")
+    type_adapter = TypeAdapter(list[GamesResponseModel])
+
+    result = await RedisTools().get_pair(key=encoded_filters)
     if not result:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='Games not found',
-        )
+        result = await GamesService().get_games_with_filters(uow, filters)
+        if not result:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail='Games not found',
+            )
+        encoded = type_adapter.dump_json(result).decode("utf-8")
+        await RedisTools().set_pair(encoded_filters, encoded, exp=60)
+        return result
+    result = type_adapter.validate_json(result)
     return result
 
 
 @router.post('/statuses')
 async def change_game_status(
-    uow: UOWDep, new_statuses: ChangeGameStatus, current_user: Annotated[User, Depends(get_current_user)]
+    uow: UOWDep,
+    new_statuses: ChangeGameStatus,
+    current_user: Annotated[User, Depends(get_current_user)],
 ):
     result = await StatusesService().change_status(uow, new_statuses, user_id=current_user.id)
     return result
@@ -78,7 +76,9 @@ async def change_game_status(
 
 @router.post('/favorites')
 async def change_game_status(
-    uow: UOWDep, new_favorite: ChangeGameFavorite, current_user: Annotated[User, Depends(get_current_user)]
+    uow: UOWDep,
+    new_favorite: ChangeGameFavorite,
+    current_user: Annotated[User, Depends(get_current_user)],
 ):
     result = await StatusesService().change_favorite(uow, new_favorite, user_id=current_user.id)
     return result

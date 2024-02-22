@@ -1,23 +1,20 @@
 import datetime
 
-from ast import List
-from typing import Any, Optional
-
 from pydantic import UUID4, BaseModel, ConfigDict
 
 
 class GamesModel(BaseModel):
     id: UUID4
     title: str
-    cover: Optional[str]
-    description: Optional[str]
+    cover: str | None
+    description: str | None
     slug: str
-    release_date: Optional[datetime.datetime]
-    playtime: Optional[int]
-    completed_count: Optional[int]
-    wishlist_count: Optional[int]
-    favorite_count: Optional[int]
-    avg_rate: Optional[float]
+    release_date: datetime.datetime | None
+    playtime: int | None
+    completed_count: int | None
+    wishlist_count: int | None
+    favorite_count: int | None
+    avg_rate: float | None
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -25,8 +22,8 @@ class GamesModel(BaseModel):
 class GenreDTO(BaseModel):
     id: UUID4
     name: str
-    name_ru: Optional[str]
-    code: Optional[int]
+    name_ru: str | None
+    code: int | None
 
 
 class Genre(BaseModel):
@@ -37,7 +34,7 @@ class PlatformDTO(BaseModel):
     id: UUID4
     platform_name: str
     platform_slug: str
-    code: Optional[int]
+    code: int | None
 
 
 class Platfrom(BaseModel):
@@ -47,32 +44,32 @@ class Platfrom(BaseModel):
 class AgeRatingDTO(BaseModel):
     id: UUID4
     name: str
-    type: Optional[str]
-    code: Optional[int]
+    type: str | None
+    code: int | None
 
 
 class AgeRating(BaseModel):
-    age: AgeRatingDTO
+    age_rating: AgeRatingDTO
 
 
 class GamesResponseModel(GamesModel):
     age_ratings: list["AgeRating"]
     genres: list["Genre"]
-    platfroms: list["Platfrom"]
+    platforms: list["Platfrom"]
 
 
 class ChangeGameStatus(BaseModel):
-    user_id: Optional[UUID4 | str]
-    game_id: Optional[UUID4 | str]
-    activity_id: Optional[UUID4 | str]
+    user_id: UUID4 | str | None
+    game_id: UUID4 | str | None
+    activity_id: UUID4 | str | None
 
 
 class ChangeGameFavorite(BaseModel):
-    user_id: Optional[UUID4 | str]
-    game_id: Optional[UUID4 | str]
+    user_id: UUID4 | str | None
+    game_id: UUID4 | str | None
 
 
 class RateGame(BaseModel):
-    user_id: Optional[UUID4 | str]
+    user_id: UUID4 | str | None
     game_id: UUID4
     grade: int

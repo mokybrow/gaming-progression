@@ -1,0 +1,546 @@
+[
+    {
+      "title": "How to loot - pull the pin",
+      "cover": "https://media.rawg.io/media/screenshots/c24/c2499e27d72ddebca3c83604dfc80373_8KFN3XJ.jpg",
+      "id": "000b7c22-cc56-4e7c-9725-3733570266b1",
+      "slug": "how-to-loot-pull-the-pin",
+      "playtime": 0,
+      "wishlist_count": null,
+      "avg_rate": null,
+      "description": null,
+      "release_date": "2020-04-03T00:00:00",
+      "completed_count": null,
+      "favorite_count": null,
+      "title_tsv": "'loot':3 'pin':6 'pull':4",
+      "platforms": [
+        {
+          "platform_id": "729c19ce-ea87-4cb0-bd3a-d44eea3b3e20",
+          "id": "4eb70e8a-cc37-4645-9c78-2a4c8aa74f8b",
+          "game_id": "000b7c22-cc56-4e7c-9725-3733570266b1",
+          "platform": {
+            "platform_name_ru": null,
+            "platform_slug": "ios",
+            "id": "729c19ce-ea87-4cb0-bd3a-d44eea3b3e20",
+            "platform_name": "iOS",
+            "code": null
+          }
+        }
+      ],
+      "genres": [
+        {
+          "game_id": "000b7c22-cc56-4e7c-9725-3733570266b1",
+          "id": "a63fb89c-470b-4080-a8d2-fb3f8a8a0ba2",
+          "genre_id": "2659d3ae-3e1d-4b6e-865c-9e4ecd2a283b",
+          "genre": {
+            "name": "Casual",
+            "name_ru": null,
+            "id": "2659d3ae-3e1d-4b6e-865c-9e4ecd2a283b",
+            "code": null
+          }
+        },
+        {
+          "game_id": "000b7c22-cc56-4e7c-9725-3733570266b1",
+          "id": "9f04c745-3ef1-496f-b32d-38fd762d1ec9",
+          "genre_id": "34532846-11c1-40f5-b212-bb1c2696ebfe",
+          "genre": {
+            "name": "Puzzle",
+            "name_ru": null,
+            "id": "34532846-11c1-40f5-b212-bb1c2696ebfe",
+            "code": null
+          }
+        }
+      ]
+    },
+    {
+      "title": "Sokoban Next",
+      "cover": "https://media.rawg.io/media/screenshots/6a2/6a2ac9a32db0f67c19f80eb1cc038b40.jpg",
+      "id": "000dcdb3-5e19-4dc9-b532-276b8b93d32d",
+      "slug": "sokoban-next",
+      "playtime": 0,
+      "wishlist_count": null,
+      "avg_rate": null,
+      "description": null,
+      "release_date": "2017-09-27T00:00:00",
+      "completed_count": null,
+      "favorite_count": null,
+      "title_tsv": "'next':2 'sokoban':1",
+      "platforms": [
+        {
+          "platform_id": "03b07fb5-53fc-4ca6-b37a-9a8c559504a7",
+          "id": "47ebf712-8cdd-4046-b913-604842e26071",
+          "game_id": "000dcdb3-5e19-4dc9-b532-276b8b93d32d",
+          "platform": {
+            "platform_name_ru": null,
+            "platform_slug": "ps-vita",
+            "id": "03b07fb5-53fc-4ca6-b37a-9a8c559504a7",
+            "platform_name": "PS Vita",
+            "code": null
+          }
+        },
+        {
+          "platform_id": "729c19ce-ea87-4cb0-bd3a-d44eea3b3e20",
+          "id": "3c8df4be-40c9-4b44-be3e-3f8579c114e2",
+          "game_id": "000dcdb3-5e19-4dc9-b532-276b8b93d32d",
+          "platform": {
+            "platform_name_ru": null,
+            "platform_slug": "ios",
+            "id": "729c19ce-ea87-4cb0-bd3a-d44eea3b3e20",
+            "platform_name": "iOS",
+            "code": null
+          }
+        }
+      ],
+      "genres": [
+        {
+          "game_id": "000dcdb3-5e19-4dc9-b532-276b8b93d32d",
+          "id": "1be21732-0482-4daf-b708-fae34e23ce68",
+          "genre_id": "42327f9f-8cb3-4411-adf7-e75cd110b9c3",
+          "genre": {
+            "name": "Strategy",
+            "name_ru": null,
+            "id": "42327f9f-8cb3-4411-adf7-e75cd110b9c3",
+            "code": null
+          }
+        },
+        {
+          "game_id": "000dcdb3-5e19-4dc9-b532-276b8b93d32d",
+          "id": "8c2f93f3-f740-4bf6-bf13-c7de58735e0c",
+          "genre_id": "34532846-11c1-40f5-b212-bb1c2696ebfe",
+          "genre": {
+            "name": "Puzzle",
+            "name_ru": null,
+            "id": "34532846-11c1-40f5-b212-bb1c2696ebfe",
+            "code": null
+          }
+        }
+      ]
+    },
+    {
+      "title": "Riddleside: Fading Legacy",
+      "cover": "https://media.rawg.io/media/screenshots/be6/be6e92f5896d8984990cb2db6bd60695_GEv3DVN.jpg",
+      "id": "0021356b-f2b1-437f-9c77-f49fefd26f1b",
+      "slug": "riddleside-fading-legacy",
+      "playtime": 0,
+      "wishlist_count": null,
+      "avg_rate": null,
+      "description": null,
+      "release_date": "2020-04-04T00:00:00",
+      "completed_count": null,
+      "favorite_count": null,
+      "title_tsv": "'fade':2 'legaci':3 'riddlesid':1",
+      "platforms": [
+        {
+          "platform_id": "729c19ce-ea87-4cb0-bd3a-d44eea3b3e20",
+          "id": "61f9b9dc-a55a-4dcc-9101-d14505de7674",
+          "game_id": "0021356b-f2b1-437f-9c77-f49fefd26f1b",
+          "platform": {
+            "platform_name_ru": null,
+            "platform_slug": "ios",
+            "id": "729c19ce-ea87-4cb0-bd3a-d44eea3b3e20",
+            "platform_name": "iOS",
+            "code": null
+          }
+        }
+      ],
+      "genres": [
+        {
+          "game_id": "0021356b-f2b1-437f-9c77-f49fefd26f1b",
+          "id": "2701f695-26c9-4408-a095-bd838eb1f2e4",
+          "genre_id": "3d36e8a5-49a4-4e04-a1df-e3cf216bc21b",
+          "genre": {
+            "name": "Adventure",
+            "name_ru": null,
+            "id": "3d36e8a5-49a4-4e04-a1df-e3cf216bc21b",
+            "code": null
+          }
+        },
+        {
+          "game_id": "0021356b-f2b1-437f-9c77-f49fefd26f1b",
+          "id": "a3bae348-9d40-4b64-946c-e6ee7bc4a157",
+          "genre_id": "34532846-11c1-40f5-b212-bb1c2696ebfe",
+          "genre": {
+            "name": "Puzzle",
+            "name_ru": null,
+            "id": "34532846-11c1-40f5-b212-bb1c2696ebfe",
+            "code": null
+          }
+        }
+      ]
+    },
+    {
+      "title": "Match Connect",
+      "cover": "https://media.rawg.io/media/screenshots/2ec/2ece0f349814e9e4d7ff366ec7435629.jpg",
+      "id": "00225047-857b-4775-8621-a63fb61041bc",
+      "slug": "match-connect",
+      "playtime": 0,
+      "wishlist_count": null,
+      "avg_rate": null,
+      "description": null,
+      "release_date": "2021-05-31T00:00:00",
+      "completed_count": null,
+      "favorite_count": null,
+      "title_tsv": "'connect':2 'match':1",
+      "platforms": [
+        {
+          "platform_id": "729c19ce-ea87-4cb0-bd3a-d44eea3b3e20",
+          "id": "5c75af79-98ea-40dd-ae08-0aaf3e447b34",
+          "game_id": "00225047-857b-4775-8621-a63fb61041bc",
+          "platform": {
+            "platform_name_ru": null,
+            "platform_slug": "ios",
+            "id": "729c19ce-ea87-4cb0-bd3a-d44eea3b3e20",
+            "platform_name": "iOS",
+            "code": null
+          }
+        }
+      ],
+      "genres": [
+        {
+          "game_id": "00225047-857b-4775-8621-a63fb61041bc",
+          "id": "99e0b333-9a83-4b85-9b41-27d848b14ca7",
+          "genre_id": "cce88a77-cd33-4559-860a-594280b448e5",
+          "genre": {
+            "name": "Board Games",
+            "name_ru": null,
+            "id": "cce88a77-cd33-4559-860a-594280b448e5",
+            "code": null
+          }
+        },
+        {
+          "game_id": "00225047-857b-4775-8621-a63fb61041bc",
+          "id": "451db19d-3110-4b84-8671-2c9d325fc863",
+          "genre_id": "34532846-11c1-40f5-b212-bb1c2696ebfe",
+          "genre": {
+            "name": "Puzzle",
+            "name_ru": null,
+            "id": "34532846-11c1-40f5-b212-bb1c2696ebfe",
+            "code": null
+          }
+        }
+      ]
+    },
+    {
+      "title": "Hyper Crack",
+      "cover": "https://media.rawg.io/media/screenshots/509/509d9b3aae355c312c9b65c91f520098_UvknbhR.jpg",
+      "id": "003da80e-7c11-459d-8597-9cdadde3fa62",
+      "slug": "hyper-crack",
+      "playtime": 0,
+      "wishlist_count": null,
+      "avg_rate": null,
+      "description": null,
+      "release_date": "2021-12-28T00:00:00",
+      "completed_count": null,
+      "favorite_count": null,
+      "title_tsv": "'crack':2 'hyper':1",
+      "platforms": [
+        {
+          "platform_id": "729c19ce-ea87-4cb0-bd3a-d44eea3b3e20",
+          "id": "5d840a8e-c21d-486a-8345-c21e77b69b03",
+          "game_id": "003da80e-7c11-459d-8597-9cdadde3fa62",
+          "platform": {
+            "platform_name_ru": null,
+            "platform_slug": "ios",
+            "id": "729c19ce-ea87-4cb0-bd3a-d44eea3b3e20",
+            "platform_name": "iOS",
+            "code": null
+          }
+        }
+      ],
+      "genres": [
+        {
+          "game_id": "003da80e-7c11-459d-8597-9cdadde3fa62",
+          "id": "de15a264-c126-4cfb-89fd-a8244cca0ab8",
+          "genre_id": "2659d3ae-3e1d-4b6e-865c-9e4ecd2a283b",
+          "genre": {
+            "name": "Casual",
+            "name_ru": null,
+            "id": "2659d3ae-3e1d-4b6e-865c-9e4ecd2a283b",
+            "code": null
+          }
+        },
+        {
+          "game_id": "003da80e-7c11-459d-8597-9cdadde3fa62",
+          "id": "783bdb6e-d54e-4f01-b483-abd50b822bb1",
+          "genre_id": "34532846-11c1-40f5-b212-bb1c2696ebfe",
+          "genre": {
+            "name": "Puzzle",
+            "name_ru": null,
+            "id": "34532846-11c1-40f5-b212-bb1c2696ebfe",
+            "code": null
+          }
+        }
+      ]
+    },
+    {
+      "title": "Bubble Shooter Pro: Ball Blast",
+      "cover": "https://media.rawg.io/media/screenshots/023/023bb09aaea64a99e093657a72969ea3.jpg",
+      "id": "003fafc7-b628-4dff-a5e3-9220ad5c9a97",
+      "slug": "bubble-shooter-pro-ball-blast",
+      "playtime": 0,
+      "wishlist_count": null,
+      "avg_rate": null,
+      "description": null,
+      "release_date": "2022-09-19T00:00:00",
+      "completed_count": null,
+      "favorite_count": null,
+      "title_tsv": "'ball':4 'blast':5 'bubbl':1 'pro':3 'shooter':2",
+      "platforms": [
+        {
+          "platform_id": "729c19ce-ea87-4cb0-bd3a-d44eea3b3e20",
+          "id": "4f576809-c22f-4ec0-9e49-ff4c5f883cfd",
+          "game_id": "003fafc7-b628-4dff-a5e3-9220ad5c9a97",
+          "platform": {
+            "platform_name_ru": null,
+            "platform_slug": "ios",
+            "id": "729c19ce-ea87-4cb0-bd3a-d44eea3b3e20",
+            "platform_name": "iOS",
+            "code": null
+          }
+        }
+      ],
+      "genres": [
+        {
+          "game_id": "003fafc7-b628-4dff-a5e3-9220ad5c9a97",
+          "id": "050a1a46-77ce-46d2-8dea-20739e8ed7d3",
+          "genre_id": "2659d3ae-3e1d-4b6e-865c-9e4ecd2a283b",
+          "genre": {
+            "name": "Casual",
+            "name_ru": null,
+            "id": "2659d3ae-3e1d-4b6e-865c-9e4ecd2a283b",
+            "code": null
+          }
+        },
+        {
+          "game_id": "003fafc7-b628-4dff-a5e3-9220ad5c9a97",
+          "id": "b415515c-9b2c-4736-99a7-ec1d1c55c65d",
+          "genre_id": "34532846-11c1-40f5-b212-bb1c2696ebfe",
+          "genre": {
+            "name": "Puzzle",
+            "name_ru": null,
+            "id": "34532846-11c1-40f5-b212-bb1c2696ebfe",
+            "code": null
+          }
+        }
+      ]
+    },
+    {
+      "title": "Super Stacker 2",
+      "cover": "https://media.rawg.io/media/screenshots/94f/94f9ad9122f3fcb07c00d7e6c02c8b41.jpg",
+      "id": "0040363c-d6b2-4839-88b5-a2d991ce8de5",
+      "slug": "super-stacker-2",
+      "playtime": 0,
+      "wishlist_count": null,
+      "avg_rate": null,
+      "description": null,
+      "release_date": "2009-10-08T00:00:00",
+      "completed_count": null,
+      "favorite_count": null,
+      "title_tsv": "'2':3 'stacker':2 'super':1",
+      "platforms": [
+        {
+          "platform_id": "729c19ce-ea87-4cb0-bd3a-d44eea3b3e20",
+          "id": "7c042d24-ed72-498c-b5a1-e71a2a1998eb",
+          "game_id": "0040363c-d6b2-4839-88b5-a2d991ce8de5",
+          "platform": {
+            "platform_name_ru": null,
+            "platform_slug": "ios",
+            "id": "729c19ce-ea87-4cb0-bd3a-d44eea3b3e20",
+            "platform_name": "iOS",
+            "code": null
+          }
+        }
+      ],
+      "genres": [
+        {
+          "game_id": "0040363c-d6b2-4839-88b5-a2d991ce8de5",
+          "id": "6776ce61-3a8c-4ab0-88df-6d742cf47d52",
+          "genre_id": "ca67629c-6e7a-4ce9-a1fa-36b7098cf140",
+          "genre": {
+            "name": "Family",
+            "name_ru": null,
+            "id": "ca67629c-6e7a-4ce9-a1fa-36b7098cf140",
+            "code": null
+          }
+        },
+        {
+          "game_id": "0040363c-d6b2-4839-88b5-a2d991ce8de5",
+          "id": "57c02f64-d7a3-4732-af54-98d3d66498b8",
+          "genre_id": "34532846-11c1-40f5-b212-bb1c2696ebfe",
+          "genre": {
+            "name": "Puzzle",
+            "name_ru": null,
+            "id": "34532846-11c1-40f5-b212-bb1c2696ebfe",
+            "code": null
+          }
+        }
+      ]
+    },
+    {
+      "title": "Magic Jigsaw Puzzles",
+      "cover": "https://media.rawg.io/media/screenshots/55e/55e0044dac30e5158ee5ccb9d1b89db5_BOjLuxY.jpg",
+      "id": "0049992d-edab-489a-abbc-db398a6f9384",
+      "slug": "magic-jigsaw-puzzles",
+      "playtime": 0,
+      "wishlist_count": null,
+      "avg_rate": null,
+      "description": null,
+      "release_date": "2011-07-21T00:00:00",
+      "completed_count": null,
+      "favorite_count": null,
+      "title_tsv": "'jigsaw':2 'magic':1 'puzzl':3",
+      "platforms": [
+        {
+          "platform_id": "b03b170a-901c-4572-b895-50a4d28b11a9",
+          "id": "16f6e4cc-488c-4219-b910-f3aab06f0406",
+          "game_id": "0049992d-edab-489a-abbc-db398a6f9384",
+          "platform": {
+            "platform_name_ru": null,
+            "platform_slug": "android",
+            "id": "b03b170a-901c-4572-b895-50a4d28b11a9",
+            "platform_name": "Android",
+            "code": null
+          }
+        },
+        {
+          "platform_id": "729c19ce-ea87-4cb0-bd3a-d44eea3b3e20",
+          "id": "46b512e3-05d5-4075-b5a4-b029643bd308",
+          "game_id": "0049992d-edab-489a-abbc-db398a6f9384",
+          "platform": {
+            "platform_name_ru": null,
+            "platform_slug": "ios",
+            "id": "729c19ce-ea87-4cb0-bd3a-d44eea3b3e20",
+            "platform_name": "iOS",
+            "code": null
+          }
+        }
+      ],
+      "genres": [
+        {
+          "game_id": "0049992d-edab-489a-abbc-db398a6f9384",
+          "id": "4d051d7a-8270-4ca4-835e-642e4b45610a",
+          "genre_id": "cce88a77-cd33-4559-860a-594280b448e5",
+          "genre": {
+            "name": "Board Games",
+            "name_ru": null,
+            "id": "cce88a77-cd33-4559-860a-594280b448e5",
+            "code": null
+          }
+        },
+        {
+          "game_id": "0049992d-edab-489a-abbc-db398a6f9384",
+          "id": "48c79565-3af6-4527-aeb2-020f2fa376c7",
+          "genre_id": "34532846-11c1-40f5-b212-bb1c2696ebfe",
+          "genre": {
+            "name": "Puzzle",
+            "name_ru": null,
+            "id": "34532846-11c1-40f5-b212-bb1c2696ebfe",
+            "code": null
+          }
+        }
+      ]
+    },
+    {
+      "title": "Help Volty",
+      "cover": "https://media.rawg.io/media/screenshots/5b3/5b317d5829b7362cfcdb3532858e4312.jpeg",
+      "id": "00521ca9-e7c8-4ccf-ba30-385bf8b58e32",
+      "slug": "help-volty",
+      "playtime": 0,
+      "wishlist_count": null,
+      "avg_rate": null,
+      "description": null,
+      "release_date": "2012-09-07T00:00:00",
+      "completed_count": null,
+      "favorite_count": null,
+      "title_tsv": "'help':1 'volti':2",
+      "platforms": [
+        {
+          "platform_id": "729c19ce-ea87-4cb0-bd3a-d44eea3b3e20",
+          "id": "24f4fd22-0436-4efa-94ea-70baeec77d12",
+          "game_id": "00521ca9-e7c8-4ccf-ba30-385bf8b58e32",
+          "platform": {
+            "platform_name_ru": null,
+            "platform_slug": "ios",
+            "id": "729c19ce-ea87-4cb0-bd3a-d44eea3b3e20",
+            "platform_name": "iOS",
+            "code": null
+          }
+        }
+      ],
+      "genres": [
+        {
+          "game_id": "00521ca9-e7c8-4ccf-ba30-385bf8b58e32",
+          "id": "d0f6d261-4ebb-440f-bc5e-43ae62694e13",
+          "genre_id": "3d36e8a5-49a4-4e04-a1df-e3cf216bc21b",
+          "genre": {
+            "name": "Adventure",
+            "name_ru": null,
+            "id": "3d36e8a5-49a4-4e04-a1df-e3cf216bc21b",
+            "code": null
+          }
+        },
+        {
+          "game_id": "00521ca9-e7c8-4ccf-ba30-385bf8b58e32",
+          "id": "26d34852-e3d8-4cf3-850e-bc56f00a6246",
+          "genre_id": "34532846-11c1-40f5-b212-bb1c2696ebfe",
+          "genre": {
+            "name": "Puzzle",
+            "name_ru": null,
+            "id": "34532846-11c1-40f5-b212-bb1c2696ebfe",
+            "code": null
+          }
+        }
+      ]
+    },
+    {
+      "title": "Fate Puzzle: Brain Riddle Game",
+      "cover": "https://media.rawg.io/media/screenshots/b7d/b7d40960dc98a73b67ba51ddc0b2107a_bxGsAgS.jpg",
+      "id": "0055ad70-e380-4b85-9aa7-5f6c4e4dcb59",
+      "slug": "fate-puzzle-brain-riddle-game",
+      "playtime": 0,
+      "wishlist_count": null,
+      "avg_rate": null,
+      "description": null,
+      "release_date": "2023-03-11T00:00:00",
+      "completed_count": null,
+      "favorite_count": null,
+      "title_tsv": "'brain':3 'fate':1 'game':5 'puzzl':2 'riddl':4",
+      "platforms": [
+        {
+          "platform_id": "729c19ce-ea87-4cb0-bd3a-d44eea3b3e20",
+          "id": "46f45ca4-74d4-4039-b481-3ab731c5e90b",
+          "game_id": "0055ad70-e380-4b85-9aa7-5f6c4e4dcb59",
+          "platform": {
+            "platform_name_ru": null,
+            "platform_slug": "ios",
+            "id": "729c19ce-ea87-4cb0-bd3a-d44eea3b3e20",
+            "platform_name": "iOS",
+            "code": null
+          }
+        }
+      ],
+      "genres": [
+        {
+          "game_id": "0055ad70-e380-4b85-9aa7-5f6c4e4dcb59",
+          "id": "2d69270e-e3fa-4e8b-9d3a-7dee2551a691",
+          "genre_id": "0a6d1f58-911c-4472-9cb1-8846aa0487b1",
+          "genre": {
+            "name": "Action",
+            "name_ru": null,
+            "id": "0a6d1f58-911c-4472-9cb1-8846aa0487b1",
+            "code": null
+          }
+        },
+        {
+          "game_id": "0055ad70-e380-4b85-9aa7-5f6c4e4dcb59",
+          "id": "3d553af0-6500-4de9-b210-e34c4cf3ec13",
+          "genre_id": "34532846-11c1-40f5-b212-bb1c2696ebfe",
+          "genre": {
+            "name": "Puzzle",
+            "name_ru": null,
+            "id": "34532846-11c1-40f5-b212-bb1c2696ebfe",
+            "code": null
+          }
+        }
+      ]
+    }
+  ]

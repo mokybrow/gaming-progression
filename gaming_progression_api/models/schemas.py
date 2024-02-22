@@ -3,15 +3,16 @@ import uuid
 
 from uuid import UUID
 
-from sqlalchemy import ForeignKey, Index, UniqueConstraint, func, text
+from sqlalchemy import ForeignKey, Index, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.types import UserDefinedType
 
 from gaming_progression_api.integrations.database import Base
 from gaming_progression_api.models.comments import CommentsSchema
 from gaming_progression_api.models.games import ChangeGameFavorite, ChangeGameStatus, GamesModel, RateGame
-from gaming_progression_api.models.users import User, UserCreate, UserSchema
+from gaming_progression_api.models.posts import PostsSchema
+from gaming_progression_api.models.users import UserSchema
+from gaming_progression_api.models.walls import WallsSchema
 
 
 class Users(Base):
@@ -32,22 +33,31 @@ class Users(Base):
 
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
     updated_at: Mapped[datetime.datetime] = mapped_column(
-        server_default=text("TIMEZONE('utc', now())"), onupdate=datetime.datetime.utcnow
+        server_default=text("TIMEZONE('utc', now())"),
+        onupdate=datetime.datetime.utcnow,
     )
 
     user_activity: Mapped[list["UserActivity"]] = relationship("UserActivity")
     user_favorite: Mapped[list["UserFavorite"]] = relationship("UserFavorite")
 
     followers: Mapped[list["Friends"]] = relationship(
-        "Friends", primaryjoin="Users.id==Friends.user_id", back_populates="follower_data", viewonly=True
+        "Friends",
+        primaryjoin="Users.id==Friends.user_id",
+        back_populates="follower_data",
+        viewonly=True,
     )
 
     subscriptions: Mapped[list["Friends"]] = relationship(
-        "Friends", primaryjoin="Users.id==Friends.follower_id", back_populates="sub_data", viewonly=True
+        "Friends",
+        primaryjoin="Users.id==Friends.follower_id",
+        back_populates="sub_data",
+        viewonly=True,
     )
 
     lists: Mapped[list["UserLists"]] = relationship(
-        "UserLists", primaryjoin="or_(Users.id==UserLists.owner_id, Users.id==UserLists.user_id)", viewonly=True
+        "UserLists",
+        primaryjoin="or_(Users.id==UserLists.owner_id, Users.id==UserLists.user_id)",
+        viewonly=True,
     )
 
     def to_read_model(self) -> UserSchema:
@@ -85,9 +95,9 @@ class Games(Base):
     title_tsv = mapped_column(TSVECTOR, nullable=True, unique=False)
     __table_args__ = (Index('title_tsv_idx', 'title_tsv', postgresql_using='gin'),)
 
-    genres: Mapped[list["GameGenres"]] = relationship("GameGenres")
-    age_ratings: Mapped[list["AgeRatingsGames"]] = relationship("AgeRatingsGames")
-    platfroms: Mapped[list["GamePlatforms"]] = relationship("GamePlatforms")
+    genres: Mapped[list["GameGenres"]] = relationship(back_populates="games")
+    platforms: Mapped[list["GamePlatforms"]] = relationship(back_populates="games")
+    age_ratings: Mapped[list["AgeRatingsGames"]] = relationship(back_populates="games")
 
     def to_read_model(self) -> GamesModel:
         return GamesModel(
@@ -112,6 +122,9 @@ class AgeRatings(Base):
     type: Mapped[str] = mapped_column(nullable=True)
     name: Mapped[str]
     code: Mapped[int] = mapped_column(nullable=True)
+    age_replied: Mapped[list["AgeRatingsGames"]] = relationship(
+        back_populates="age_rating",
+    )
 
 
 class AgeRatingsGames(Base):
@@ -122,7 +135,13 @@ class AgeRatingsGames(Base):
     age_rating_id: Mapped[UUID] = mapped_column(ForeignKey("age_ratings.id"))
     __table_args__ = (UniqueConstraint('game_id', 'age_rating_id', name='_age_rating_game_uc'),)
 
-    age: Mapped["AgeRatings"] = relationship("AgeRatings")
+    games: Mapped["Games"] = relationship(
+        back_populates="age_ratings",
+    )
+
+    age_rating: Mapped[list["AgeRatings"]] = relationship(
+        back_populates="age_replied",
+    )
 
 
 class Genres(Base):
@@ -133,6 +152,10 @@ class Genres(Base):
     name_ru: Mapped[str] = mapped_column(nullable=True)
     code: Mapped[int] = mapped_column(nullable=True)
 
+    genre_replied: Mapped[list["GameGenres"]] = relationship(
+        back_populates="genre",
+    )
+
 
 class GameGenres(Base):
     __tablename__ = 'game_genres'
@@ -142,7 +165,13 @@ class GameGenres(Base):
     genre_id: Mapped[UUID] = mapped_column(ForeignKey("genres.id"))
     __table_args__ = (UniqueConstraint('game_id', 'genre_id', name='_game_genre_uc'),)
 
-    genre: Mapped["Genres"] = relationship("Genres")
+    games: Mapped["Games"] = relationship(
+        back_populates="genres",
+    )
+
+    genre: Mapped[list["Genres"]] = relationship(
+        back_populates="genre_replied",
+    )
 
 
 class Platforms(Base):
@@ -154,6 +183,10 @@ class Platforms(Base):
     platform_slug: Mapped[str]
     code: Mapped[int] = mapped_column(nullable=True)
 
+    platfrom_replied: Mapped[list["GamePlatforms"]] = relationship(
+        back_populates="platform",
+    )
+
 
 class GamePlatforms(Base):
     __tablename__ = 'game_platforms'
@@ -164,7 +197,13 @@ class GamePlatforms(Base):
 
     __table_args__ = (UniqueConstraint('game_id', 'platform_id', name='_game_platform_uc'),)
 
-    platform: Mapped["Platforms"] = relationship("Platforms")
+    games: Mapped["Games"] = relationship(
+        back_populates="platforms",
+    )
+
+    platform: Mapped[list["Platforms"]] = relationship(
+        back_populates="platfrom_replied",
+    )
 
 
 class UserLists(Base):
@@ -217,7 +256,9 @@ class Friends(Base):
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
 
     follower_data: Mapped["Users"] = relationship(
-        "Users", foreign_keys=[follower_id], primaryjoin="Friends.follower_id==Users.id"
+        "Users",
+        foreign_keys=[follower_id],
+        primaryjoin="Friends.follower_id==Users.id",
     )
     sub_data: Mapped["Users"] = relationship("Users", foreign_keys=[user_id], primaryjoin="Friends.user_id==Users.id")
 
@@ -313,6 +354,9 @@ class Walls(Base):
     item_id: Mapped[UUID]
     disabled: Mapped[bool] = mapped_column(default=False)
 
+    def to_read_model(self) -> WallsSchema:
+        return WallsSchema(id=self.id, type_id=self.type_id, item_id=self.item_id, disabled=self.disabled)
+
 
 class Posts(Base):
     __tablename__ = 'posts'
@@ -326,8 +370,22 @@ class Posts(Base):
     disabled: Mapped[bool] = mapped_column(default=False)
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
     updated_at: Mapped[datetime.datetime] = mapped_column(
-        server_default=text("TIMEZONE('utc', now())"), onupdate=datetime.datetime.utcnow
+        server_default=text("TIMEZONE('utc', now())"),
+        onupdate=datetime.datetime.utcnow,
     )
+
+    def to_read_model(self) -> PostsSchema:
+        return PostsSchema(
+            id=self.id,
+            user_id=self.user_id,
+            wall_id=self.wall_id,
+            parent_post_id=self.parent_post_id,
+            text=self.text,
+            like_count=self.like_count,
+            disabled=self.disabled,
+            created_at=self.created_at,
+            updated_at=self.updated_at,
+        )
 
 
 class Tags(Base):
@@ -364,7 +422,8 @@ class LikeLog(Base):
     value: Mapped[bool]
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
     updated_at: Mapped[datetime.datetime] = mapped_column(
-        server_default=text("TIMEZONE('utc', now())"), onupdate=datetime.datetime.utcnow
+        server_default=text("TIMEZONE('utc', now())"),
+        onupdate=datetime.datetime.utcnow,
     )
     __table_args__ = (UniqueConstraint('user_id', 'item_id', name='_user_likes_uc'),)
 
@@ -379,5 +438,6 @@ class Pictures(Base):
     og_picture_path: Mapped[str]
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
     updated_at: Mapped[datetime.datetime] = mapped_column(
-        server_default=text("TIMEZONE('utc', now())"), onupdate=datetime.datetime.utcnow
+        server_default=text("TIMEZONE('utc', now())"),
+        onupdate=datetime.datetime.utcnow,
     )

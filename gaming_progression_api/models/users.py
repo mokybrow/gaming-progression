@@ -1,14 +1,12 @@
 import datetime
 
-from typing import Optional
-
 from pydantic import UUID4, BaseModel, ConfigDict, EmailStr
 
 
 class BaseUser(BaseModel):
     username: str
     email: EmailStr
-    full_name: Optional[str]
+    full_name: str | None
     disabled: bool = False
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -21,7 +19,7 @@ class UserCreate(BaseUser):
 class UserActivityDTO(BaseModel):
     id: UUID4
     name: str
-    code: Optional[int]
+    code: int | None
 
 
 class UserActivity(BaseModel):
@@ -44,11 +42,11 @@ class UserFriendsDTO(BaseUser):
 
 
 class UserFriends(BaseModel):
-    follower_data: Optional[UserFriendsDTO]
+    follower_data: UserFriendsDTO | None
 
 
 class UserFriends2(BaseModel):
-    sub_data: Optional[UserFriendsDTO]
+    sub_data: UserFriendsDTO | None
 
 
 class UserListsDTO(BaseModel):
@@ -56,7 +54,7 @@ class UserListsDTO(BaseModel):
     owner_id: UUID4
     user_id: UUID4
     name: str
-    about: Optional[str]
+    about: str | None
     is_private: bool
     created_at: datetime.datetime
 
@@ -66,18 +64,18 @@ class User(BaseUser):
     is_verified: bool
     is_superuser: bool
     is_moderator: bool
-    user_activity: Optional[list['UserActivity']]
-    user_favorite: Optional[list['UserFavorite']]
-    followers: Optional[list['UserFriends']]
-    subscriptions: Optional[list['UserFriends2']]
-    lists: Optional[list['UserListsDTO']]
+    user_activity: list['UserActivity'] | None
+    user_favorite: list['UserFavorite'] | None
+    followers: list['UserFriends'] | None
+    subscriptions: list['UserFriends2'] | None
+    lists: list['UserListsDTO'] | None
 
 
 class UserSchema(BaseUser):
     id: UUID4
     password: str
-    biography: Optional[str]
-    birthdate: Optional[datetime.date]
+    biography: str | None
+    birthdate: datetime.date | None
     is_verified: bool
     is_superuser: bool
     is_moderator: bool
@@ -94,7 +92,7 @@ class ChangeUserPassword(BaseModel):
 
 class PatchUser(BaseModel):
     email: EmailStr
-    full_name: Optional[str]
-    biography: Optional[str]
-    birthdate: Optional[datetime.date]
-    password: Optional[str]
+    full_name: str | None
+    biography: str | None
+    birthdate: datetime.date | None
+    password: str | None

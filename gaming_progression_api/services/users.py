@@ -28,7 +28,7 @@ class UsersService:
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail='A user with this email already exists',
                 )
-            user_id = await uow.users.add_one(user_dict)
+            await uow.users.add_one(user_dict)
             await uow.commit()
             raise HTTPException(
                 status_code=status.HTTP_201_CREATED,

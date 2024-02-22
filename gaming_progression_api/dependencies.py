@@ -30,6 +30,6 @@ async def get_current_user(
 
 
 async def get_current_active_user(current_user: Annotated[UserSchema, Depends(get_current_user)]) -> UserSchema:
-    if current_user.is_verified:
+    if not current_user.is_verified:
         raise HTTPException(status_code=400, detail='Inactive user')
     return current_user

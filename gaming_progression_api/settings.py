@@ -9,6 +9,7 @@ load_dotenv(override=True)
 class Settings(
     BaseSettings,
 ):
+    MODE: str
     project_name: str
     debug: bool
     database_url: str
@@ -20,7 +21,6 @@ class Settings(
     auth_audience: str
     verify_audience: str
     reset_audience: str
-    MODE: str
 
     model_config = SettingsConfigDict(env_file='.env', env_prefix='API_')
 

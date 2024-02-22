@@ -7,6 +7,7 @@ from gaming_progression_api.settings import get_settings
 from gaming_progression_api.transport.handlers.auth import router as auth_router
 from gaming_progression_api.transport.handlers.comments import router as comm_router
 from gaming_progression_api.transport.handlers.games import router as games_router
+from gaming_progression_api.transport.handlers.posts import router as posts_router
 
 
 def _setup_api_routers(
@@ -15,6 +16,7 @@ def _setup_api_routers(
     api.include_router(auth_router)
     api.include_router(games_router)
     api.include_router(comm_router)
+    api.include_router(posts_router)
 
 
 @lru_cache

@@ -1,22 +1,12 @@
 from abc import ABC, abstractmethod
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import UUID4
 from sqlalchemy import delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload, selectinload
+from sqlalchemy.orm import selectinload
 
-from gaming_progression_api.models.schemas import (
-    AgeRatingsGames,
-    Friends,
-    GameGenres,
-    GamePlatforms,
-    Games,
-    Genres,
-    Platforms,
-    UserActivity,
-    UserFavorite,
-)
+from gaming_progression_api.models.schemas import AgeRatingsGames, Friends, GameGenres, GamePlatforms, UserActivity
 
 
 class AbstractRepository(ABC):
@@ -69,7 +59,7 @@ class SQLAlchemyRepository(AbstractRepository):
         except:
             return False
 
-    # Дальше идёт бизнес логика
+    # ------------------------------>
     async def find_one_comment(self, **filter_by) -> dict | bool:
         query = select(self.model).options(selectinload(self.model.child_comment)).filter_by(**filter_by)
         result = await self.session.execute(query)
@@ -99,7 +89,7 @@ class SQLAlchemyRepository(AbstractRepository):
         except:
             return False
 
-    async def find_one_relation(self, **filter_by):
+    async def find_one_game(self, **filter_by):
         query = (
             select(self.model)
             .options(selectinload(self.model.platfroms).selectinload(GamePlatforms.platform))
@@ -116,29 +106,27 @@ class SQLAlchemyRepository(AbstractRepository):
         except:
             return False
 
-    async def find_many_relation(self, *filters, limit: Optional[int], sort: Optional[str]):
-        filters = [arg for arg in filters if arg is not None]
+    async def find_all_games_with_filters(self, limit: int | None, filters: list, sort: str | None = None):
         query = (
             select(self.model)
             .join(self.model.genres)
             .join(GameGenres.genre)
-            .join(self.model.platfroms)
+            .join(self.model.platforms)
             .join(GamePlatforms.platform)
             .join(self.model.age_ratings)
-            .join(AgeRatingsGames.age)
-            .options(selectinload(self.model.platfroms).selectinload(GamePlatforms.platform))
+            .join(AgeRatingsGames.age_rating)
             .options(selectinload(self.model.genres).selectinload(GameGenres.genre))
-            .options(selectinload(self.model.age_ratings).selectinload(AgeRatingsGames.age))
+            .options(selectinload(self.model.platforms).selectinload(GamePlatforms.platform))
+            .options(selectinload(self.model.age_ratings).selectinload(AgeRatingsGames.age_rating))
             .filter(*filters)
             .limit(limit)
             .order_by(sort)
-            # .distinct()
+            .distinct()
         )
         result = await self.session.execute(query)
         self.session.expunge_all()
-
         try:
-            result = result.unique().scalars().all()
+            result = result.scalars().all()
             return result
         except:
             return False

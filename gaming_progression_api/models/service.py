@@ -1,10 +1,4 @@
-import datetime
-
-from typing import Optional
-
 from pydantic import BaseModel
-
-from gaming_progression_api.models.schemas import Genres, Platforms
 
 
 class ServiceResponseModel(BaseModel):
@@ -17,9 +11,9 @@ class SortGet(BaseModel):
 
 
 class FilterAdd(BaseModel):
-    genre: Optional[str]
-    platform: Optional[str]
-    age: Optional[str]
-    release: Optional[int]
-    limit: Optional[int]
-    sort: Optional[SortGet]
+    genre: str | None
+    platform: str | None
+    age: str | None
+    release: int | None
+    limit: int | None
+    sort: SortGet | None

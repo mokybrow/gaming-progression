@@ -1,3 +1,4 @@
+from fastapi import HTTPException, status
 from pydantic import UUID4
 
 from gaming_progression_api.models.comments import AddComment
@@ -9,7 +10,7 @@ settings = get_settings()
 
 class CommentsService:
     async def add_comment(self, uow: IUnitOfWork, comment: AddComment, user_id: UUID4):
-        if comment.item_id == None and comment.parent_comment_id == None:
+        if comment.item_id is None and comment.parent_comment_id is None:
             return False
         comment = comment.model_dump()
         comment["user_id"] = user_id
@@ -22,3 +23,15 @@ class CommentsService:
         async with uow:
             item_comments = await uow.comments.find_one_comment(item_id=item_id)
             return item_comments
+
+    async def delete_comment(self, uow: IUnitOfWork, item_id: UUID4, user_id: UUID4):
+        async with uow:
+            item_comment = await uow.comments.find_one(id=item_id, user_id=user_id, deleted=False)
+            if item_comment:
+                item_comments = await uow.comments.edit_one(data={'deleted': True, 'text': ''}, id=item_id)
+                await uow.commit()
+                return f'Comment with id {item_comments} was deleted'
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="You can't delete this comment",
+            )
