@@ -22,7 +22,6 @@ engine = create_async_engine(main_settings.database_url)
 
 @pytest.fixture(autouse=True, scope='session')
 async def prepare_database() -> AsyncGenerator[AsyncConnection, None]:
-    print(f"{main_settings.database_url=}")
     assert main_settings.MODE == 'test'
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)

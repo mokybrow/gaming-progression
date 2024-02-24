@@ -33,3 +33,9 @@ async def get_current_active_user(current_user: Annotated[UserSchema, Depends(ge
     if not current_user.is_verified:
         raise HTTPException(status_code=400, detail='Inactive user')
     return current_user
+
+
+async def get_superuser(current_user: Annotated[UserSchema, Depends(get_current_user)]) -> UserSchema:
+    if not current_user.is_superuser:
+        raise HTTPException(status_code=400, detail='Youre not superuser')
+    return current_user

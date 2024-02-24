@@ -1,4 +1,3 @@
-import datetime
 
 from pydantic import UUID4, BaseModel
 
@@ -7,7 +6,12 @@ class WallsSchema(BaseModel):
     id: UUID4
     type_id: UUID4
     item_id: UUID4
-    disabled: bool = True
+
+
+class WallTypesSchema(BaseModel):
+    id: UUID4
+    name: str
+    code: int
 
 
 class AddWall(BaseModel):
@@ -15,3 +19,8 @@ class AddWall(BaseModel):
     parent_post_id: UUID4 | None
     text: str
     disabled: bool = False
+
+
+class AddWallType(BaseModel):
+    name: str
+    code: int

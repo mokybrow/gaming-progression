@@ -10,9 +10,10 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from gaming_progression_api.integrations.database import Base
 from gaming_progression_api.models.comments import CommentsSchema
 from gaming_progression_api.models.games import ChangeGameFavorite, ChangeGameStatus, GamesModel, RateGame
+from gaming_progression_api.models.likes import LikeLogSchema, LikeTypesSchema
 from gaming_progression_api.models.posts import PostsSchema
 from gaming_progression_api.models.users import UserSchema
-from gaming_progression_api.models.walls import WallsSchema
+from gaming_progression_api.models.walls import WallsSchema, WallTypesSchema
 
 
 class Users(Base):
@@ -345,6 +346,9 @@ class WallTypes(Base):
     name: Mapped[str]
     code: Mapped[int]
 
+    def to_read_model(self) -> WallTypesSchema:
+        return WallTypesSchema(id=self.id, name=self.name, code=self.code)
+
 
 class Walls(Base):
     __tablename__ = 'walls'
@@ -352,10 +356,9 @@ class Walls(Base):
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     type_id: Mapped[UUID] = mapped_column(ForeignKey("wall_types.id"))
     item_id: Mapped[UUID]
-    disabled: Mapped[bool] = mapped_column(default=False)
 
     def to_read_model(self) -> WallsSchema:
-        return WallsSchema(id=self.id, type_id=self.type_id, item_id=self.item_id, disabled=self.disabled)
+        return WallsSchema(id=self.id, type_id=self.type_id, item_id=self.item_id)
 
 
 class Posts(Base):
@@ -364,7 +367,7 @@ class Posts(Base):
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
     wall_id: Mapped[UUID] = mapped_column(ForeignKey("walls.id"))
-    parent_post_id: Mapped[UUID] = mapped_column(ForeignKey("posts.id", ondelete='CASCADE'))
+    parent_post_id: Mapped[UUID] = mapped_column(ForeignKey("posts.id", ondelete='CASCADE'), nullable=True)
     text: Mapped[str]
     like_count: Mapped[int] = mapped_column(default=0)
     disabled: Mapped[bool] = mapped_column(default=False)
@@ -411,6 +414,13 @@ class LikeTypes(Base):
     name: Mapped[str]
     code: Mapped[int]
 
+    def to_read_model(self) -> LikeTypesSchema:
+        return LikeTypesSchema(
+            id=self.id,
+            name=self.name,
+            code=self.code,
+        )
+
 
 class LikeLog(Base):
     __tablename__ = 'like_log'
@@ -426,6 +436,17 @@ class LikeLog(Base):
         onupdate=datetime.datetime.utcnow,
     )
     __table_args__ = (UniqueConstraint('user_id', 'item_id', name='_user_likes_uc'),)
+
+    def to_read_model(self) -> LikeLogSchema:
+        return LikeLogSchema(
+            id=self.id,
+            user_id=self.user_id,
+            type_id=self.type_id,
+            item_id=self.item_id,
+            value=self.value,
+            created_at=self.created_at,
+            updated_at=self.updated_at,
+        )
 
 
 class Pictures(Base):

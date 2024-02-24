@@ -78,14 +78,8 @@ async def verify_user(uow: UOWDep, token: str = Body(..., embed=True)) -> Servic
 
 @router.post('/password/recovery', response_model=RecoveryToken)
 async def password_recovery(uow: UOWDep, email: str = Body(..., embed=True)) -> RecoveryToken:
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_400_BAD_REQUEST,
-        detail="User doesn't exist",
-        headers={'WWW-Authenticate': 'Bearer'},
-    )
     user = await UsersService().get_user(uow, email)
-    if not user:
-        raise credentials_exception
+
     recovery_token = await AuthService().create_token(
         {'sub': str(user.id), 'aud': settings.reset_audience},
         reset_token_expires,

@@ -35,6 +35,17 @@ class UsersService:
                 detail='User has been successfully created',
             )
 
+    async def get_user_profile(self, uow: IUnitOfWork, username: str):
+        async with uow:
+            user = await uow.users.find_one_user(username=username)
+
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail='User not found',
+            )
+        return user
+
     async def get_users(self, uow: IUnitOfWork):
         async with uow:
             users = await uow.users.find_all()
@@ -43,7 +54,13 @@ class UsersService:
     async def get_user(self, uow: IUnitOfWork, email: str):
         async with uow:
             user = await uow.users.find_one(email=email)
-            return user
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="User doesn't exist",
+                headers={'WWW-Authenticate': 'Bearer'},
+            )
+        return user
 
     async def get_user_for_verify(self, uow: IUnitOfWork, email: str):
         async with uow:

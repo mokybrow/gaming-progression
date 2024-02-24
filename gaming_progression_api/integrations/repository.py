@@ -47,14 +47,14 @@ class SQLAlchemyRepository(AbstractRepository):
 
     async def edit_one(self, data: dict, **filter_by) -> UUID4:
         stmt = update(self.model).values(data).filter_by(**filter_by).returning(self.model.id)
-        res = await self.session.execute(stmt)
-        return res.scalar_one()
+        result = await self.session.execute(stmt)
+        return result.scalar_one()
 
     async def delete_one(self, **filter_by) -> dict | bool:
-        query = delete(self.model).filter_by(**filter_by)
-        result = await self.session.execute(query)
+        stmt = delete(self.model).filter_by(**filter_by).returning(self.model.id)
+        result = await self.session.execute(stmt)
         try:
-            result = result.scalars().all()
+            result = result.scalar_one()
             return result
         except:
             return False

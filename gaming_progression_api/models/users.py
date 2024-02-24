@@ -37,15 +37,17 @@ class UserSubsDTO(BaseModel):
     id: UUID4
 
 
-class UserFriendsDTO(BaseUser):
+class UserFriendsDTO(BaseModel):
     id: UUID4
+    username: str
+    full_name: str | None
 
 
-class UserFriends(BaseModel):
+class UserFollowers(BaseModel):
     follower_data: UserFriendsDTO | None
 
 
-class UserFriends2(BaseModel):
+class UserSubscriptions(BaseModel):
     sub_data: UserFriendsDTO | None
 
 
@@ -66,8 +68,22 @@ class User(BaseUser):
     is_moderator: bool
     user_activity: list['UserActivity'] | None
     user_favorite: list['UserFavorite'] | None
-    followers: list['UserFriends'] | None
-    subscriptions: list['UserFriends2'] | None
+    followers: list['UserFollowers'] | None
+    subscriptions: list['UserSubscriptions'] | None
+    lists: list['UserListsDTO'] | None
+
+
+class PrivateUser(BaseModel):
+    id: UUID4
+    username: str
+    full_name: str | None
+    is_verified: bool
+    is_superuser: bool
+    is_moderator: bool
+    user_activity: list['UserActivity'] | None
+    user_favorite: list['UserFavorite'] | None
+    followers: list['UserFollowers'] | None
+    subscriptions: list['UserSubscriptions'] | None
     lists: list['UserListsDTO'] | None
 
 

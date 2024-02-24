@@ -4,9 +4,11 @@ from gaming_progression_api.integrations.comments import CommentsRepository
 from gaming_progression_api.integrations.database import async_session_maker
 from gaming_progression_api.integrations.game_statuses import FavoriteRepository, StatusesRepository
 from gaming_progression_api.integrations.games import GamesRepository, GamesReviewsRepository
+from gaming_progression_api.integrations.likes import LikesRepository, LikeTypesRepository
+from gaming_progression_api.integrations.playlists import PlaylistsRepository
 from gaming_progression_api.integrations.posts import PostsRepository
 from gaming_progression_api.integrations.users import UsersRepository
-from gaming_progression_api.integrations.walls import WallsRepository
+from gaming_progression_api.integrations.walls import WallsRepository, WallsTypesRepository
 
 
 class IUnitOfWork(ABC):
@@ -18,6 +20,10 @@ class IUnitOfWork(ABC):
     comments: type[CommentsRepository]
     posts: type[PostsRepository]
     walls: type[WallsRepository]
+    wall_types: type[WallsTypesRepository]
+    likes: type[LikesRepository]
+    like_types: type[LikeTypesRepository]
+    playlists: type[PlaylistsRepository]
 
     @abstractmethod
     def __init__(self) -> None:
@@ -55,6 +61,10 @@ class UnitOfWork:
         self.comments = CommentsRepository(self.session)
         self.posts = PostsRepository(self.session)
         self.walls = WallsRepository(self.session)
+        self.wall_types = WallsTypesRepository(self.session)
+        self.likes = LikesRepository(self.session)
+        self.like_types = LikeTypesRepository(self.session)
+        self.playlists = PlaylistsRepository(self.session)
 
     async def __aexit__(self, *args) -> None:
         await self.rollback()

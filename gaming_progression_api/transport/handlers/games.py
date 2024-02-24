@@ -2,7 +2,6 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import UUID4, TypeAdapter
-from redis.asyncio import Redis
 
 from gaming_progression_api.dependencies import UOWDep, get_current_user
 from gaming_progression_api.models.games import ChangeGameFavorite, ChangeGameStatus, GamesResponseModel, RateGame
