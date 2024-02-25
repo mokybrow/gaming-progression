@@ -1,5 +1,5 @@
 from gaming_progression_api.integrations.repository import SQLAlchemyRepository
-from gaming_progression_api.models.schemas import UserActivity, UserFavorite
+from gaming_progression_api.models.schemas import UserActivity, UserFavorite, ActivityTypes
 
 
 class StatusesRepository(SQLAlchemyRepository):
@@ -8,3 +8,7 @@ class StatusesRepository(SQLAlchemyRepository):
 
 class FavoriteRepository(SQLAlchemyRepository):
     model = UserFavorite
+
+
+class ActivityTypesRepository(SQLAlchemyRepository):
+    model = ActivityTypes

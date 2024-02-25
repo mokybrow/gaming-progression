@@ -9,8 +9,10 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from gaming_progression_api.integrations.database import Base
 from gaming_progression_api.models.comments import CommentsSchema
-from gaming_progression_api.models.games import ChangeGameFavorite, ChangeGameStatus, GamesModel, RateGame
+from gaming_progression_api.models.followers import FollowersSchema
+from gaming_progression_api.models.games import ActivityTypesSchema, ChangeGameFavorite, ChangeGameStatus, GamesModel, RateGame, UserActivitySchema
 from gaming_progression_api.models.likes import LikeLogSchema, LikeTypesSchema
+from gaming_progression_api.models.playlists import PlaylistsSchema, UserListsSchema
 from gaming_progression_api.models.posts import PostsSchema
 from gaming_progression_api.models.users import UserSchema
 from gaming_progression_api.models.walls import WallsSchema, WallTypesSchema
@@ -38,8 +40,9 @@ class Users(Base):
         onupdate=datetime.datetime.utcnow,
     )
 
-    user_activity: Mapped[list["UserActivity"]] = relationship("UserActivity")
-    user_favorite: Mapped[list["UserFavorite"]] = relationship("UserFavorite")
+    user_activity: Mapped[list["UserActivity"]] = relationship(back_populates="users")
+    user_favorite: Mapped[list["UserFavorite"]] = relationship(back_populates="users")
+
 
     followers: Mapped[list["Friends"]] = relationship(
         "Friends",
@@ -55,11 +58,10 @@ class Users(Base):
         viewonly=True,
     )
 
-    lists: Mapped[list["UserLists"]] = relationship(
-        "UserLists",
-        primaryjoin="or_(Users.id==UserLists.owner_id, Users.id==UserLists.user_id)",
-        viewonly=True,
-    )
+
+    lists: Mapped[list["UserLists"]] = relationship(back_populates="users")
+
+    sub_data: Mapped["Playlists"] = relationship("Playlists",  primaryjoin="Playlists.owner_id==Users.id")
 
     def to_read_model(self) -> UserSchema:
         return UserSchema(
@@ -99,6 +101,17 @@ class Games(Base):
     genres: Mapped[list["GameGenres"]] = relationship(back_populates="games")
     platforms: Mapped[list["GamePlatforms"]] = relationship(back_populates="games")
     age_ratings: Mapped[list["AgeRatingsGames"]] = relationship(back_populates="games")
+
+    user_fav_replied: Mapped[list["UserFavorite"]] = relationship(
+        back_populates="game_data",
+    )
+    user_act_replied: Mapped[list["UserActivity"]] = relationship(
+        back_populates="game_data",
+    )
+
+    list_data_replied: Mapped[list["ListGames"]] = relationship(
+        back_populates="game_data",
+    )
 
     def to_read_model(self) -> GamesModel:
         return GamesModel(
@@ -206,17 +219,62 @@ class GamePlatforms(Base):
         back_populates="platfrom_replied",
     )
 
+class Playlists(Base):
+    __tablename__ = 'playlists'
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    owner_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
+    name: Mapped[str]
+    about: Mapped[str] = mapped_column(nullable=True)
+    is_private: Mapped[bool] = mapped_column(default=False)
+    created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
+    
+    playlists_replied: Mapped[list["UserLists"]] = relationship(
+        back_populates="playlists",
+    )
 
+    list_games:  Mapped[list["ListGames"]] = relationship(
+        back_populates="playlists",
+    )
+    owner_data: Mapped[list["Users"]] = relationship(
+        "Users",
+        primaryjoin="Users.id==Playlists.owner_id",
+        back_populates="sub_data",
+        viewonly=True,
+    )
+    def to_read_model(self) -> PlaylistsSchema:
+        return PlaylistsSchema(
+            id=self.id,
+            owner_id=self.owner_id,
+            name=self.name,
+            about=self.about,
+            is_private=self.is_private,
+            created_at=self.created_at
+        )
+    
 class UserLists(Base):
     __tablename__ = 'user_lists'
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    owner_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
+    list_id: Mapped[UUID] = mapped_column(ForeignKey("playlists.id"))
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
-    name: Mapped[str]
-    about: Mapped[str]
-    is_private: Mapped[bool] = mapped_column(default=False)
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
+
+    __table_args__ = (UniqueConstraint('user_id', 'list_id', name='_user_one_list_uc'),)
+    
+    users: Mapped["Users"] = relationship(
+        back_populates="lists",
+    )
+    playlists: Mapped[list["Playlists"]] = relationship(
+        back_populates="playlists_replied",
+    )
+
+    def to_read_model(self) -> UserListsSchema:
+        return UserListsSchema(
+            id=self.id,
+            list_id=self.list_id,
+            user_id=self.user_id,
+            created_at=self.created_at
+        )
 
 
 class ListGames(Base):
@@ -224,10 +282,17 @@ class ListGames(Base):
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     game_id: Mapped[UUID] = mapped_column(ForeignKey("games.id"))
-    list_id: Mapped[UUID] = mapped_column(ForeignKey("user_lists.id"))
+    list_id: Mapped[UUID] = mapped_column(ForeignKey("playlists.id"))
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
     __table_args__ = (UniqueConstraint('game_id', 'list_id', name='_game_list_uc'),)
 
+    playlists: Mapped[list["Playlists"]] = relationship(
+        back_populates="list_games",
+    )
+
+    game_data: Mapped[list["Games"]] = relationship(
+        back_populates="list_data_replied",
+    )
 
 class GameReviews(Base):
     __tablename__ = 'game_reviews'
@@ -265,6 +330,11 @@ class Friends(Base):
 
     __table_args__ = (UniqueConstraint('follower_id', 'user_id', name='_followers_uc'),)
 
+    def to_read_model(self) -> FollowersSchema:
+        return FollowersSchema(
+            id=self.id, user_id=self.user_id, follower_id=self.follower_id, created_at=self.created_at,
+        )
+
 
 class UserFavorite(Base):
     __tablename__ = 'user_favorite'
@@ -275,6 +345,13 @@ class UserFavorite(Base):
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
 
     __table_args__ = (UniqueConstraint('user_id', 'game_id', name='_user_favorite_uc'),)
+
+    users: Mapped["Users"] = relationship(
+        back_populates="user_favorite",
+    )
+    game_data: Mapped[list["Games"]] = relationship(
+        back_populates="user_fav_replied",
+    )
 
     def to_read_model(self) -> ChangeGameFavorite:
         return ChangeGameFavorite(
@@ -290,6 +367,15 @@ class ActivityTypes(Base):
     name: Mapped[str]
     code: Mapped[int]
 
+    activity_type: Mapped[list["UserActivity"]] = relationship(
+        back_populates="activity_data",
+    )
+    def to_read_model(self) -> ActivityTypesSchema:
+        return ActivityTypesSchema(
+            id=self.id,
+            name=self.name,
+            code=self.code,
+        )
 
 class UserActivity(Base):
     __tablename__ = 'user_activity'
@@ -300,15 +386,25 @@ class UserActivity(Base):
     activity_id: Mapped[UUID] = mapped_column(ForeignKey("activity_types.id"))
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
 
-    activity: Mapped["ActivityTypes"] = relationship("ActivityTypes")
+    users: Mapped["Users"] = relationship(
+        back_populates="user_activity",
+    )
+    game_data: Mapped[list["Games"]] = relationship(
+        back_populates="user_act_replied",
+    )
+    activity_data: Mapped[list["ActivityTypes"]] = relationship(
+        back_populates="activity_type",
+    )
 
     __table_args__ = (UniqueConstraint('user_id', 'game_id', 'activity_id', name='_user_activity_uc'),)
 
-    def to_read_model(self) -> ChangeGameStatus:
-        return ChangeGameStatus(
+    def to_read_model(self) -> UserActivitySchema:
+        return UserActivitySchema(
+            id=self.id,
             user_id=self.user_id,
             game_id=self.game_id,
             activity_id=self.activity_id,
+            created_at=self.created_at,
         )
 
 

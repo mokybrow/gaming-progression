@@ -22,9 +22,9 @@ class GamesService:
             sort = direction(getattr(Games, filters.sort.name))
         if filters.limit is not None and filters.limit != 0:
             limit = filters.limit 
-
+        
         async with uow:
-            games = await uow.games.find_all_games_with_filters(sort=sort, limit=limit, filters=true_filters)
+            games = await uow.games.find_all_games_with_filters(sort=sort, limit=limit, offset=filters.offset, filters=true_filters)
             if not games:
                 return False
             games = [GamesResponseModel.model_validate(row, from_attributes=True) for row in games]

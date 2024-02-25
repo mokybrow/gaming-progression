@@ -95,3 +95,19 @@ class UsersService:
                     detail='An error occurred while changing data',
                     headers={'WWW-Authenticate': 'Bearer'},
                 )
+
+    async def follow_on_user(
+        self,
+        uow: IUnitOfWork,
+        follower_id: UUID4,
+        user_id: UUID4,
+    ):
+        async with uow:
+            find_pair = await uow.followers.find_one(user_id=user_id, follower_id=follower_id)
+            if find_pair:
+                await uow.followers.delete_one(user_id=user_id, follower_id=follower_id)
+                await uow.commit()
+                return f"Successfully unfollow on user {user_id}"
+            await uow.followers.add_one(data={"follower_id": follower_id, "user_id": user_id})
+            await uow.commit()
+            return f'Successfully follow on user {user_id}'

@@ -59,17 +59,27 @@ class GamesResponseModel(GamesModel):
 
 
 class ChangeGameStatus(BaseModel):
-    user_id: UUID4 | str | None
-    game_id: UUID4 | str | None
-    activity_id: UUID4 | str | None
+    game_id: UUID4 
+    activity_type: str 
 
 
 class ChangeGameFavorite(BaseModel):
-    user_id: UUID4 | str | None
     game_id: UUID4 | str | None
 
 
 class RateGame(BaseModel):
-    user_id: UUID4 | str | None
     game_id: UUID4
     grade: int
+
+
+class ActivityTypesSchema(BaseModel):
+    id: UUID4
+    name: str
+    code: int
+
+class UserActivitySchema(BaseModel):
+    id: UUID4
+    user_id: UUID4
+    game_id: UUID4
+    activity_id: UUID4
+    created_at: datetime.datetime

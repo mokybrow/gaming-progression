@@ -6,7 +6,7 @@ from sqlalchemy import delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from gaming_progression_api.models.schemas import AgeRatingsGames, Friends, GameGenres, GamePlatforms, UserActivity
+from gaming_progression_api.models.schemas import AgeRatingsGames, Friends, GameGenres, GamePlatforms, ListGames, UserActivity, UserFavorite, UserLists
 
 
 class AbstractRepository(ABC):
@@ -30,8 +30,11 @@ class SQLAlchemyRepository(AbstractRepository):
         result = await self.session.execute(stmt)
         return result.scalar_one()
 
-    async def find_all(self) -> list | bool:
-        query = select(self.model)
+    async def find_all(self, limit: int = None, offset: int = None) -> list | bool:
+        query = (select(self.model)
+                 .limit(limit)
+                 .offset(offset)
+                 )
         result = await self.session.execute(query)
         result = [row[0].to_read_model() for row in result.all()]
         return result
@@ -73,11 +76,12 @@ class SQLAlchemyRepository(AbstractRepository):
     async def find_one_user(self, **filter_by):
         query = (
             select(self.model)
-            .options(selectinload(self.model.user_activity).selectinload(UserActivity.activity))
-            .options(selectinload(self.model.user_favorite))
+            .options(selectinload(self.model.user_activity).selectinload(UserActivity.game_data))
+            .options(selectinload(self.model.user_activity).selectinload(UserActivity.activity_data))
+            .options(selectinload(self.model.user_favorite).selectinload(UserFavorite.game_data))
             .options(selectinload(self.model.followers).selectinload(Friends.follower_data))
             .options(selectinload(self.model.subscriptions).selectinload(Friends.sub_data))
-            .options(selectinload(self.model.lists))
+            .options(selectinload(self.model.lists).selectinload(UserLists.playlists))
             .filter_by(**filter_by)
         )
         result = await self.session.execute(query)
@@ -92,9 +96,9 @@ class SQLAlchemyRepository(AbstractRepository):
     async def find_one_game(self, **filter_by):
         query = (
             select(self.model)
-            .options(selectinload(self.model.platfroms).selectinload(GamePlatforms.platform))
+            .options(selectinload(self.model.platforms).selectinload(GamePlatforms.platform))
             .options(selectinload(self.model.genres).selectinload(GameGenres.genre))
-            .options(selectinload(self.model.age_ratings).selectinload(AgeRatingsGames.age))
+            .options(selectinload(self.model.age_ratings).selectinload(AgeRatingsGames.age_rating))
             .filter_by(**filter_by)
         )
         result = await self.session.execute(query)
@@ -106,7 +110,7 @@ class SQLAlchemyRepository(AbstractRepository):
         except:
             return False
 
-    async def find_all_games_with_filters(self, limit: int | None, filters: list, sort: str | None = None):
+    async def find_all_games_with_filters(self, limit: int | None, offset: int | None, filters: list, sort: str | None = None):
         query = (
             select(self.model)
             .join(self.model.genres)
@@ -120,11 +124,30 @@ class SQLAlchemyRepository(AbstractRepository):
             .options(selectinload(self.model.age_ratings).selectinload(AgeRatingsGames.age_rating))
             .filter(*filters)
             .limit(limit)
+            .offset(offset)
             .order_by(sort)
             .distinct()
         )
         result = await self.session.execute(query)
         self.session.expunge_all()
+        try:
+            result = result.scalars().all()
+            return result
+        except:
+            return False
+
+
+    async def get_playlist_data(self, **filter_by):
+        query = (
+            select(self.model)
+            .options(selectinload(self.model.list_games).selectinload(ListGames.game_data))
+            .options(selectinload(self.model.owner_data))
+
+            .filter_by(**filter_by)
+        )
+        result = await self.session.execute(query)
+        self.session.expunge_all()
+
         try:
             result = result.scalars().all()
             return result

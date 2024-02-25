@@ -16,21 +16,27 @@ class UserCreate(BaseUser):
     password: str
 
 
+class GameDataActivityDTO(BaseModel):
+    id: UUID4
+    title: str
+    description: str | None
+    release_date: datetime.datetime | None
+    cover: str | None
+
+
 class UserActivityDTO(BaseModel):
     id: UUID4
     name: str
-    code: int | None
+    code: int 
 
 
 class UserActivity(BaseModel):
-    activity: UserActivityDTO
+    game_data: GameDataActivityDTO | None
+    activity_data: UserActivityDTO | None
 
 
 class UserFavorite(BaseModel):
-    id: UUID4
-    user_id: UUID4
-    game_id: UUID4
-    created_at: datetime.datetime
+    game_data: GameDataActivityDTO | None
 
 
 class UserSubsDTO(BaseModel):
@@ -54,11 +60,14 @@ class UserSubscriptions(BaseModel):
 class UserListsDTO(BaseModel):
     id: UUID4
     owner_id: UUID4
-    user_id: UUID4
     name: str
     about: str | None
     is_private: bool
     created_at: datetime.datetime
+
+
+class UserLists(BaseModel):
+    playlists: UserListsDTO | None
 
 
 class User(BaseUser):
@@ -70,21 +79,21 @@ class User(BaseUser):
     user_favorite: list['UserFavorite'] | None
     followers: list['UserFollowers'] | None
     subscriptions: list['UserSubscriptions'] | None
-    lists: list['UserListsDTO'] | None
+    lists: list['UserLists'] | None
 
 
-class PrivateUser(BaseModel):
+class PrivateBaseUser(BaseModel):
     id: UUID4
     username: str
     full_name: str | None
-    is_verified: bool
-    is_superuser: bool
-    is_moderator: bool
+
+
+class PrivateUser(PrivateBaseUser):
     user_activity: list['UserActivity'] | None
     user_favorite: list['UserFavorite'] | None
     followers: list['UserFollowers'] | None
     subscriptions: list['UserSubscriptions'] | None
-    lists: list['UserListsDTO'] | None
+    lists: list['UserLists'] | None
 
 
 class UserSchema(BaseUser):

@@ -16,4 +16,5 @@ class FilterAdd(BaseModel):
     age: str | None
     release: int | None
     limit: int | None
+    offset: int | None
     sort: SortGet | None
