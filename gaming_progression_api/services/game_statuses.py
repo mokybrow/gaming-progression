@@ -16,7 +16,7 @@ class StatusesService:
             if not activity_id:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f'Activity type not found',
+                    detail='Activity type not found',
                 )
             unique_string = await uow.statuses.find_one(
                 user_id=user_id, game_id=new_status.game_id, activity_id=activity_id.id,

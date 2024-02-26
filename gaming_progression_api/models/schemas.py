@@ -10,12 +10,13 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from gaming_progression_api.integrations.database import Base
 from gaming_progression_api.models.comments import CommentsSchema
 from gaming_progression_api.models.followers import FollowersSchema
-from gaming_progression_api.models.games import ActivityTypesSchema, ChangeGameFavorite, ChangeGameStatus, GamesModel, RateGame, UserActivitySchema
-from gaming_progression_api.models.likes import LikeLogSchema, LikeTypesSchema
-from gaming_progression_api.models.playlists import PlaylistsSchema, UserListsSchema
+from gaming_progression_api.models.games import ChangeGameFavorite, GamesModel, RateGame, UserActivitySchema
+from gaming_progression_api.models.likes import LikeLogSchema
+from gaming_progression_api.models.playlists import AddGameListSchema, PlaylistsSchema, UserListsSchema
 from gaming_progression_api.models.posts import PostsSchema
-from gaming_progression_api.models.users import UserSchema
-from gaming_progression_api.models.walls import WallsSchema, WallTypesSchema
+from gaming_progression_api.models.service import ObjectTypesSchema
+from gaming_progression_api.models.users import UserMailingsSchema, UserSchema
+from gaming_progression_api.models.walls import WallsSchema
 
 
 class Users(Base):
@@ -294,6 +295,14 @@ class ListGames(Base):
         back_populates="list_data_replied",
     )
 
+    def to_read_model(self) -> AddGameListSchema:
+        return AddGameListSchema(
+            id=self.id,
+            game_id=self.game_id,
+            list_id=self.list_id,
+            created_at=self.created_at
+        )
+
 class GameReviews(Base):
     __tablename__ = 'game_reviews'
 
@@ -370,8 +379,8 @@ class ActivityTypes(Base):
     activity_type: Mapped[list["UserActivity"]] = relationship(
         back_populates="activity_data",
     )
-    def to_read_model(self) -> ActivityTypesSchema:
-        return ActivityTypesSchema(
+    def to_read_model(self) -> ObjectTypesSchema:
+        return ObjectTypesSchema(
             id=self.id,
             name=self.name,
             code=self.code,
@@ -442,8 +451,12 @@ class WallTypes(Base):
     name: Mapped[str]
     code: Mapped[int]
 
-    def to_read_model(self) -> WallTypesSchema:
-        return WallTypesSchema(id=self.id, name=self.name, code=self.code)
+    def to_read_model(self) -> ObjectTypesSchema:
+        return ObjectTypesSchema(
+            id=self.id,
+            name=self.name,
+            code=self.code,
+        )
 
 
 class Walls(Base):
@@ -493,7 +506,12 @@ class Tags(Base):
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     name: Mapped[str]
     code: Mapped[int]
-
+    def to_read_model(self) -> ObjectTypesSchema:
+        return ObjectTypesSchema(
+            id=self.id,
+            name=self.name,
+            code=self.code,
+        )
 
 class ContentTags(Base):
     __tablename__ = 'content_tags'
@@ -510,8 +528,8 @@ class LikeTypes(Base):
     name: Mapped[str]
     code: Mapped[int]
 
-    def to_read_model(self) -> LikeTypesSchema:
-        return LikeTypesSchema(
+    def to_read_model(self) -> ObjectTypesSchema:
+        return ObjectTypesSchema(
             id=self.id,
             name=self.name,
             code=self.code,
@@ -558,3 +576,42 @@ class Pictures(Base):
         server_default=text("TIMEZONE('utc', now())"),
         onupdate=datetime.datetime.utcnow,
     )
+
+
+class UserMailings(Base):
+    __tablename__ = 'user_mailings'
+
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
+    mailing_id: Mapped[UUID]= mapped_column(ForeignKey("mailing_types.id"))
+    created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
+    
+    type_data: Mapped[list["MailingTypes"]] = relationship(
+        back_populates="mailing_type",
+    )
+
+    def to_read_model(self) -> UserMailingsSchema:
+        return UserMailingsSchema(
+            id=self.id,
+            user_id=self.user_id,
+            mailing_id=self.mailing_id,
+            created_at=self.created_at,
+        )
+
+class MailingTypes(Base):
+    __tablename__ = 'mailing_types'
+
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    name: Mapped[str]
+    code: Mapped[int]
+    
+    mailing_type: Mapped[list["UserMailings"]] = relationship(
+        back_populates="type_data",
+    )
+    
+    def to_read_model(self) -> ObjectTypesSchema:
+        return ObjectTypesSchema(
+            id=self.id,
+            name=self.name,
+            code=self.code,
+        )

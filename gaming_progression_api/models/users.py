@@ -27,7 +27,7 @@ class GameDataActivityDTO(BaseModel):
 class UserActivityDTO(BaseModel):
     id: UUID4
     name: str
-    code: int 
+    code: int
 
 
 class UserActivity(BaseModel):
@@ -121,3 +121,10 @@ class PatchUser(BaseModel):
     biography: str | None
     birthdate: datetime.date | None
     password: str | None
+
+
+class UserMailingsSchema(BaseModel):
+    id: UUID4
+    user_id: UUID4
+    mailing_id: UUID4
+    created_at: datetime.datetime

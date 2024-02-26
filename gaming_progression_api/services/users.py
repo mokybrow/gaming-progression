@@ -111,3 +111,13 @@ class UsersService:
             await uow.followers.add_one(data={"follower_id": follower_id, "user_id": user_id})
             await uow.commit()
             return f'Successfully follow on user {user_id}'
+
+
+    async def get_user_mailing_settings(self, uow: IUnitOfWork, user_id: UUID4,):
+        async with uow:
+            get_mailing_settings = await uow.mailings.get_mailing_settings(user_id=user_id)
+        return get_mailing_settings
+
+
+    async def patch_user_mailing_settings(self, uow: IUnitOfWork, user_id: UUID4,):
+        pass

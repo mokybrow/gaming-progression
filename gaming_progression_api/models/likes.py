@@ -13,12 +13,6 @@ class LikeLogSchema(BaseModel):
     updated_at: datetime.datetime
 
 
-class LikeTypesSchema(BaseModel):
-    id: UUID4
-    name: str
-    code: int
-
-
 class AddLike(BaseModel):
     type_id: UUID4
     item_id: UUID4

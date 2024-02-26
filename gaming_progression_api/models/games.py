@@ -59,8 +59,8 @@ class GamesResponseModel(GamesModel):
 
 
 class ChangeGameStatus(BaseModel):
-    game_id: UUID4 
-    activity_type: str 
+    game_id: UUID4
+    activity_type: str
 
 
 class ChangeGameFavorite(BaseModel):
@@ -71,11 +71,6 @@ class RateGame(BaseModel):
     game_id: UUID4
     grade: int
 
-
-class ActivityTypesSchema(BaseModel):
-    id: UUID4
-    name: str
-    code: int
 
 class UserActivitySchema(BaseModel):
     id: UUID4

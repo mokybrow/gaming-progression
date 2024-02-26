@@ -30,7 +30,6 @@ redis = "^5.0.1"
 pythonpath = [
   ".", "gaming_progression_api" 
 ]
-env_override_existing_values = 1
 asyncio_mode="auto"
 env_files = [
   ".test.env",

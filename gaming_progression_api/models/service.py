@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import UUID4, BaseModel
 
 
 class ServiceResponseModel(BaseModel):
@@ -18,3 +18,9 @@ class FilterAdd(BaseModel):
     limit: int | None
     offset: int | None
     sort: SortGet | None
+
+
+class ObjectTypesSchema(BaseModel):
+    id: UUID4
+    name: str
+    code: int

@@ -7,12 +7,6 @@ class WallsSchema(BaseModel):
     item_id: UUID4
 
 
-class WallTypesSchema(BaseModel):
-    id: UUID4
-    name: str
-    code: int
-
-
 class AddWall(BaseModel):
     wall_id: UUID4
     parent_post_id: UUID4 | None

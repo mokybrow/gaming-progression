@@ -6,7 +6,16 @@ from sqlalchemy import delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from gaming_progression_api.models.schemas import AgeRatingsGames, Friends, GameGenres, GamePlatforms, ListGames, UserActivity, UserFavorite, UserLists
+from gaming_progression_api.models.schemas import (
+    AgeRatingsGames,
+    Friends,
+    GameGenres,
+    GamePlatforms,
+    ListGames,
+    UserActivity,
+    UserFavorite,
+    UserLists,
+)
 
 
 class AbstractRepository(ABC):
@@ -30,11 +39,8 @@ class SQLAlchemyRepository(AbstractRepository):
         result = await self.session.execute(stmt)
         return result.scalar_one()
 
-    async def find_all(self, limit: int = None, offset: int = None) -> list | bool:
-        query = (select(self.model)
-                 .limit(limit)
-                 .offset(offset)
-                 )
+    async def find_all(self, limit: int | None = None, offset: int | None = None) -> list | bool:
+        query = select(self.model).limit(limit).offset(offset)
         result = await self.session.execute(query)
         result = [row[0].to_read_model() for row in result.all()]
         return result
@@ -110,7 +116,13 @@ class SQLAlchemyRepository(AbstractRepository):
         except:
             return False
 
-    async def find_all_games_with_filters(self, limit: int | None, offset: int | None, filters: list, sort: str | None = None):
+    async def find_all_games_with_filters(
+        self,
+        limit: int | None,
+        offset: int | None,
+        filters: list,
+        sort: str | None = None,
+    ):
         query = (
             select(self.model)
             .join(self.model.genres)
@@ -136,13 +148,27 @@ class SQLAlchemyRepository(AbstractRepository):
         except:
             return False
 
-
     async def get_playlist_data(self, **filter_by):
         query = (
             select(self.model)
             .options(selectinload(self.model.list_games).selectinload(ListGames.game_data))
             .options(selectinload(self.model.owner_data))
+            .filter_by(**filter_by)
+        )
+        result = await self.session.execute(query)
+        self.session.expunge_all()
 
+        try:
+            result = result.scalars().all()
+            return result
+        except:
+            return False
+
+
+    async def get_mailing_settings(self, **filter_by):
+        query = (
+            select(self.model)
+            .options(selectinload(self.model.type_data))
             .filter_by(**filter_by)
         )
         result = await self.session.execute(query)

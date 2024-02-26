@@ -2,7 +2,7 @@ import datetime
 
 from pydantic import UUID4, BaseModel
 
-from gaming_progression_api.models.users import BaseUser, GameDataActivityDTO, PrivateBaseUser
+from gaming_progression_api.models.users import GameDataActivityDTO, PrivateBaseUser
 
 
 class PlaylistsSchema(BaseModel):
@@ -21,6 +21,13 @@ class UserListsSchema(BaseModel):
     created_at: datetime.datetime
 
 
+class AddGameListSchema(BaseModel):
+    id: UUID4
+    game_id: UUID4
+    list_id: UUID4
+    created_at: datetime.datetime
+
+
 class AddPlaylist(BaseModel):
     name: str
     about: str | None = None
@@ -29,8 +36,7 @@ class AddPlaylist(BaseModel):
 
 class GetPlaylists(BaseModel):
     limit: int
-    offser: int 
-
+    offser: int
 
 
 class PlaylistDTO(BaseModel):
