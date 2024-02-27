@@ -1,6 +1,3 @@
-
-
-
 from pydantic import UUID4, BaseModel
 
 
@@ -9,6 +6,11 @@ class MailingSettingsDTO(BaseModel):
     name: str
     code: int
 
+
 class MailingSettingsResponseModel(BaseModel):
     user_id: UUID4
-    type_data: MailingSettingsDTO 
+    type_data: MailingSettingsDTO
+
+
+class AddMailing(BaseModel):
+    mailing_type: list[str]

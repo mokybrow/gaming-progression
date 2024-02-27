@@ -7,7 +7,6 @@ Create Date: 2024-02-25 20:12:38.396497
 """
 from collections.abc import Sequence
 
-
 from alembic import op
 
 # revision identifiers, used by Alembic.

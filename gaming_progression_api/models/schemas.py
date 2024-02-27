@@ -44,7 +44,6 @@ class Users(Base):
     user_activity: Mapped[list["UserActivity"]] = relationship(back_populates="users")
     user_favorite: Mapped[list["UserFavorite"]] = relationship(back_populates="users")
 
-
     followers: Mapped[list["Friends"]] = relationship(
         "Friends",
         primaryjoin="Users.id==Friends.user_id",
@@ -59,10 +58,9 @@ class Users(Base):
         viewonly=True,
     )
 
-
     lists: Mapped[list["UserLists"]] = relationship(back_populates="users")
 
-    sub_data: Mapped["Playlists"] = relationship("Playlists",  primaryjoin="Playlists.owner_id==Users.id")
+    sub_data: Mapped["Playlists"] = relationship("Playlists", primaryjoin="Playlists.owner_id==Users.id")
 
     def to_read_model(self) -> UserSchema:
         return UserSchema(
@@ -220,6 +218,7 @@ class GamePlatforms(Base):
         back_populates="platfrom_replied",
     )
 
+
 class Playlists(Base):
     __tablename__ = 'playlists'
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
@@ -228,12 +227,12 @@ class Playlists(Base):
     about: Mapped[str] = mapped_column(nullable=True)
     is_private: Mapped[bool] = mapped_column(default=False)
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
-    
+
     playlists_replied: Mapped[list["UserLists"]] = relationship(
         back_populates="playlists",
     )
 
-    list_games:  Mapped[list["ListGames"]] = relationship(
+    list_games: Mapped[list["ListGames"]] = relationship(
         back_populates="playlists",
     )
     owner_data: Mapped[list["Users"]] = relationship(
@@ -242,6 +241,7 @@ class Playlists(Base):
         back_populates="sub_data",
         viewonly=True,
     )
+
     def to_read_model(self) -> PlaylistsSchema:
         return PlaylistsSchema(
             id=self.id,
@@ -249,9 +249,10 @@ class Playlists(Base):
             name=self.name,
             about=self.about,
             is_private=self.is_private,
-            created_at=self.created_at
+            created_at=self.created_at,
         )
-    
+
+
 class UserLists(Base):
     __tablename__ = 'user_lists'
 
@@ -261,7 +262,7 @@ class UserLists(Base):
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
 
     __table_args__ = (UniqueConstraint('user_id', 'list_id', name='_user_one_list_uc'),)
-    
+
     users: Mapped["Users"] = relationship(
         back_populates="lists",
     )
@@ -270,12 +271,7 @@ class UserLists(Base):
     )
 
     def to_read_model(self) -> UserListsSchema:
-        return UserListsSchema(
-            id=self.id,
-            list_id=self.list_id,
-            user_id=self.user_id,
-            created_at=self.created_at
-        )
+        return UserListsSchema(id=self.id, list_id=self.list_id, user_id=self.user_id, created_at=self.created_at)
 
 
 class ListGames(Base):
@@ -296,12 +292,8 @@ class ListGames(Base):
     )
 
     def to_read_model(self) -> AddGameListSchema:
-        return AddGameListSchema(
-            id=self.id,
-            game_id=self.game_id,
-            list_id=self.list_id,
-            created_at=self.created_at
-        )
+        return AddGameListSchema(id=self.id, game_id=self.game_id, list_id=self.list_id, created_at=self.created_at)
+
 
 class GameReviews(Base):
     __tablename__ = 'game_reviews'
@@ -341,7 +333,10 @@ class Friends(Base):
 
     def to_read_model(self) -> FollowersSchema:
         return FollowersSchema(
-            id=self.id, user_id=self.user_id, follower_id=self.follower_id, created_at=self.created_at,
+            id=self.id,
+            user_id=self.user_id,
+            follower_id=self.follower_id,
+            created_at=self.created_at,
         )
 
 
@@ -379,12 +374,14 @@ class ActivityTypes(Base):
     activity_type: Mapped[list["UserActivity"]] = relationship(
         back_populates="activity_data",
     )
+
     def to_read_model(self) -> ObjectTypesSchema:
         return ObjectTypesSchema(
             id=self.id,
             name=self.name,
             code=self.code,
         )
+
 
 class UserActivity(Base):
     __tablename__ = 'user_activity'
@@ -506,12 +503,14 @@ class Tags(Base):
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     name: Mapped[str]
     code: Mapped[int]
+
     def to_read_model(self) -> ObjectTypesSchema:
         return ObjectTypesSchema(
             id=self.id,
             name=self.name,
             code=self.code,
         )
+
 
 class ContentTags(Base):
     __tablename__ = 'content_tags'
@@ -583,9 +582,10 @@ class UserMailings(Base):
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
-    mailing_id: Mapped[UUID]= mapped_column(ForeignKey("mailing_types.id"))
+    mailing_id: Mapped[UUID] = mapped_column(ForeignKey("mailing_types.id"))
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
-    
+    __table_args__ = (UniqueConstraint('user_id', 'mailing_id', name='_user_mailing_uc'),)
+
     type_data: Mapped[list["MailingTypes"]] = relationship(
         back_populates="mailing_type",
     )
@@ -598,17 +598,18 @@ class UserMailings(Base):
             created_at=self.created_at,
         )
 
+
 class MailingTypes(Base):
     __tablename__ = 'mailing_types'
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     name: Mapped[str]
     code: Mapped[int]
-    
+
     mailing_type: Mapped[list["UserMailings"]] = relationship(
         back_populates="type_data",
     )
-    
+
     def to_read_model(self) -> ObjectTypesSchema:
         return ObjectTypesSchema(
             id=self.id,

@@ -2,6 +2,7 @@ from fastapi import HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import UUID4
 
+from gaming_progression_api.models.user_settings import AddMailing
 from gaming_progression_api.models.users import PatchUser, UserCreate
 from gaming_progression_api.services.auth import AuthService
 from gaming_progression_api.services.unitofwork import IUnitOfWork
@@ -112,12 +113,44 @@ class UsersService:
             await uow.commit()
             return f'Successfully follow on user {user_id}'
 
-
-    async def get_user_mailing_settings(self, uow: IUnitOfWork, user_id: UUID4,):
+    async def get_user_mailing_settings(
+        self,
+        uow: IUnitOfWork,
+        user_id: UUID4,
+    ):
         async with uow:
             get_mailing_settings = await uow.mailings.get_mailing_settings(user_id=user_id)
         return get_mailing_settings
 
+    async def patch_user_mailing_settings(self, uow: IUnitOfWork, mailing_data: AddMailing, user_id: UUID4):
+        if not mailing_data:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail='Empty data to add',
+            )
+        values = []
+        async with uow:
+            for name in mailing_data.mailing_type:
+                try:
+                    mailing_type_id = await uow.mailing_types.find_one(name=name)
+                    check_for_user = await uow.mailings.find_one(user_id=user_id, mailing_id=mailing_type_id.id)
+                    if not check_for_user:
+                        values.append({"mailing_id": mailing_type_id.id, "user_id": user_id})
+                    await uow.mailings.delete_one(user_id=user_id, mailing_id=mailing_type_id.id)
+                    await uow.commit()
 
-    async def patch_user_mailing_settings(self, uow: IUnitOfWork, user_id: UUID4,):
-        pass
+                except:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail='Some error',
+                    )
+            if values:
+                try:
+                    await uow.mailings.add_many(values)
+                    await uow.commit()
+                except:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail='Some error',
+                    )
+        return "Data successfully changed"

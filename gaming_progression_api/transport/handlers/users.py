@@ -5,7 +5,7 @@ from pydantic import UUID4, TypeAdapter
 
 from gaming_progression_api.dependencies import UOWDep, get_current_user
 from gaming_progression_api.models.service import ServiceResponseModel
-from gaming_progression_api.models.user_settings import MailingSettingsResponseModel
+from gaming_progression_api.models.user_settings import AddMailing, MailingSettingsResponseModel
 from gaming_progression_api.models.users import PrivateUser, User
 from gaming_progression_api.services.redis import RedisTools
 from gaming_progression_api.services.users import UsersService
@@ -57,7 +57,8 @@ async def mailing_settings(
 @router.patch('/settings/mailing')
 async def mailing_settings(
     uow: UOWDep,
+    mailing_data: AddMailing,
     current_user: Annotated[User, Depends(get_current_user)],
 ):
-    result = await UsersService().patch_user_mailing_settings(uow, current_user.id)
+    result = await UsersService().patch_user_mailing_settings(uow, mailing_data, current_user.id)
     return result

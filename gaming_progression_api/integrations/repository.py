@@ -39,6 +39,11 @@ class SQLAlchemyRepository(AbstractRepository):
         result = await self.session.execute(stmt)
         return result.scalar_one()
 
+    async def add_many(self, data: list) -> UUID4:
+        stmt = insert(self.model).values(data)
+        result = await self.session.execute(stmt)
+        # return result.scalar_one()
+
     async def find_all(self, limit: int | None = None, offset: int | None = None) -> list | bool:
         query = select(self.model).limit(limit).offset(offset)
         result = await self.session.execute(query)
@@ -164,13 +169,8 @@ class SQLAlchemyRepository(AbstractRepository):
         except:
             return False
 
-
     async def get_mailing_settings(self, **filter_by):
-        query = (
-            select(self.model)
-            .options(selectinload(self.model.type_data))
-            .filter_by(**filter_by)
-        )
+        query = select(self.model).options(selectinload(self.model.type_data)).filter_by(**filter_by)
         result = await self.session.execute(query)
         self.session.expunge_all()
 
