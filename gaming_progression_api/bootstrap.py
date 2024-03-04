@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from gaming_progression_api.settings import get_settings
 from gaming_progression_api.transport.handlers.auth import router as auth_router
 from gaming_progression_api.transport.handlers.comments import router as comm_router
+from gaming_progression_api.transport.handlers.feeds import router as feeds_router
 from gaming_progression_api.transport.handlers.games import router as games_router
 from gaming_progression_api.transport.handlers.likes import router as likes_router
 from gaming_progression_api.transport.handlers.playlists import router as playlists_router
@@ -25,6 +26,7 @@ def _setup_api_routers(
     api.include_router(likes_router)
     api.include_router(users_router)
     api.include_router(playlists_router)
+    api.include_router(feeds_router)
 
 
 @lru_cache

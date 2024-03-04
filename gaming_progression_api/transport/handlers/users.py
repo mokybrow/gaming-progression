@@ -60,5 +60,8 @@ async def mailing_settings(
     mailing_data: AddMailing,
     current_user: Annotated[User, Depends(get_current_user)],
 ):
+    '''Отправляются типы почтовых рассылок, которые нужно изменить,
+    например удалить news и добавить holiday, тогда отправляется holiday и news,
+    один удалится если он есть, а другой дабавится если его нет, иначе он тоже удалится'''
     result = await UsersService().patch_user_mailing_settings(uow, mailing_data, current_user.id)
     return result

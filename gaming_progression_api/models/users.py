@@ -6,7 +6,7 @@ from pydantic import UUID4, BaseModel, ConfigDict, EmailStr
 class BaseUser(BaseModel):
     username: str
     email: EmailStr
-    full_name: str | None
+    full_name: str | None = None
     disabled: bool = False
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
