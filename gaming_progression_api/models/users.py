@@ -80,6 +80,8 @@ class User(BaseUser):
     followers: list['UserFollowers'] | None
     subscriptions: list['UserSubscriptions'] | None
     lists: list['UserLists'] | None
+    created_at: datetime.datetime
+    biography: str | None
 
 
 class PrivateBaseUser(BaseModel):
