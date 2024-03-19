@@ -39,7 +39,7 @@ class GamesService:
             game = await uow.games.find_one_game(**filter_by)
             game_response = [GamesResponseModel.model_validate(row, from_attributes=True) for row in game]
 
-            return game_response
+            return game_response[0]
 
     async def rate_game(self, uow: IUnitOfWork, rate_game: RateGame, user_id: UUID4):
         if rate_game.grade > 10 or rate_game.grade < 1:

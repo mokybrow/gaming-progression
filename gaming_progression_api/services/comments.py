@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 from pydantic import UUID4
 
-from gaming_progression_api.models.comments import AddComment
+from gaming_progression_api.models.comments import AddComment, CommentsResponseModel
 from gaming_progression_api.services.unitofwork import IUnitOfWork
 from gaming_progression_api.settings import get_settings
 
@@ -21,7 +21,8 @@ class CommentsService:
 
     async def get_comments(self, uow: IUnitOfWork, item_id: UUID4):
         async with uow:
-            item_comments = await uow.comments.find_one_comment(item_id=item_id)
+            item_comments = await uow.comments.find_one_comment(item_id=item_id, parent_comment_id=None)
+            item_comments = [CommentsResponseModel.model_validate(row, from_attributes=True) for row in item_comments]
             return item_comments
 
     async def delete_comment(self, uow: IUnitOfWork, item_id: UUID4, user_id: UUID4):

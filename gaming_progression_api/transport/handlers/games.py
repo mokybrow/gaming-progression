@@ -21,9 +21,9 @@ router = APIRouter(
 )
 
 
-@router.get('/{slug}', response_model=list[GamesResponseModel])
-async def get_game_data(uow: UOWDep, slug: str) -> list[GamesResponseModel]:
-    type_adapter = TypeAdapter(list[GamesResponseModel])
+@router.get('/{slug}', response_model=GamesResponseModel)
+async def get_game_data(uow: UOWDep, slug: str) -> GamesResponseModel:
+    type_adapter = TypeAdapter(GamesResponseModel)
 
     result = await RedisTools().get_pair(key=slug)
     if result is None:

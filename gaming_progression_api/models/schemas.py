@@ -425,8 +425,11 @@ class Comments(Base):
     like_count: Mapped[int] = mapped_column(default=0)
     deleted: Mapped[bool]
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
+    author_info: Mapped["Users"] = relationship("Users", primaryjoin="Users.id==Comments.user_id")
 
-    child_comment: Mapped["Comments"] = relationship("Comments")
+    child_comment: Mapped[list["Comments"]] = relationship(
+        "Comments", primaryjoin="and_(Comments.id==Comments.parent_comment_id)"
+    )
 
     def to_read_model(self) -> CommentsSchema:
         return CommentsSchema(
