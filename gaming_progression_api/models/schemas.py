@@ -428,8 +428,12 @@ class Comments(Base):
     author_info: Mapped["Users"] = relationship("Users", primaryjoin="Users.id==Comments.user_id")
 
     child_comment: Mapped[list["Comments"]] = relationship(
-        "Comments", primaryjoin="and_(Comments.id==Comments.parent_comment_id)"
-    )
+        "Comments", 
+        primaryjoin="Comments.id == Comments.parent_comment_id",
+        order_by='Comments.created_at.asc()'
+        )
+
+
 
     def to_read_model(self) -> CommentsSchema:
         return CommentsSchema(
@@ -551,6 +555,7 @@ class LikeLog(Base):
         server_default=text("TIMEZONE('utc', now())"),
         onupdate=datetime.datetime.utcnow,
     )
+
     __table_args__ = (UniqueConstraint('user_id', 'item_id', name='_user_likes_uc'),)
 
     def to_read_model(self) -> LikeLogSchema:

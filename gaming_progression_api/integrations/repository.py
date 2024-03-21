@@ -2,15 +2,16 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 from pydantic import UUID4
-from sqlalchemy import delete, insert, select, update
+from sqlalchemy import and_, case, delete, func, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, contains_eager
 
 from gaming_progression_api.models.schemas import (
     AgeRatingsGames,
     Friends,
     GameGenres,
     GamePlatforms,
+    LikeLog,
     ListGames,
     UserActivity,
     UserFavorite,
@@ -76,18 +77,42 @@ class SQLAlchemyRepository(AbstractRepository):
     # ------------------------------>
     async def find_one_comment(self, **filter_by) -> dict | bool:
         query = (
-            select(self.model)
+            select(self.model, 
+                   )
             .options(selectinload(self.model.child_comment).selectinload(self.model.author_info))
             .options(selectinload(self.model.author_info))
             .filter_by(**filter_by)
+            .order_by(self.model.created_at.desc())
         )
         result = await self.session.execute(query)
         self.session.expunge_all()
+
         try:
-            result = result.unique().scalars().all()
+            result = result.scalars().all()
             return result
         except:
             return False
+        
+
+    async def check_user_comments_like(self, item_id: UUID4, user_id: UUID4) -> dict | bool:
+        query = (
+            select(self.model.id, 
+                   func.sum(case((and_(LikeLog.user_id == user_id, LikeLog.item_id == self.model.id, LikeLog.value==True), 1), else_=0))
+                   .label('hasAuthorLike')
+                   )
+
+            .filter_by(item_id=item_id)
+            .group_by(self.model.id)
+        )
+        result = await self.session.execute(query)
+        self.session.expunge_all()
+
+        try:
+            result = result.all()
+            return result
+        except:
+            return False
+        
 
     async def find_one_user(self, **filter_by):
         query = (
