@@ -130,3 +130,9 @@ class UserMailingsSchema(BaseModel):
     user_id: UUID4
     mailing_id: UUID4
     created_at: datetime.datetime
+
+
+class UserForSearchModel(BaseModel):
+    id: UUID4
+    username: str
+    full_name: str | None = None

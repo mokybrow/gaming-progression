@@ -6,7 +6,7 @@ from pydantic import UUID4, TypeAdapter
 from gaming_progression_api.dependencies import UOWDep, get_current_user
 from gaming_progression_api.models.service import ServiceResponseModel
 from gaming_progression_api.models.user_settings import AddMailing, MailingSettingsResponseModel
-from gaming_progression_api.models.users import PrivateUser, User
+from gaming_progression_api.models.users import PrivateUser, User, UserForSearchModel
 from gaming_progression_api.services.redis import RedisTools
 from gaming_progression_api.services.users import UsersService
 from gaming_progression_api.settings import get_settings
@@ -64,4 +64,13 @@ async def mailing_settings(
     например удалить news и добавить holiday, тогда отправляется holiday и news,
     один удалится если он есть, а другой дабавится если его нет, иначе он тоже удалится'''
     result = await UsersService().patch_user_mailing_settings(uow, mailing_data, current_user.id)
+    return result
+
+
+@router.get('/search/{value}', response_model=list[UserForSearchModel])
+async def search_user(
+    uow: UOWDep,
+    value: str,
+) -> list[UserForSearchModel] | ServiceResponseModel:
+    result = await UsersService().search_user_db(uow, value)
     return result

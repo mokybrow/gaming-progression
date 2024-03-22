@@ -74,6 +74,11 @@ class SQLAlchemyRepository(AbstractRepository):
         except:
             return False
 
+    async def search_by_field(self, *filter_by) -> dict | bool:
+        query = select(self.model).filter(*filter_by)
+        result = await self.session.execute(query)
+        result = [row[0].to_read_model() for row in result.all()]
+        return result
     # ------------------------------>
     async def find_one_comment(self, **filter_by) -> dict | bool:
         query = (
