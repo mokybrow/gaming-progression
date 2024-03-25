@@ -88,8 +88,12 @@ async def rate_game(uow: UOWDep, rate_game: RateGame, current_user: Annotated[Us
     result = await GamesService().rate_game(uow, rate_game, user_id=current_user.id)
     return result
 
+@router.get('/rate/{game_id}')
+async def get_user_rate_game(uow: UOWDep, game_id: UUID4, current_user: Annotated[User, Depends(get_current_user)]):
+    result = await GamesService().get_user_rate(uow, game_id, user_id=current_user.id)
+    return result
 
-@router.delete('/rate')
+@router.delete('/rate/{game_id}')
 async def delete_game_grade(uow: UOWDep, game_id: UUID4, current_user: Annotated[User, Depends(get_current_user)]):
     result = await GamesService().delete_rate(uow, game_id=game_id, user_id=current_user.id)
     return result

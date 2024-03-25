@@ -64,6 +64,13 @@ class GamesService:
                 status_code=status.HTTP_200_OK,
                 detail=f'Game {rate_game['game_id']} added grade {rate_game['grade']}',
             )
+    
+    async def get_user_rate(self, uow: IUnitOfWork, game_id: RateGame, user_id: UUID4):
+        async with uow:
+            unique_string = await uow.rates.find_one(user_id=user_id, game_id=game_id)
+            if unique_string:
+                return unique_string.grade
+            return 0
         
     async def delete_rate(self, uow: IUnitOfWork,  game_id: UUID4, user_id: UUID4):
 
