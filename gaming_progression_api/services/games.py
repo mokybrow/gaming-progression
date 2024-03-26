@@ -2,7 +2,7 @@ from fastapi import HTTPException, status
 from pydantic import UUID4
 from sqlalchemy import NotNullable, asc, desc
 
-from gaming_progression_api.models.games import GamesResponseModel, RateGame
+from gaming_progression_api.models.games import GamesCountResponseModel, GamesResponseModel, RateGame
 from gaming_progression_api.models.schemas import Games
 from gaming_progression_api.models.service import FilterAdd
 from gaming_progression_api.services.unitofwork import IUnitOfWork
@@ -32,6 +32,15 @@ class GamesService:
                 return False
             games = [GamesResponseModel.model_validate(row, from_attributes=True) for row in games]
             return games
+
+    async def get_games_count_with_filters(self, uow: IUnitOfWork, filters: FilterAdd):
+        true_filters = await validate_filters(filters)
+
+        async with uow:
+            games = await uow.games.get_games_count_with_filters(filters=true_filters)
+            if not games:
+                return False
+            return GamesCountResponseModel.model_validate({"game_count": len(games)}, from_attributes=True)
 
 
     async def get_game(self, uow: IUnitOfWork, **filter_by):

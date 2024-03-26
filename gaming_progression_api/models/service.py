@@ -21,6 +21,13 @@ class FilterAdd(BaseModel):
     offset: int | None
     sort: SortGet | None
 
+class FilterCount(BaseModel):
+    genre: List[str | None] | None
+    platform: List[str | None] | None
+    age: str | None
+    release: List[int | None] | None
+
+
 
 class ObjectTypesSchema(BaseModel):
     id: UUID4

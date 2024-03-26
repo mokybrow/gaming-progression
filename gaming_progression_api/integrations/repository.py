@@ -188,6 +188,29 @@ class SQLAlchemyRepository(AbstractRepository):
         except:
             return False
 
+    async def get_games_count_with_filters(
+        self,
+        filters: list,
+    ):
+        query = (
+            select(func.count("*").label("game_count"))
+            .select_from(self.model)
+            .join(self.model.genres)
+            .join(GameGenres.genre)
+            .join(self.model.platforms)
+            .join(GamePlatforms.platform)
+            .join(self.model.age_ratings)
+            .join(AgeRatingsGames.age_rating)
+            .filter(*filters)
+            .group_by(self.model.id)
+        )
+        result = await self.session.execute(query)
+        try:
+            result = result.all()
+            return result
+        except:
+            return False
+        
     async def get_playlist_data(self, **filter_by):
         query = (
             select(self.model)

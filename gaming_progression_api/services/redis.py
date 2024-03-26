@@ -9,4 +9,4 @@ class RedisTools:
         await self.redis.set(key, value, ex=exp)
 
     async def get_pair(self, key: str):
-        await self.redis.get(key)
+        return await self.redis.get(key)

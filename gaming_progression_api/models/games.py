@@ -57,6 +57,9 @@ class GamesResponseModel(GamesModel):
     genres: list["Genre"]
     platforms: list["Platfrom"]
 
+class GamesCountResponseModel(BaseModel):
+    game_count: int
+
 
 class ChangeGameStatus(BaseModel):
     game_id: UUID4
