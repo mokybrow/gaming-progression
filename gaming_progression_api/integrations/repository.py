@@ -7,12 +7,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload, contains_eager
 
 from gaming_progression_api.models.schemas import (
+    AgeRatings,
     AgeRatingsGames,
     Friends,
     GameGenres,
     GamePlatforms,
+    Genres,
     LikeLog,
     ListGames,
+    Platforms,
     UserActivity,
     UserFavorite,
     UserLists,
@@ -165,12 +168,12 @@ class SQLAlchemyRepository(AbstractRepository):
     ):
         query = (
             select(self.model)
-            .join(self.model.genres)
-            .join(GameGenres.genre)
-            .join(self.model.platforms)
-            .join(GamePlatforms.platform)
-            .join(self.model.age_ratings)
-            .join(AgeRatingsGames.age_rating)
+            .join(GameGenres, isouter=True)
+            .join(Genres, isouter=True)
+            .join(GamePlatforms, isouter=True)
+            .join(Platforms, isouter=True)
+            .join(AgeRatingsGames, isouter=True)
+            .join(AgeRatings, isouter=True)
             .options(selectinload(self.model.genres).selectinload(GameGenres.genre))
             .options(selectinload(self.model.platforms).selectinload(GamePlatforms.platform))
             .options(selectinload(self.model.age_ratings).selectinload(AgeRatingsGames.age_rating))
@@ -193,16 +196,14 @@ class SQLAlchemyRepository(AbstractRepository):
         filters: list,
     ):
         query = (
-            select(func.count("*").label("game_count"))
-            .select_from(self.model)
-            .join(self.model.genres)
-            .join(GameGenres.genre)
-            .join(self.model.platforms)
-            .join(GamePlatforms.platform)
-            .join(self.model.age_ratings)
-            .join(AgeRatingsGames.age_rating)
+            select(func.count(self.model.id.distinct()).label("game_count"))
+            .join(GameGenres, isouter=True)
+            .join(Genres, isouter=True)
+            .join(GamePlatforms, isouter=True)
+            .join(Platforms, isouter=True)
+            .join(AgeRatingsGames, isouter=True)
+            .join(AgeRatings, isouter=True)
             .filter(*filters)
-            .group_by(self.model.id)
         )
         result = await self.session.execute(query)
         try:

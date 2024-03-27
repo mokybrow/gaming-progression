@@ -42,8 +42,8 @@ async def get_game_data(uow: UOWDep, slug: str) -> GamesResponseModel:
     return result
 
 
-@router.post('', response_model=list[GamesResponseModel])
-async def get_games(uow: UOWDep, filters: FilterAdd) -> list[GamesResponseModel]:
+@router.post('', response_model=list[GamesResponseModel] | None)
+async def get_games(uow: UOWDep, filters: FilterAdd) -> list[GamesResponseModel] | None:
     # print(filters)
     type_adapter_filter = TypeAdapter(FilterAdd)
     type_adapter = TypeAdapter(list[GamesResponseModel])
@@ -62,6 +62,7 @@ async def get_games(uow: UOWDep, filters: FilterAdd) -> list[GamesResponseModel]
         await RedisTools().set_pair(encoded_filters, encoded, exp=120)
         return result
     result = type_adapter.validate_json(result)
+
     return result
 
 
@@ -83,6 +84,7 @@ async def get_games_count(uow: UOWDep, filters: FilterCount) -> GamesCountRespon
         await RedisTools().set_pair(encoded_filters, encoded, exp=120)
         return result
     result = type_adapter.validate_json(result)
+
     return result
 
 
