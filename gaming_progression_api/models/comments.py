@@ -24,6 +24,7 @@ class CommentsSchema(BaseModel):
     deleted: bool
     created_at: datetime.datetime
 
+
 class UserDTO(BaseModel):
     id: UUID4
     username: str
@@ -33,16 +34,17 @@ class UserDTO(BaseModel):
 class LikeLog(BaseModel):
     id: UUID4
     user_id: UUID4
-    item_id:UUID4
+    item_id: UUID4
     type_id: UUID4
     value: bool
     created_at: datetime.datetime
     updated_at: datetime.datetime
 
+
 class ChildCommentDTO(BaseModel):
     id: UUID4
     user_id: UUID4
-    item_id:UUID4
+    item_id: UUID4
     parent_comment_id: UUID4 | None
     created_at: datetime.datetime
     text: str
@@ -54,25 +56,26 @@ class ChildCommentDTO(BaseModel):
 class CommentsResponseModel(BaseModel):
     id: UUID4
     user_id: UUID4
-    item_id:UUID4
+    item_id: UUID4
     parent_comment_id: UUID4 | None
     created_at: datetime.datetime
     text: str
     like_count: int
     deleted: bool
     author_info: UserDTO
-    child_comment: list["ChildCommentDTO"] 
+    child_comment: list["ChildCommentDTO"]
 
 
 class CommentDTO(BaseModel):
     id: UUID4
     user_id: UUID4
-    item_id:UUID4
+    item_id: UUID4
     parent_comment_id: UUID4 | None
     created_at: datetime.datetime
     text: str
     like_count: int
     deleted: bool
+
 
 class UserCommentsLikes(BaseModel):
     id: UUID4

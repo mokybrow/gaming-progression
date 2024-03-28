@@ -156,17 +156,16 @@ class UsersService:
                         detail='Some error',
                     )
         return "Data successfully changed"
-    
+
     async def search_user_db(self, uow: IUnitOfWork, value: str):
         search = or_(Users.username.contains(value), Users.full_name.contains(value))
         async with uow:
             result = await uow.users.search_by_field(search)
-        
-        if  not result:
+
+        if not result:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="User doesn't exist",
                 headers={'WWW-Authenticate': 'Bearer'},
             )
         return result
-        

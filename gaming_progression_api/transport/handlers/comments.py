@@ -34,16 +34,17 @@ async def get_comments(uow: UOWDep, id: UUID4):
     result = await CommentsService().get_comments(uow, id)
     return result
 
+
 @router.post(
     '/likes',
 )
-async def get_comments(uow: UOWDep,
-                           comment: CommentLikes,
-                               current_user: Annotated[User, Depends(get_current_user)],
+async def get_comments(
+    uow: UOWDep,
+    comment: CommentLikes,
+    current_user: Annotated[User, Depends(get_current_user)],
 ):
     result = await CommentsService().check_user_likes_comments(uow, comment.item_id, current_user.id)
     return result
-
 
 
 @router.delete(

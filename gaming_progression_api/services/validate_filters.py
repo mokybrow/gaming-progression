@@ -3,6 +3,7 @@ from datetime import datetime
 from sqlalchemy import extract, or_
 
 from gaming_progression_api.models.schemas import AgeRatings, Games, Genres, Platforms
+from gaming_progression_api.models.search import SearchModel
 from gaming_progression_api.models.service import FilterAdd
 
 
@@ -38,5 +39,17 @@ async def validate_filters_count(filters: FilterAdd):
     if filters.release is not None and filters.release:
         release = or_(extract('year', Games.release_date) == i for i in filters.release)
         true_filters.append(release)
+
+    return true_filters
+
+
+async def validate_filters_for_search(filters: SearchModel):
+    filters = filters.search_string.split()
+
+    true_filters = []
+    if filters:
+        for i in filters:
+            games = or_(Games.title_tsv.match(i))
+            true_filters.append(games)
 
     return true_filters

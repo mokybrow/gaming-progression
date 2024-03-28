@@ -4,7 +4,13 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import UUID4, TypeAdapter
 
 from gaming_progression_api.dependencies import UOWDep, get_current_user
-from gaming_progression_api.models.games import ChangeGameFavorite, ChangeGameStatus, GamesCountResponseModel, GamesResponseModel, RateGame
+from gaming_progression_api.models.games import (
+    ChangeGameFavorite,
+    ChangeGameStatus,
+    GamesCountResponseModel,
+    GamesResponseModel,
+    RateGame,
+)
 from gaming_progression_api.models.service import FilterAdd, FilterCount
 from gaming_progression_api.models.users import User
 from gaming_progression_api.services.game_statuses import StatusesService
@@ -48,7 +54,7 @@ async def get_games(uow: UOWDep, filters: FilterAdd) -> list[GamesResponseModel]
     type_adapter_filter = TypeAdapter(FilterAdd)
     type_adapter = TypeAdapter(list[GamesResponseModel])
     encoded_filters = type_adapter_filter.dump_json(filters).decode("utf-8")
-    
+
     result = await RedisTools().get_pair(key=encoded_filters)
     if not result:
         result = await GamesService().get_games_with_filters(uow, filters)
@@ -113,10 +119,12 @@ async def rate_game(uow: UOWDep, rate_game: RateGame, current_user: Annotated[Us
     result = await GamesService().rate_game(uow, rate_game, user_id=current_user.id)
     return result
 
+
 @router.get('/rate/{game_id}')
 async def get_user_rate_game(uow: UOWDep, game_id: UUID4, current_user: Annotated[User, Depends(get_current_user)]):
     result = await GamesService().get_user_rate(uow, game_id, user_id=current_user.id)
     return result
+
 
 @router.delete('/rate/{game_id}')
 async def delete_game_grade(uow: UOWDep, game_id: UUID4, current_user: Annotated[User, Depends(get_current_user)]):

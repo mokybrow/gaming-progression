@@ -13,6 +13,7 @@ from gaming_progression_api.transport.handlers.playlists import router as playli
 from gaming_progression_api.transport.handlers.posts import router as posts_router
 from gaming_progression_api.transport.handlers.users import router as users_router
 from gaming_progression_api.transport.handlers.walls import router as walls_router
+from gaming_progression_api.transport.handlers.search import router as search_router
 
 
 def _setup_api_routers(
@@ -27,6 +28,7 @@ def _setup_api_routers(
     api.include_router(users_router)
     api.include_router(playlists_router)
     api.include_router(feeds_router)
+    api.include_router(search_router)
 
 
 @lru_cache

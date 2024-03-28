@@ -19,20 +19,17 @@ class CommentsService:
             await uow.commit()
             return comm
 
-
     async def get_comments(self, uow: IUnitOfWork, item_id: UUID4):
         async with uow:
             item_comments = await uow.comments.find_one_comment(item_id=item_id, parent_comment_id=None)
             item_comments = [CommentsResponseModel.model_validate(row, from_attributes=True) for row in item_comments]
             return item_comments
 
-
     async def check_user_likes_comments(self, uow: IUnitOfWork, item_id: UUID4, user_id: UUID4):
         async with uow:
             item_comments = await uow.comments.check_user_comments_like(item_id=item_id, user_id=user_id)
             item_comments = [UserCommentsLikes.model_validate(row, from_attributes=True) for row in item_comments]
             return item_comments
-
 
     async def delete_comment(self, uow: IUnitOfWork, item_id: UUID4, user_id: UUID4):
         async with uow:

@@ -428,12 +428,8 @@ class Comments(Base):
     author_info: Mapped["Users"] = relationship("Users", primaryjoin="Users.id==Comments.user_id")
 
     child_comment: Mapped[list["Comments"]] = relationship(
-        "Comments", 
-        primaryjoin="Comments.id == Comments.parent_comment_id",
-        order_by='Comments.created_at.asc()'
-        )
-
-
+        "Comments", primaryjoin="Comments.id == Comments.parent_comment_id", order_by='Comments.created_at.asc()'
+    )
 
     def to_read_model(self) -> CommentsSchema:
         return CommentsSchema(

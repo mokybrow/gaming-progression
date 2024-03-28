@@ -57,6 +57,7 @@ class GamesResponseModel(GamesModel):
     genres: list["Genre"]
     platforms: list["Platfrom"]
 
+
 class GamesCountResponseModel(BaseModel):
     game_count: int
 
