@@ -10,7 +10,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from gaming_progression_api.integrations.database import Base
 from gaming_progression_api.models.comments import CommentsSchema
 from gaming_progression_api.models.followers import FollowersSchema
-from gaming_progression_api.models.games import ChangeGameFavorite, GamesModel, RateGame, UserActivitySchema
+from gaming_progression_api.models.games import ChangeGameFavorite, GamesModel, RateGame, RateGameScheme, UserActivitySchema
 from gaming_progression_api.models.likes import LikeLogSchema
 from gaming_progression_api.models.playlists import AddGameListSchema, PlaylistsSchema, UserListsSchema
 from gaming_progression_api.models.posts import PostsSchema
@@ -306,8 +306,9 @@ class GameReviews(Base):
 
     __table_args__ = (UniqueConstraint('user_id', 'game_id', name='_game_review_uc'),)
 
-    def to_read_model(self) -> RateGame:
-        return RateGame(
+    def to_read_model(self) -> RateGameScheme:
+        return RateGameScheme(
+            id=self.id,
             user_id=self.user_id,
             game_id=self.game_id,
             grade=self.grade,

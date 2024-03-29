@@ -246,7 +246,6 @@ class SQLAlchemyRepository(AbstractRepository):
     async def search_game(self, filters: list):
         query = select(self.model).filter(*filters).limit(10)
         result = await self.session.execute(query)
-        print(query)
         self.session.expunge_all()
         try:
             result = result.scalars().all()

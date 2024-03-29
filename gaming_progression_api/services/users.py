@@ -158,7 +158,7 @@ class UsersService:
         return "Data successfully changed"
 
     async def search_user_db(self, uow: IUnitOfWork, value: str):
-        search = or_(Users.username.contains(value), Users.full_name.contains(value))
+        search = or_(Users.username.icontains(value), Users.full_name.icontains(value))
         async with uow:
             result = await uow.users.search_by_field(search)
 

@@ -58,7 +58,7 @@ class GamesService:
         async with uow:
             unique_string = await uow.rates.find_one(user_id=user_id, game_id=rate_game.game_id)
             if unique_string:
-                await uow.rates.edit_one(data={'grade': rate_game.grade})
+                await uow.rates.edit_one(data={'grade': rate_game.grade}, id=unique_string.id)
                 await uow.commit()
                 raise HTTPException(
                         status_code=status.HTTP_200_OK,
