@@ -88,6 +88,8 @@ class PrivateBaseUser(BaseModel):
     id: UUID4
     username: str
     full_name: str | None
+    biography: str | None
+    created_at: datetime.datetime
 
 
 class PrivateUser(PrivateBaseUser):
