@@ -40,6 +40,7 @@ class UsersService:
 
     async def get_user_profile(self, uow: IUnitOfWork, username: str):
         async with uow:
+            user = await uow.users.find_one(username=username)
             user = await uow.users.find_one_user(username=username)
 
         if not user:

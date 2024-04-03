@@ -2,13 +2,14 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 from pydantic import UUID4
-from sqlalchemy import and_, case, delete, func, insert, or_, select, update
+from sqlalchemy import and_, asc, case, delete, desc, distinct, func, funcfilter, insert, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload, contains_eager
 
 from gaming_progression_api.models.schemas import (
     AgeRatings,
     AgeRatingsGames,
+    Comments,
     Friends,
     GameGenres,
     GamePlatforms,
@@ -16,6 +17,7 @@ from gaming_progression_api.models.schemas import (
     LikeLog,
     ListGames,
     Platforms,
+    Posts,
     UserActivity,
     UserFavorite,
     UserLists,
@@ -128,7 +130,10 @@ class SQLAlchemyRepository(AbstractRepository):
 
     async def find_one_user(self, **filter_by):
         query = (
-            select(self.model)
+            select(
+                self.model,
+
+            )
             .options(selectinload(self.model.user_activity).selectinload(UserActivity.game_data))
             .options(selectinload(self.model.user_activity).selectinload(UserActivity.activity_data))
             .options(selectinload(self.model.user_favorite).selectinload(UserFavorite.game_data))
@@ -249,6 +254,85 @@ class SQLAlchemyRepository(AbstractRepository):
         self.session.expunge_all()
         try:
             result = result.scalars().all()
+            return result
+        except:
+            return False
+
+    async def get_user_posts(self, offset: int = 10, **filter_by) -> dict | bool:
+        query = (select(self.model,
+                funcfilter(func.count(distinct(Comments.id)),
+                            Comments.item_id == self.model.id).label('commentCount'))
+                .filter_by(**filter_by)
+                .options(selectinload(self.model.parent_post_data))
+                .options(selectinload(self.model.users))
+                .group_by(self.model.id)
+                .limit(offset)
+                .order_by(desc(self.model.created_at))
+                )
+        result = await self.session.execute(query)
+        self.session.expunge_all()
+        try:
+            result = result.all()
+            return result
+        except:
+            return False
+        
+    async def get_auth_user_posts(self, user_id: UUID4, offset: int = 10, **filter_by) -> dict | bool:
+        query = (select(self.model,   
+                func.sum(distinct(
+                    case(
+                        (and_(LikeLog.user_id == user_id, LikeLog.item_id == self.model.id, LikeLog.value == True), 1),
+                        else_=0,
+                    ))
+                ).label('hasAuthorLike'), 
+                funcfilter(func.count(distinct(Comments.id)), Comments.item_id == self.model.id).label('commentCount'),
+                func.count(self.model.id).label('postsCount'))
+                .filter_by(**filter_by)
+                .options(selectinload(self.model.parent_post_data).selectinload(self.model.users))
+                .options(selectinload(self.model.users))
+
+                .group_by(self.model.id)
+                .order_by(desc(self.model.created_at))
+                .limit(offset))
+        result = await self.session.execute(query)
+        self.session.expunge_all()
+        try:
+            result = result.all()
+            return result
+        except:
+            return False
+    
+    async def get_post(self, user_id: UUID4, **filter_by) -> dict | bool:
+        query = (select(self.model,   
+                func.sum(distinct(
+                    case(
+                        (and_(LikeLog.user_id == user_id, LikeLog.item_id == self.model.id, LikeLog.value == True), 1),
+                        else_=0,
+                    ))
+                ).label('hasAuthorLike'), 
+                funcfilter(func.count(distinct(Comments.id)), Comments.item_id == self.model.id).label('commentCount'),
+                func.count(self.model.id).label('postsCount'))
+                .filter_by(**filter_by)
+                .options(selectinload(self.model.parent_post_data).selectinload(self.model.users))
+                .options(selectinload(self.model.users))
+
+                .group_by(self.model.id)
+                .order_by(desc(self.model.created_at)))
+        result = await self.session.execute(query)
+        self.session.expunge_all()
+        try:
+            result = result.all()
+            return result
+        except:
+            return False
+        
+    async def get_posts_count(self, **filter_by) -> dict | bool:
+        query = (select(func.count(self.model.id.distinct()).label("posts_count"))
+                .filter_by(**filter_by)
+        )
+        result = await self.session.execute(query)
+        try:
+            result = result.all()
             return result
         except:
             return False

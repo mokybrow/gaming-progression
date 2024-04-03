@@ -2,7 +2,7 @@ from fastapi import HTTPException, status
 from pydantic import UUID4
 from sqlalchemy import exc
 
-from gaming_progression_api.models.posts import AddPost, DeletePost
+from gaming_progression_api.models.posts import AddPost, DeletePost, GetPostModel, PostsCount, PostsResponseModel
 from gaming_progression_api.services.unitofwork import IUnitOfWork
 from gaming_progression_api.settings import get_settings
 
@@ -13,7 +13,7 @@ class PostsService:
     async def create_post(self, uow: IUnitOfWork, post_data: AddPost, user_id: UUID4):
         async with uow:
             presence_of_wall = await uow.walls.find_one(item_id=user_id)
-            '''проверяем есть ли у ползователя стена'''
+            '''проверяем есть ли у пользователя стена'''
             if not presence_of_wall:
                 '''если стены у пользователя нет, то мы создаём её'''
                 wall_type_id = await uow.wall_types.find_one(name='personal')
@@ -44,6 +44,94 @@ class PostsService:
                 return f'Post with id {post_id} was created'
             except:
                 return 'Some error'
+
+
+    async def get_user_posts(self, uow: IUnitOfWork, params: GetPostModel):
+        async with uow:
+            user = await uow.users.find_one(username=params.username)
+            if not user:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="User not found",
+                )
+            wall_id = await uow.walls.find_one(item_id=user.id)
+            if  not wall_id:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="User have no posts",
+                )
+            
+            posts = await uow.posts.get_user_posts(offset=params.offset, wall_id=wall_id.id)
+            if not posts:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="User have no posts",
+                )
+       
+            wall = [PostsResponseModel.model_validate(row, from_attributes=True) for row in posts]
+            return wall
+        
+    async def get_auth_user_posts(self, uow: IUnitOfWork,  params: GetPostModel, user_id: UUID4):
+        async with uow:
+            user = await uow.users.find_one(username=params.username)
+            if not user:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="User not found",
+                )
+            wall_id = await uow.walls.find_one(item_id=user.id)
+            if  not wall_id:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="User have no posts",
+                )
+            
+            posts = await uow.posts.get_auth_user_posts(wall_id=wall_id.id, user_id=user_id, offset=params.offset)
+            if not posts:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="User have no posts",
+                )
+       
+            wall = [PostsResponseModel.model_validate(row, from_attributes=True) for row in posts]
+            return wall
+        
+    async def get_post(self, uow: IUnitOfWork, id: UUID4, user_id: UUID4):
+        async with uow:
+
+            post = await uow.posts.get_post(id=id, user_id=user_id)
+            if not post:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Post not found",
+                )
+       
+            wall = PostsResponseModel.model_validate(post[0], from_attributes=True)
+            return wall
+        
+    async def get_posts_count(self, uow: IUnitOfWork,  username: str):
+        async with uow:
+            user = await uow.users.find_one(username=username)
+            if not user:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="User not found",
+                )
+            wall_id = await uow.walls.find_one(item_id=user.id)
+            if  not wall_id:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="User have no posts",
+                )
+            
+            posts = await uow.posts.get_posts_count(wall_id=wall_id.id)
+            if not posts:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="User have no posts",
+                )
+            return PostsCount.model_validate(posts[0], from_attributes=True)
+    
 
     async def delete_post(self, uow: IUnitOfWork, post_data: DeletePost, user_id: UUID4):
         async with uow:

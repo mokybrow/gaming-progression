@@ -10,7 +10,13 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from gaming_progression_api.integrations.database import Base
 from gaming_progression_api.models.comments import CommentsSchema
 from gaming_progression_api.models.followers import FollowersSchema
-from gaming_progression_api.models.games import ChangeGameFavorite, GamesModel, RateGame, RateGameScheme, UserActivitySchema
+from gaming_progression_api.models.games import (
+    ChangeGameFavorite,
+    GamesModel,
+    RateGame,
+    RateGameScheme,
+    UserActivitySchema,
+)
 from gaming_progression_api.models.likes import LikeLogSchema
 from gaming_progression_api.models.playlists import AddGameListSchema, PlaylistsSchema, UserListsSchema
 from gaming_progression_api.models.posts import PostsSchema
@@ -42,6 +48,7 @@ class Users(Base):
     )
 
     user_activity: Mapped[list["UserActivity"]] = relationship(back_populates="users")
+    user_posts: Mapped[list["Posts"]] = relationship(back_populates="users")
     user_favorite: Mapped[list["UserFavorite"]] = relationship(back_populates="users")
 
     followers: Mapped[list["Friends"]] = relationship(
@@ -485,6 +492,12 @@ class Posts(Base):
     updated_at: Mapped[datetime.datetime] = mapped_column(
         server_default=text("TIMEZONE('utc', now())"),
         onupdate=datetime.datetime.utcnow,
+    )
+    users: Mapped["Users"] = relationship(
+        back_populates="user_posts",
+    )
+    parent_post_data: Mapped["Posts"] = relationship(
+        "Posts", foreign_keys=[id], primaryjoin="Posts.id==Posts.parent_post_id"
     )
 
     def to_read_model(self) -> PostsSchema:

@@ -19,6 +19,7 @@ class UserCreate(BaseUser):
 class GameDataActivityDTO(BaseModel):
     id: UUID4
     title: str
+    slug: str
     description: str | None
     release_date: datetime.datetime | None
     cover: str | None

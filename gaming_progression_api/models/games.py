@@ -82,6 +82,7 @@ class RateGameScheme(BaseModel):
     game_id: UUID4
     grade: int
 
+
 class UserActivitySchema(BaseModel):
     id: UUID4
     user_id: UUID4
