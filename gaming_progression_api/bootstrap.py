@@ -11,9 +11,9 @@ from gaming_progression_api.transport.handlers.games import router as games_rout
 from gaming_progression_api.transport.handlers.likes import router as likes_router
 from gaming_progression_api.transport.handlers.playlists import router as playlists_router
 from gaming_progression_api.transport.handlers.posts import router as posts_router
+from gaming_progression_api.transport.handlers.search import router as search_router
 from gaming_progression_api.transport.handlers.users import router as users_router
 from gaming_progression_api.transport.handlers.walls import router as walls_router
-from gaming_progression_api.transport.handlers.search import router as search_router
 
 
 def _setup_api_routers(

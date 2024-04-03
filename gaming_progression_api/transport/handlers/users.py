@@ -32,7 +32,7 @@ async def get_user_profile(uow: UOWDep, username: str) -> PrivateUser | ServiceR
         return user
 
     user = type_adapter.validate_json(result)
-    
+
     return user
 
 

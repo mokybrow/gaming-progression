@@ -1,4 +1,3 @@
-from typing import List
 
 from pydantic import UUID4, BaseModel
 
@@ -13,20 +12,20 @@ class SortGet(BaseModel):
 
 
 class FilterAdd(BaseModel):
-    genre: List[str | None] | None
-    platform: List[str | None] | None
+    genre: list[str | None] | None
+    platform: list[str | None] | None
     age: str | None
-    release: List[int | None] | None
+    release: list[int | None] | None
     limit: int | None
     offset: int | None
     sort: SortGet | None
 
 
 class FilterCount(BaseModel):
-    genre: List[str | None] | None
-    platform: List[str | None] | None
+    genre: list[str | None] | None
+    platform: list[str | None] | None
     age: str | None
-    release: List[int | None] | None
+    release: list[int | None] | None
 
 
 class ObjectTypesSchema(BaseModel):

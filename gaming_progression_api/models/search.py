@@ -1,6 +1,5 @@
-import datetime
 
-from pydantic import UUID4, BaseModel, ConfigDict
+from pydantic import BaseModel
 
 
 class SearchModel(BaseModel):

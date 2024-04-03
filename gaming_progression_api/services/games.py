@@ -1,6 +1,6 @@
 from fastapi import HTTPException, status
 from pydantic import UUID4
-from sqlalchemy import NotNullable, asc, desc
+from sqlalchemy import asc, desc
 
 from gaming_progression_api.models.games import GamesCountResponseModel, GamesResponseModel, RateGame
 from gaming_progression_api.models.schemas import Games
@@ -20,7 +20,7 @@ class GamesService:
         if filters.sort is not None and filters.sort.name != 'string':
             direction = desc if filters.sort.type == 'desc' else asc
             sort = direction(getattr(Games, filters.sort.name))
-            filtr = getattr(Games, filters.sort.name) != None
+            filtr = getattr(Games, filters.sort.name) is not None
             true_filters.append(filtr)
             
         if filters.limit is not None and filters.limit != 0:

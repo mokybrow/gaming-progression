@@ -29,9 +29,11 @@ class GetPostModel(BaseModel):
     username: str
     offset: int
 
+
 class GetPostData(BaseModel):
     id: UUID4
     user_id: UUID4 | None
+
 
 class DeletePost(BaseModel):
     post_id: UUID4
@@ -50,7 +52,6 @@ class ParentPostData(BaseModel):
     users: PrivateBaseUser
 
 
-
 class PostDTO(BaseModel):
     id: UUID4
     user_id: UUID4
@@ -63,6 +64,7 @@ class PostDTO(BaseModel):
     updated_at: datetime.datetime
     parent_post_data: ParentPostData | None
     users: PrivateBaseUser
+
 
 class PostsResponseModel(BaseModel):
     Posts: PostDTO

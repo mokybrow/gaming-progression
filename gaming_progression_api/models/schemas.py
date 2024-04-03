@@ -13,7 +13,6 @@ from gaming_progression_api.models.followers import FollowersSchema
 from gaming_progression_api.models.games import (
     ChangeGameFavorite,
     GamesModel,
-    RateGame,
     RateGameScheme,
     UserActivitySchema,
 )
@@ -436,7 +435,7 @@ class Comments(Base):
     author_info: Mapped["Users"] = relationship("Users", primaryjoin="Users.id==Comments.user_id")
 
     child_comment: Mapped[list["Comments"]] = relationship(
-        "Comments", primaryjoin="Comments.id == Comments.parent_comment_id", order_by='Comments.created_at.asc()'
+        "Comments", primaryjoin="Comments.id == Comments.parent_comment_id", order_by='Comments.created_at.asc()',
     )
 
     def to_read_model(self) -> CommentsSchema:
@@ -497,7 +496,7 @@ class Posts(Base):
         back_populates="user_posts",
     )
     parent_post_data: Mapped["Posts"] = relationship(
-        "Posts", foreign_keys=[id], primaryjoin="Posts.id==Posts.parent_post_id"
+        "Posts", foreign_keys=[id], primaryjoin="Posts.id==Posts.parent_post_id",
     )
 
     def to_read_model(self) -> PostsSchema:

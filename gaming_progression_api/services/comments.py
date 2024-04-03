@@ -1,4 +1,4 @@
-import re
+
 from fastapi import HTTPException, status
 from pydantic import UUID4
 
