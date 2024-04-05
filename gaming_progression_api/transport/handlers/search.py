@@ -1,4 +1,3 @@
-
 from fastapi import APIRouter
 
 from gaming_progression_api.dependencies import UOWDep

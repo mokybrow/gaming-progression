@@ -1,4 +1,3 @@
-
 from sqlalchemy import extract, or_
 
 from gaming_progression_api.models.schemas import AgeRatings, Games, Genres, Platforms

@@ -60,6 +60,7 @@ async def get_auth_user_posts(
 )
 async def get_post(uow: UOWDep, params: GetPostData):
     '''Получаем пост и комметарии к нему'''
+    print(params)
     result = await PostsService().get_post(uow, id=params.id, user_id=params.user_id)
     return result
 

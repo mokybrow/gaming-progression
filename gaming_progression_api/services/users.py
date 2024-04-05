@@ -84,12 +84,16 @@ class UsersService:
 
     async def patch_user(self, uow: IUnitOfWork, user_id: UUID4, user: PatchUser):
         user_dict = user.model_dump()
+        user_dict = {key: val for key, val in user_dict.items() if val != None}
+
         async with uow:
             try:
                 user_data = await uow.users.find_one(id=user_id)
-                if user_data.email != user_dict['email']:
-                    await uow.users.edit_one(data={'is_verified': False}, id=user_id)
-                user_dict['password'] = await AuthService.hash_password(user_dict['password'])
+                if 'email' in user_dict:
+                    if user_data.email != user_dict['email']:
+                        await uow.users.edit_one(data={'is_verified': False}, id=user_id)
+                if 'password' in user_dict:
+                    user_dict['password'] = await AuthService.hash_password(user_dict['password'])
                 await uow.users.edit_one(data=user_dict, id=user_id)
                 await uow.commit()
                 return True

@@ -1,4 +1,5 @@
 import datetime
+from typing import Optional
 
 from pydantic import UUID4, BaseModel, ConfigDict, EmailStr
 
@@ -76,13 +77,14 @@ class User(BaseUser):
     is_verified: bool
     is_superuser: bool
     is_moderator: bool
+    biography: str | None
+    created_at: datetime.datetime
+    birthdate: datetime.date | None
     user_activity: list['UserActivity'] | None
     user_favorite: list['UserFavorite'] | None
     followers: list['UserFollowers'] | None
     subscriptions: list['UserSubscriptions'] | None
     lists: list['UserLists'] | None
-    created_at: datetime.datetime
-    biography: str | None
 
 
 class PrivateBaseUser(BaseModel):
@@ -121,11 +123,11 @@ class ChangeUserPassword(BaseModel):
 
 
 class PatchUser(BaseModel):
-    email: EmailStr
-    full_name: str | None
-    biography: str | None
-    birthdate: datetime.date | None
-    password: str | None
+    email: EmailStr | None = None
+    full_name: str | None = None
+    biography: str | None = None
+    birthdate: datetime.date | None = None
+    password: Optional[str] = None
 
 
 class UserMailingsSchema(BaseModel):

@@ -1,4 +1,3 @@
-
 from gaming_progression_api.models.search import SearchModel
 from gaming_progression_api.services.unitofwork import IUnitOfWork
 from gaming_progression_api.services.validate_filters import validate_filters_for_search

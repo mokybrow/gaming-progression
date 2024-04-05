@@ -110,7 +110,7 @@ class SQLAlchemyRepository(AbstractRepository):
                 self.model.id,
                 func.sum(
                     case(
-                        (and_(LikeLog.user_id == user_id, LikeLog.item_id == self.model.id, LikeLog.value is True), 1),
+                        (and_(LikeLog.user_id == user_id, LikeLog.item_id == self.model.id, LikeLog.value == True), 1),
                         else_=0,
                     ),
                 ).label('hasAuthorLike'),
@@ -286,7 +286,9 @@ class SQLAlchemyRepository(AbstractRepository):
                         case(
                             (
                                 and_(
-                                    LikeLog.user_id == user_id, LikeLog.item_id == self.model.id, LikeLog.value is True,
+                                    LikeLog.user_id == user_id,
+                                    LikeLog.item_id == self.model.id,
+                                    LikeLog.value == True,
                                 ),
                                 1,
                             ),
@@ -321,7 +323,9 @@ class SQLAlchemyRepository(AbstractRepository):
                         case(
                             (
                                 and_(
-                                    LikeLog.user_id == user_id, LikeLog.item_id == self.model.id, LikeLog.value is True,
+                                    LikeLog.user_id == user_id,
+                                    LikeLog.item_id == self.model.id,
+                                    LikeLog.value == True,
                                 ),
                                 1,
                             ),
