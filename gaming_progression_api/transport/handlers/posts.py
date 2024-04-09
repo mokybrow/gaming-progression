@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 
-from gaming_progression_api.dependencies import UOWDep, get_current_active_user
+from gaming_progression_api.dependencies import UOWDep, get_current_active_user, get_current_user
 from gaming_progression_api.models.posts import AddPost, DeletePost, GetPostData, GetPostModel
 from gaming_progression_api.models.users import User
 from gaming_progression_api.services.posts import PostsService
@@ -48,7 +48,7 @@ async def get_user_posts(
 async def get_auth_user_posts(
     uow: UOWDep,
     params: GetPostModel,
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[User, Depends(get_current_user)],
 ):
     '''Получаем посты со стены пользователя'''
     result = await PostsService().get_auth_user_posts(uow, params=params, user_id=current_user.id)

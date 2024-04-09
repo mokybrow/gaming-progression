@@ -3,7 +3,7 @@ import uuid
 
 from uuid import UUID
 
-from sqlalchemy import ForeignKey, Index, UniqueConstraint, text
+from sqlalchemy import TIMESTAMP, ForeignKey, Index, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -33,7 +33,7 @@ class Users(Base):
     password: Mapped[str] = mapped_column(nullable=False)
     full_name: Mapped[str] = mapped_column(nullable=True)
     biography: Mapped[str] = mapped_column(nullable=True)
-    birthdate: Mapped[datetime.date] = mapped_column(nullable=True)
+    birthdate: Mapped[datetime.datetime] = mapped_column(nullable=True, type_=TIMESTAMP(timezone=True))
     disabled: Mapped[bool] = mapped_column(default=False)
 
     is_verified: Mapped[bool] = mapped_column(default=False)

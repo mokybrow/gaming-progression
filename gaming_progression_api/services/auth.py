@@ -87,6 +87,35 @@ class AuthService:
             raise credentials_exception
         return user
 
+    async def change_email(self, uow: IUnitOfWork, token: str) -> UUID4 | ServiceResponseModel:
+        credentials_exception = HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='Could not validate credentials',
+        )
+        try:
+            payload = jwt.decode(
+                token,
+                settings.jwt_secret,
+                algorithms=[settings.jwt_algoritm],
+                audience=settings.verify_audience,
+            )
+            id: str = payload.get('sub')
+            email: str = payload.get('email')
+            if id is None:
+                raise credentials_exception
+            token_data = TokenData(id=id)
+        except JWTError as exc:
+            raise credentials_exception from exc
+
+        async with uow:
+            user = await uow.users.edit_one(data={'email': email}, id=token_data.id)
+            await uow.commit()
+
+        if user is None:
+            raise credentials_exception
+        return user
+
+
     async def reset_password(self, uow: IUnitOfWork, new_data: ChangeUserPassword) -> UUID4 | ServiceResponseModel:
         credentials_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

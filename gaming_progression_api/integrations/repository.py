@@ -246,12 +246,23 @@ class SQLAlchemyRepository(AbstractRepository):
         except:
             return False
 
-    async def search_game(self, filters: list):
-        query = select(self.model).filter(*filters).limit(10)
+    async def search_game(self, filters: list, limit: int):
+        query = select(self.model).filter(*filters).limit(limit)
         result = await self.session.execute(query)
         self.session.expunge_all()
         try:
             result = result.scalars().all()
+            return result
+        except:
+            return False
+        
+    async def search_game_count(self, filters: list):
+        query = select(func.count(self.model.id).label("game_count")).filter(*filters)
+
+        result = await self.session.execute(query)
+        self.session.expunge_all()
+        try:
+            result = result.all()
             return result
         except:
             return False

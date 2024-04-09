@@ -21,6 +21,12 @@ class Settings(
     auth_audience: str
     verify_audience: str
     reset_audience: str
+    
+    mail_username: str
+    mail_password: str
+    mail_from: str
+    mail_server: str
+    front_host: str
 
     model_config = SettingsConfigDict(env_file='.env', env_prefix='API_')
 

@@ -79,7 +79,7 @@ class User(BaseUser):
     is_moderator: bool
     biography: str | None
     created_at: datetime.datetime
-    birthdate: datetime.date | None
+    birthdate: datetime.datetime | None
     user_activity: list['UserActivity'] | None
     user_favorite: list['UserFavorite'] | None
     followers: list['UserFollowers'] | None
@@ -107,7 +107,7 @@ class UserSchema(BaseUser):
     id: UUID4
     password: str
     biography: str | None
-    birthdate: datetime.date | None
+    birthdate: datetime.datetime | None
     is_verified: bool
     is_superuser: bool
     is_moderator: bool
@@ -123,11 +123,9 @@ class ChangeUserPassword(BaseModel):
 
 
 class PatchUser(BaseModel):
-    email: EmailStr | None = None
     full_name: str | None = None
     biography: str | None = None
-    birthdate: datetime.date | None = None
-    password: Optional[str] = None
+    birthdate: datetime.datetime | None = None
 
 
 class UserMailingsSchema(BaseModel):

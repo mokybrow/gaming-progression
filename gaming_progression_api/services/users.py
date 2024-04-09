@@ -7,9 +7,16 @@ from gaming_progression_api.models.schemas import Users
 from gaming_progression_api.models.user_settings import AddMailing
 from gaming_progression_api.models.users import PatchUser, UserCreate
 from gaming_progression_api.services.auth import AuthService
+from gaming_progression_api.services.email import  email_sender
 from gaming_progression_api.services.unitofwork import IUnitOfWork
 from gaming_progression_api.settings import get_settings
-
+from gaming_progression_api.dependencies import (
+    UOWDep,
+    access_token_expires,
+    get_current_user,
+    reset_token_expires,
+    verify_token_expires,
+)
 settings = get_settings()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
 
@@ -31,8 +38,25 @@ class UsersService:
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail='A user with this email already exists',
                 )
-            await uow.users.add_one(user_dict)
+            user_id = await uow.users.add_one(user_dict)
             await uow.commit()
+            verify_token = await AuthService().create_token(
+                {'sub': str(user_id), 'aud': settings.verify_audience},
+                verify_token_expires,
+            )
+            email_schema = {"email": [
+                user.email],
+                "subject" : "Добро пожаловать в клуб",
+                "body": {
+                    "title": "Добро пожаловать в клуб mbrw",
+                    "message": "Просто хотели сказать спасибо за регистрацию.",
+                    "button": f"Сменить почту",
+                    "link": f"{settings.front_host}change/email?token={verify_token}",
+                    "footer": """Ссылка действительна в течение суток.
+                    Если это были не вы, то просто проигнорируйте это письмо.""",
+            }
+        }
+            await email_sender(email_schema, "mail_without_button.html")
             raise HTTPException(
                 status_code=status.HTTP_201_CREATED,
                 detail='User has been successfully created',
@@ -85,15 +109,8 @@ class UsersService:
     async def patch_user(self, uow: IUnitOfWork, user_id: UUID4, user: PatchUser):
         user_dict = user.model_dump()
         user_dict = {key: val for key, val in user_dict.items() if val != None}
-
         async with uow:
             try:
-                user_data = await uow.users.find_one(id=user_id)
-                if 'email' in user_dict:
-                    if user_data.email != user_dict['email']:
-                        await uow.users.edit_one(data={'is_verified': False}, id=user_id)
-                if 'password' in user_dict:
-                    user_dict['password'] = await AuthService.hash_password(user_dict['password'])
                 await uow.users.edit_one(data=user_dict, id=user_id)
                 await uow.commit()
                 return True
@@ -103,6 +120,49 @@ class UsersService:
                     detail='An error occurred while changing data',
                     headers={'WWW-Authenticate': 'Bearer'},
                 )
+            
+
+    async def change_user_email(self, uow: IUnitOfWork, user_id: UUID4, current_email: str, email: str, verify_token: str):
+ 
+        async with uow:
+            user_data = await uow.users.find_one(id=user_id)
+            if user_data.email == email:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail='This email are same',
+                )
+            email_schema = {"email": [
+                current_email],
+                "subject" : "Запрос на смену почты mbrw.ru",
+                "body": {
+                    "title": "Запрос на смену почты",
+                    "message": f"Здравствуйте. Для изменения почты на {email} нажмите на кнопку ниже.",
+                    "button": f"Сменить почту",
+                    "link": f"{settings.front_host}change/email?token={verify_token}",
+                    "footer": """Ссылка действительна в течение суток.
+                    Если это были не вы, то просто проигнорируйте это письмо.""",
+            }
+        }
+            await email_sender(email_schema, 'mail_with_button.html')
+ 
+    async def change_user_password(self, uow: IUnitOfWork, user_id: UUID4, current_email: str,  reset_token: str):
+ 
+        async with uow:
+            email_schema = {"email": [
+                current_email],
+                "subject" : "Запрос на смену пароля",
+                "body": {
+                    "title": "Запрос на смену пароля",
+                    "message": f"Здравствуйте. Для изменения пароля нажмите на кнопку ниже.",
+                    "button": f"Сменить почту",
+                    "link": f"{settings.front_host}change/password?token={reset_token}",
+                    "footer": """Ссылка действительна в течение часа.
+                    Если это были не вы, то просто проигнорируйте это письмо.""",
+            }
+        }
+            await email_sender(email_schema, 'mail_with_button.html')
+ 
+
 
     async def follow_on_user(
         self,
