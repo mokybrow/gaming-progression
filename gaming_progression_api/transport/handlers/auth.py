@@ -76,9 +76,10 @@ async def verify_user(uow: UOWDep, token: str = Body(..., embed=True)) -> Servic
     return ServiceResponseModel(details=f'user with id {verified_user} has been successfully verified')
 
 
-@router.post('/change/email/request', response_model=VerifyToken )
-async def verify_user_request(uow: UOWDep, current_user: Annotated[User, Depends(get_current_user)], email: str = Body(..., embed=True)) -> VerifyToken:
- 
+@router.post('/change/email/request', response_model=VerifyToken)
+async def verify_user_request(
+    uow: UOWDep, current_user: Annotated[User, Depends(get_current_user)], email: str = Body(..., embed=True)
+) -> VerifyToken:
     verify_token = await AuthService().create_token(
         {'sub': str(current_user.id), 'email': email, 'aud': settings.verify_audience},
         verify_token_expires,
@@ -93,17 +94,15 @@ async def verify_user(uow: UOWDep, token: str = Body(..., embed=True)) -> Servic
     return ServiceResponseModel(details=f'Email has been successfully changed')
 
 
-@router.post('/change/password/request', response_model=VerifyToken )
+@router.post('/change/password/request', response_model=VerifyToken)
 async def verify_user_request(uow: UOWDep, current_user: Annotated[User, Depends(get_current_user)]) -> VerifyToken:
- 
     verify_token = await AuthService().create_token(
         {'sub': str(current_user.id), 'aud': settings.reset_audience},
         reset_token_expires,
     )
-    await UsersService().change_user_password(uow, current_user.id, current_user.email,  verify_token)
+    await UsersService().change_user_password(uow, current_user.id, current_user.email, verify_token)
 
     return VerifyToken(verify_token=verify_token, token_type='bearer')
-
 
 
 @router.post('/password/recovery', response_model=RecoveryToken)

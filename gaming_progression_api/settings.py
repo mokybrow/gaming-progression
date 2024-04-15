@@ -21,7 +21,7 @@ class Settings(
     auth_audience: str
     verify_audience: str
     reset_audience: str
-    
+
     mail_username: str
     mail_password: str
     mail_from: str

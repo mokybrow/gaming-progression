@@ -49,7 +49,7 @@ class ParentPostData(BaseModel):
     disabled: bool | None
     created_at: datetime.datetime
     updated_at: datetime.datetime
-    users: PrivateBaseUser
+    users: PrivateBaseUser | None
 
 
 class PostDTO(BaseModel):

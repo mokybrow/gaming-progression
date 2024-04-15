@@ -65,7 +65,6 @@ class Users(Base):
     )
 
     lists: Mapped[list["UserLists"]] = relationship(back_populates="users")
-
     sub_data: Mapped["Playlists"] = relationship("Playlists", primaryjoin="Playlists.owner_id==Users.id")
 
     def to_read_model(self) -> UserSchema:
@@ -335,6 +334,8 @@ class Friends(Base):
         primaryjoin="Friends.follower_id==Users.id",
     )
     sub_data: Mapped["Users"] = relationship("Users", foreign_keys=[user_id], primaryjoin="Friends.user_id==Users.id")
+    
+    user_activity: Mapped[list["Posts"]] = relationship("Posts", foreign_keys=[user_id], primaryjoin="Posts.user_id==Friends.user_id", viewonly=True)
 
     __table_args__ = (UniqueConstraint('follower_id', 'user_id', name='_followers_uc'),)
 
@@ -494,14 +495,13 @@ class Posts(Base):
         server_default=text("TIMEZONE('utc', now())"),
         onupdate=datetime.datetime.utcnow,
     )
-    users: Mapped["Users"] = relationship(
-        back_populates="user_posts",
-    )
+    users: Mapped["Users"] = relationship()
     parent_post_data: Mapped["Posts"] = relationship(
         "Posts",
         foreign_keys=[id],
         primaryjoin="Posts.id==Posts.parent_post_id",
     )
+
 
     def to_read_model(self) -> PostsSchema:
         return PostsSchema(

@@ -115,7 +115,6 @@ class AuthService:
             raise credentials_exception
         return user
 
-
     async def reset_password(self, uow: IUnitOfWork, new_data: ChangeUserPassword) -> UUID4 | ServiceResponseModel:
         credentials_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

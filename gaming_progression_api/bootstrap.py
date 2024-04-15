@@ -40,6 +40,7 @@ def make_app() -> FastAPI:
     )
     origins = [
         'http://localhost:3000',
+        'http://localhost:3000/feed',
     ]
 
     app.add_middleware(
@@ -48,6 +49,7 @@ def make_app() -> FastAPI:
         allow_credentials=True,
         allow_methods=['*'],
         allow_headers=['*'],
+        expose_headers=['*']
     )
     _setup_api_routers(app.router)
     return app

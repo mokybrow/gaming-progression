@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 from pydantic import UUID4
-from sqlalchemy import and_, case, delete, desc, distinct, func, funcfilter, insert, select, update
+from sqlalchemy import and_, case, delete, desc, distinct, func, funcfilter, insert, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -17,6 +17,7 @@ from gaming_progression_api.models.schemas import (
     LikeLog,
     ListGames,
     Platforms,
+    Posts,
     UserActivity,
     UserFavorite,
     UserLists,
@@ -51,6 +52,12 @@ class SQLAlchemyRepository(AbstractRepository):
 
     async def find_all(self, limit: int | None = None, offset: int | None = None) -> list | bool:
         query = select(self.model).limit(limit).offset(offset)
+        result = await self.session.execute(query)
+        result = [row[0].to_read_model() for row in result.all()]
+        return result
+    
+    async def find_all_with_filters(self, **filter_by) -> list | bool:
+        query = select(self.model).filter_by(**filter_by)
         result = await self.session.execute(query)
         result = [row[0].to_read_model() for row in result.all()]
         return result
@@ -255,7 +262,7 @@ class SQLAlchemyRepository(AbstractRepository):
             return result
         except:
             return False
-        
+
     async def search_game_count(self, filters: list):
         query = select(func.count(self.model.id).label("game_count")).filter(*filters)
 
@@ -274,7 +281,7 @@ class SQLAlchemyRepository(AbstractRepository):
                 funcfilter(func.count(distinct(Comments.id)), Comments.item_id == self.model.id).label('commentCount'),
             )
             .filter_by(**filter_by)
-            .options(selectinload(self.model.parent_post_data))
+            .options(selectinload(self.model.parent_post_data).selectinload(self.model.users))
             .options(selectinload(self.model.users))
             .group_by(self.model.id)
             .limit(offset)
@@ -363,6 +370,56 @@ class SQLAlchemyRepository(AbstractRepository):
 
     async def get_posts_count(self, **filter_by) -> dict | bool:
         query = select(func.count(self.model.id.distinct()).label("posts_count")).filter_by(**filter_by)
+        result = await self.session.execute(query)
+        try:
+            result = result.all()
+            return result
+        except:
+            return False
+
+
+    
+    async def get_global_wall_for_auth(self, filters: list, user_id: UUID4, page: int = 10) -> dict | bool:
+        query = (
+            select(
+                self.model,
+                func.sum(
+                    distinct(
+                        case(
+                            (
+                                and_(
+                                    LikeLog.user_id == user_id,
+                                    LikeLog.item_id == self.model.id,
+                                    LikeLog.value == True,
+                                ),
+                                1,
+                            ),
+                            else_=0,
+                        ),
+                    ),
+                ).label('hasAuthorLike'),
+                funcfilter(func.count(distinct(Comments.id)), Comments.item_id == self.model.id).label('commentCount'),
+                func.count(self.model.id).label('postsCount'),
+            )
+            .options(selectinload(self.model.parent_post_data).selectinload(self.model.users))
+            .options(selectinload(self.model.users))
+            .filter(*filters)
+            .group_by(self.model.id)
+            .order_by(desc(self.model.created_at))
+            .limit(10)
+            .offset(page)
+        )
+        result = await self.session.execute(query)
+
+        self.session.expunge_all()
+        try:
+            result = result.all()
+            return result
+        except:
+            return False
+
+    async def get_posts_count_for_wall(self, filters:list) -> dict | bool:
+        query = select(func.count(self.model.id.distinct()).label("posts_count")).filter(*filters)
         result = await self.session.execute(query)
         try:
             result = result.all()
