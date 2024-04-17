@@ -1,9 +1,10 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
+from pydantic import UUID4
 
 from gaming_progression_api.dependencies import UOWDep, get_current_active_user, get_current_user
-from gaming_progression_api.models.posts import AddPost, DeletePost, GetPostData, GetPostModel
+from gaming_progression_api.models.posts import AddPost, DeletePost, GetPostData, GetWallModel, PostsSchema
 from gaming_progression_api.models.users import User
 from gaming_progression_api.services.posts import PostsService
 from gaming_progression_api.settings import get_settings
@@ -19,6 +20,7 @@ router = APIRouter(
 
 @router.post(
     '',
+    response_model=PostsSchema
 )
 async def add_new_post(
     uow: UOWDep,
@@ -35,7 +37,7 @@ async def add_new_post(
 )
 async def get_user_posts(
     uow: UOWDep,
-    params: GetPostModel,
+    params: GetWallModel,
 ):
     '''Получаем посты со стены пользователя'''
     result = await PostsService().get_user_posts(uow, params=params)
@@ -47,7 +49,7 @@ async def get_user_posts(
 )
 async def get_auth_user_posts(
     uow: UOWDep,
-    params: GetPostModel,
+    params: GetWallModel,
     current_user: Annotated[User, Depends(get_current_user)],
 ):
     '''Получаем посты со стены пользователя'''
@@ -55,13 +57,12 @@ async def get_auth_user_posts(
     return result
 
 
-@router.post(
-    '/post',
+@router.get(
+    '',
 )
-async def get_post(uow: UOWDep, params: GetPostData):
+async def get_post(uow: UOWDep, id: UUID4, user_id: UUID4 | None = None):
     '''Получаем пост и комметарии к нему'''
-    print(params)
-    result = await PostsService().get_post(uow, id=params.id, user_id=params.user_id)
+    result = await PostsService().get_post(uow, id=id, user_id=user_id)
     return result
 
 

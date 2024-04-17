@@ -51,4 +51,3 @@ async def validate_filters_for_search(filters: SearchModel):
             true_filters.append(games)
 
     return true_filters
-

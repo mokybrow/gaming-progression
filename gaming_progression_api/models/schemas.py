@@ -47,7 +47,7 @@ class Users(Base):
     )
 
     user_activity: Mapped[list["UserActivity"]] = relationship(back_populates="users")
-    user_posts: Mapped[list["Posts"]] = relationship(back_populates="users")
+    user_posts: Mapped[list["Posts"]] = relationship(back_populates="author_data")
     user_favorite: Mapped[list["UserFavorite"]] = relationship(back_populates="users")
 
     followers: Mapped[list["Friends"]] = relationship(
@@ -334,8 +334,10 @@ class Friends(Base):
         primaryjoin="Friends.follower_id==Users.id",
     )
     sub_data: Mapped["Users"] = relationship("Users", foreign_keys=[user_id], primaryjoin="Friends.user_id==Users.id")
-    
-    user_activity: Mapped[list["Posts"]] = relationship("Posts", foreign_keys=[user_id], primaryjoin="Posts.user_id==Friends.user_id", viewonly=True)
+
+    user_activity: Mapped[list["Posts"]] = relationship(
+        "Posts", foreign_keys=[user_id], primaryjoin="Posts.user_id==Friends.user_id", viewonly=True
+    )
 
     __table_args__ = (UniqueConstraint('follower_id', 'user_id', name='_followers_uc'),)
 
@@ -428,12 +430,12 @@ class Comments(Base):
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
     item_id: Mapped[UUID] = mapped_column(nullable=True)
-    parent_comment_id: Mapped[UUID] = mapped_column(ForeignKey("comments.id", ondelete="RESTRICT"), nullable=True)
+    parent_comment_id: Mapped[UUID] = mapped_column(ForeignKey("comments.id", ondelete="CASCADE"), nullable=True)
     text: Mapped[str]
-    like_count: Mapped[int] = mapped_column(default=0)
+    likes_count: Mapped[int] = mapped_column(default=0)
     deleted: Mapped[bool]
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
-    author_info: Mapped["Users"] = relationship("Users", primaryjoin="Users.id==Comments.user_id")
+    author_data: Mapped["Users"] = relationship("Users", primaryjoin="Users.id==Comments.user_id")
 
     child_comment: Mapped[list["Comments"]] = relationship(
         "Comments",
@@ -448,7 +450,7 @@ class Comments(Base):
             item_id=self.item_id,
             parent_comment_id=self.parent_comment_id,
             text=self.text,
-            like_count=self.like_count,
+            likes_count=self.likes_count,
             deleted=self.deleted,
             created_at=self.created_at,
         )
@@ -488,20 +490,20 @@ class Posts(Base):
     wall_id: Mapped[UUID] = mapped_column(ForeignKey("walls.id"))
     parent_post_id: Mapped[UUID] = mapped_column(ForeignKey("posts.id", ondelete='CASCADE'), nullable=True)
     text: Mapped[str]
-    like_count: Mapped[int] = mapped_column(default=0)
+    likes_count: Mapped[int] = mapped_column(default=0)
+    comments_count: Mapped[int] = mapped_column(default=0)
     disabled: Mapped[bool] = mapped_column(default=False)
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
     updated_at: Mapped[datetime.datetime] = mapped_column(
         server_default=text("TIMEZONE('utc', now())"),
         onupdate=datetime.datetime.utcnow,
     )
-    users: Mapped["Users"] = relationship()
+    author_data: Mapped["Users"] = relationship()
     parent_post_data: Mapped["Posts"] = relationship(
         "Posts",
         foreign_keys=[id],
         primaryjoin="Posts.id==Posts.parent_post_id",
     )
-
 
     def to_read_model(self) -> PostsSchema:
         return PostsSchema(
@@ -510,7 +512,8 @@ class Posts(Base):
             wall_id=self.wall_id,
             parent_post_id=self.parent_post_id,
             text=self.text,
-            like_count=self.like_count,
+            likes_count=self.likes_count,
+            comments_count=self.comments_count,
             disabled=self.disabled,
             created_at=self.created_at,
             updated_at=self.updated_at,

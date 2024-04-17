@@ -41,7 +41,7 @@ class SQLAlchemyRepository(AbstractRepository):
         self.session = session
 
     async def add_one(self, data: dict) -> UUID4:
-        stmt = insert(self.model).values(**data).returning(self.model.id)
+        stmt = insert(self.model).values(**data).returning(self.model)
         result = await self.session.execute(stmt)
         return result.scalar_one()
 
@@ -55,7 +55,7 @@ class SQLAlchemyRepository(AbstractRepository):
         result = await self.session.execute(query)
         result = [row[0].to_read_model() for row in result.all()]
         return result
-    
+
     async def find_all_with_filters(self, **filter_by) -> list | bool:
         query = select(self.model).filter_by(**filter_by)
         result = await self.session.execute(query)
@@ -92,13 +92,14 @@ class SQLAlchemyRepository(AbstractRepository):
         return result
 
     # ------------------------------>
-    async def find_one_comment(self, **filter_by) -> dict | bool:
+    async def get_content_comments(self, user_id: UUID4, **filter_by) -> dict | bool:
         query = (
             select(
-                self.model,
+                self.model
             )
-            .options(selectinload(self.model.child_comment).selectinload(self.model.author_info))
-            .options(selectinload(self.model.author_info))
+            .options(selectinload(self.model.child_comment).selectinload(self.model.author_data))
+            .options(selectinload(self.model.author_data))
+            .group_by(self.model.id)
             .filter_by(**filter_by)
             .order_by(self.model.created_at.desc())
         )
@@ -107,6 +108,15 @@ class SQLAlchemyRepository(AbstractRepository):
 
         try:
             result = result.scalars().all()
+            return result
+        except:
+            return False
+
+    async def get_comments_count(self, **filter_by) -> dict | bool:
+        query = select(func.count(self.model.id.distinct()).label("comments_count")).filter_by(**filter_by)
+        result = await self.session.execute(query)
+        try:
+            result = result.all()
             return result
         except:
             return False
@@ -295,7 +305,7 @@ class SQLAlchemyRepository(AbstractRepository):
         except:
             return False
 
-    async def get_auth_user_posts(self, user_id: UUID4, offset: int = 10, **filter_by) -> dict | bool:
+    async def get_user_wall(self, user_id: UUID4, page: int = 10, **filter_by) -> dict | bool:
         query = (
             select(
                 self.model,
@@ -314,17 +324,17 @@ class SQLAlchemyRepository(AbstractRepository):
                         ),
                     ),
                 ).label('hasAuthorLike'),
-                funcfilter(func.count(distinct(Comments.id)), Comments.item_id == self.model.id).label('commentCount'),
-                func.count(self.model.id).label('postsCount'),
             )
             .filter_by(**filter_by)
-            .options(selectinload(self.model.parent_post_data).selectinload(self.model.users))
-            .options(selectinload(self.model.users))
+            .options(selectinload(self.model.parent_post_data).selectinload(self.model.author_data))
+            .options(selectinload(self.model.author_data))
             .group_by(self.model.id)
             .order_by(desc(self.model.created_at))
-            .limit(offset)
+            .limit(10)
+            .offset(page)
         )
         result = await self.session.execute(query)
+        print(query)
         self.session.expunge_all()
         try:
             result = result.all()
@@ -351,12 +361,10 @@ class SQLAlchemyRepository(AbstractRepository):
                         ),
                     ),
                 ).label('hasAuthorLike'),
-                funcfilter(func.count(distinct(Comments.id)), Comments.item_id == self.model.id).label('commentCount'),
-                func.count(self.model.id).label('postsCount'),
             )
             .filter_by(**filter_by)
-            .options(selectinload(self.model.parent_post_data).selectinload(self.model.users))
-            .options(selectinload(self.model.users))
+            .options(selectinload(self.model.parent_post_data).selectinload(self.model.author_data))
+            .options(selectinload(self.model.author_data))
             .group_by(self.model.id)
             .order_by(desc(self.model.created_at))
         )
@@ -377,8 +385,6 @@ class SQLAlchemyRepository(AbstractRepository):
         except:
             return False
 
-
-    
     async def get_global_wall_for_auth(self, filters: list, user_id: UUID4, page: int = 10) -> dict | bool:
         query = (
             select(
@@ -398,11 +404,9 @@ class SQLAlchemyRepository(AbstractRepository):
                         ),
                     ),
                 ).label('hasAuthorLike'),
-                funcfilter(func.count(distinct(Comments.id)), Comments.item_id == self.model.id).label('commentCount'),
-                func.count(self.model.id).label('postsCount'),
             )
-            .options(selectinload(self.model.parent_post_data).selectinload(self.model.users))
-            .options(selectinload(self.model.users))
+            .options(selectinload(self.model.parent_post_data).selectinload(self.model.author_data))
+            .options(selectinload(self.model.author_data))
             .filter(*filters)
             .group_by(self.model.id)
             .order_by(desc(self.model.created_at))
@@ -418,7 +422,7 @@ class SQLAlchemyRepository(AbstractRepository):
         except:
             return False
 
-    async def get_posts_count_for_wall(self, filters:list) -> dict | bool:
+    async def get_posts_count_for_wall(self, filters: list) -> dict | bool:
         query = select(func.count(self.model.id.distinct()).label("posts_count")).filter(*filters)
         result = await self.session.execute(query)
         try:

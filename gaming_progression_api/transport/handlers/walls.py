@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 
 from gaming_progression_api.dependencies import UOWDep, get_superuser
+from gaming_progression_api.models.posts import GetWallModel
 from gaming_progression_api.models.users import User
 from gaming_progression_api.models.walls import AddWallType
 from gaming_progression_api.services.walls import WallsService
@@ -27,4 +28,16 @@ async def add_new_wall_type(
 ):
     '''Создание нового типа стены'''
     result = await WallsService().create_new_wall_type(uow, wall_type_data)
+    return result
+
+
+@router.post(
+    '/get-user-wall',
+)
+async def get_user_wall(
+    uow: UOWDep,
+    params: GetWallModel,
+):
+    '''Получаем посты со стены пользователя'''
+    result = await WallsService().get_user_wall_posts(uow, params=params)
     return result

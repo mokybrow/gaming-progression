@@ -16,7 +16,7 @@ router = APIRouter(
 
 
 @router.get(
-    '/personal',
+    '',
 )
 async def get_global_feed_for_auth(
     uow: UOWDep,
@@ -26,4 +26,3 @@ async def get_global_feed_for_auth(
     '''Получить глобальную ленту новостей для авторизованного пользователя'''
     result = await FeedsService().get_global_feed_for_auth(uow, page, current_user.id)
     return result
-
