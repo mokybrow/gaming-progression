@@ -21,5 +21,5 @@ class SearchService:
             return False
         async with uow:
             presence_of_wall = await uow.games.search_game_count(true_filters)
-            print(presence_of_wall[0])
-            return presence_of_wall[0]
+            if presence_of_wall:
+                return presence_of_wall[0]
