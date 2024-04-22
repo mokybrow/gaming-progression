@@ -6,28 +6,31 @@ from pydantic import UUID4
 from gaming_progression_api.models.comments import AddComment, CommentsResponseModel, UserCommentsLikes
 from gaming_progression_api.services.unitofwork import IUnitOfWork
 from gaming_progression_api.settings import get_settings
+from markdownify import markdownify as md
 
 settings = get_settings()
 
 
 class CommentsService:
     async def add_comment(self, uow: IUnitOfWork, comment: AddComment, user_id: UUID4):
+        print(comment.text)
+        comment_text = md(comment.text)
         if comment.item_id is None and comment.parent_comment_id is None:
             return False
         comment = comment.model_dump()
 
         comment["user_id"] = user_id
+        print(comment_text)
+        # async with uow:
+        #     try:
+        #         item_data = await uow.posts.find_one(id=comment["item_id"])
+        #         await uow.posts.edit_one(data={"comments_count": item_data.comments_count + 1}, id=comment["item_id"])
+        #     except:
+        #         pass
 
-        async with uow:
-            try:
-                item_data = await uow.posts.find_one(id=comment["item_id"])
-                await uow.posts.edit_one(data={"comments_count": item_data.comments_count + 1}, id=comment["item_id"])
-            except:
-                pass
-
-            comm = await uow.comments.add_one(comment)
-            await uow.commit()
-            return comm
+        #     comm = await uow.comments.add_one(comment)
+        #     await uow.commit()
+        #     return comm
 
     async def get_comments(self, uow: IUnitOfWork, item_id: UUID4, user_id: UUID4):
         async with uow:

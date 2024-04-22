@@ -41,7 +41,6 @@ class WallsService:
                     detail="User have no posts",
                 )
             posts = await uow.posts.get_user_wall(wall_id=wall_id.id, user_id=params.user_id, page=params.page)
-            print(posts)
             if not posts:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
