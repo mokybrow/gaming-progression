@@ -13,9 +13,7 @@ settings = get_settings()
 
 class CommentsService:
     async def add_comment(self, uow: IUnitOfWork, comment: AddComment, user_id: UUID4):
-        print(comment.text)
         comment_text = md(comment.text)
-        print(comment_text)
         if comment.item_id is None and comment.parent_comment_id is None:
             return False
         comment = comment.model_dump()

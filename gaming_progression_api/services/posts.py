@@ -5,12 +5,15 @@ from sqlalchemy import exc
 from gaming_progression_api.models.posts import AddPost, DeletePost, GetWallModel, PostsCount, PostsResponseModel
 from gaming_progression_api.services.unitofwork import IUnitOfWork
 from gaming_progression_api.settings import get_settings
+from markdownify import markdownify as md
 
 settings = get_settings()
 
 
 class PostsService:
     async def create_post(self, uow: IUnitOfWork, post_data: AddPost, user_id: UUID4):
+        post_text = md(post_data.text)
+
         async with uow:
             presence_of_wall = await uow.walls.find_one(item_id=user_id)
             '''проверяем есть ли у пользователя стена'''
@@ -28,16 +31,20 @@ class PostsService:
                     post_data = post_data.model_dump()
                     post_data['wall_id'] = presence_of_wall.id
                     post_data['user_id'] = user_id
+                    post_data['text'] = post_text
                     try:
                         repost = await uow.posts.add_one(post_data)
                         await uow.commit()
                         return repost
                     except exc.SQLAlchemyError as ex:
                         return f'Some error {type(ex)}'
+            
 
             post_data = post_data.model_dump()
             post_data['wall_id'] = presence_of_wall.id
             post_data['user_id'] = user_id
+            post_data['text'] = post_text
+            print(post_text)
             try:
                 post = await uow.posts.add_one(post_data)
                 await uow.commit()
