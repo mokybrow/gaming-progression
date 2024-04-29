@@ -48,26 +48,28 @@ async def get_game_data(uow: UOWDep, slug: str) -> GamesResponseModel:
     return result
 
 
-@router.post('', response_model=list[GamesResponseModel] | None)
-async def get_games(uow: UOWDep, filters: FilterAdd) -> list[GamesResponseModel] | None:
+@router.post('')
+async def get_games(uow: UOWDep, filters: FilterAdd):
+    print(filters)
     # print(filters)
-    type_adapter_filter = TypeAdapter(FilterAdd)
-    type_adapter = TypeAdapter(list[GamesResponseModel])
-    encoded_filters = type_adapter_filter.dump_json(filters).decode("utf-8")
+    # type_adapter_filter = TypeAdapter(FilterAdd)
+    # type_adapter = TypeAdapter(list[GamesResponseModel])
+    # encoded_filters = type_adapter_filter.dump_json(filters).decode("utf-8")
 
-    result = await RedisTools().get_pair(key=encoded_filters)
-    if not result:
-        result = await GamesService().get_games_with_filters(uow, filters)
-        if not result:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail='Games not found',
-            )
-        encoded = type_adapter.dump_json(result).decode("utf-8")
+    # result = await RedisTools().get_pair(key=encoded_filters)
+    # if not result:
+    #     result = await GamesService().get_games_with_filters(uow, filters)
+    #     if not result:
+    #         raise HTTPException(
+    #             status_code=status.HTTP_404_NOT_FOUND,
+    #             detail='Games not found',
+    #         )
+    #     encoded = type_adapter.dump_json(result).decode("utf-8")
 
-        await RedisTools().set_pair(encoded_filters, encoded, exp=120)
-        return result
-    result = type_adapter.validate_json(result)
+    #     await RedisTools().set_pair(encoded_filters, encoded, exp=120)
+    #     return result
+    # result = type_adapter.validate_json(result)
+    result = await GamesService().get_games_with_filters(uow, filters)
 
     return result
 

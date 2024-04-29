@@ -15,8 +15,7 @@ class FilterAdd(BaseModel):
     platform: list[str | None] | None
     age: str | None
     release: list[int | None] | None
-    limit: int | None
-    offset: int | None
+    page: int | None
     sort: SortGet | None
 
 

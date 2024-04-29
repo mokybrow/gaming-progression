@@ -185,8 +185,7 @@ class SQLAlchemyRepository(AbstractRepository):
 
     async def find_all_games_with_filters(
         self,
-        limit: int | None,
-        offset: int | None,
+        page: int | None,
         filters: list,
         sort: str | None = None,
     ):
@@ -202,8 +201,8 @@ class SQLAlchemyRepository(AbstractRepository):
             .options(selectinload(self.model.platforms).selectinload(GamePlatforms.platform))
             .options(selectinload(self.model.age_ratings).selectinload(AgeRatingsGames.age_rating))
             .filter(*filters)
-            .limit(limit)
-            .offset(offset)
+            .limit(20)
+            .offset(page)
             .order_by(sort)
             .distinct()
         )

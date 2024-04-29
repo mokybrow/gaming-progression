@@ -1,4 +1,6 @@
 from fastapi import HTTPException, status
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
 from pydantic import UUID4
 from sqlalchemy import asc, desc
 
@@ -16,23 +18,25 @@ class GamesService:
     async def get_games_with_filters(self, uow: IUnitOfWork, filters: FilterAdd):
         true_filters = await validate_filters(filters)
         sort = None
-        limit = 20
         if filters.sort is not None and filters.sort.name != 'string':
             direction = desc if filters.sort.type == 'desc' else asc
             sort = direction(getattr(Games, filters.sort.name))
             filtr = getattr(Games, filters.sort.name) is not None
             true_filters.append(filtr)
-            
-        if filters.limit is not None and filters.limit != 0:
-            limit = filters.limit 
-        
+                   
         async with uow:
-            games = await uow.games.find_all_games_with_filters(sort=sort, limit=limit, offset=filters.offset, filters=true_filters)
+            games = await uow.games.find_all_games_with_filters(sort=sort, page=filters.page, filters=true_filters)
             if not games:
                 return False
             games = [GamesResponseModel.model_validate(row, from_attributes=True) for row in games]
-            return games
+            
+            games_count = await uow.games.get_games_count_with_filters(filters=true_filters)
 
+            headers = {
+                "x-games-count": f'{games_count[0][0]}',
+            }
+            return JSONResponse(content=jsonable_encoder(games), headers=headers)
+        
     async def get_games_count_with_filters(self, uow: IUnitOfWork, filters: FilterAdd):
         true_filters = await validate_filters(filters)
         async with uow:
