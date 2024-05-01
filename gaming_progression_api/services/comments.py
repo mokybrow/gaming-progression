@@ -13,6 +13,11 @@ settings = get_settings()
 
 class CommentsService:
     async def add_comment(self, uow: IUnitOfWork, comment: AddComment, user_id: UUID4):
+        if comment.text == '' :
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Comment text can't be empty",
+            )
         comment_text = md(comment.text)
         if comment.item_id is None and comment.parent_comment_id is None:
             return False
@@ -20,6 +25,7 @@ class CommentsService:
 
         comment["user_id"] = user_id
         comment['text'] = comment_text
+        print(comment_text)
         async with uow:
             try:
                 item_data = await uow.posts.find_one(id=comment["item_id"])
