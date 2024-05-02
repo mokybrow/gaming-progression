@@ -18,10 +18,7 @@ router = APIRouter(
 )
 
 
-@router.post(
-    '',
-    response_model=PostsSchema
-)
+@router.post('', response_model=PostsSchema)
 async def add_new_post(
     uow: UOWDep,
     post_data: AddPost,

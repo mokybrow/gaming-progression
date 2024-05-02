@@ -94,9 +94,7 @@ class SQLAlchemyRepository(AbstractRepository):
     # ------------------------------>
     async def get_content_comments(self, user_id: UUID4, **filter_by) -> dict | bool:
         query = (
-            select(
-                self.model
-            )
+            select(self.model)
             .options(selectinload(self.model.child_comment).selectinload(self.model.author_data))
             .options(selectinload(self.model.author_data))
             .group_by(self.model.id)

@@ -12,6 +12,7 @@ class GamesModel(BaseModel):
     release_date: datetime.datetime | None
     playtime: int | None
     completed_count: int | None
+    start_count: int | None
     wishlist_count: int | None
     favorite_count: int | None
     avg_rate: float | None

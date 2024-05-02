@@ -21,7 +21,7 @@ class GamesService:
         if filters.sort is not None and filters.sort.name != 'string':
             direction = desc if filters.sort.type == 'desc' else asc
             sort = direction(getattr(Games, filters.sort.name))
-            filtr = getattr(Games, filters.sort.name) is not None
+            filtr = getattr(Games, filters.sort.name) != None
             true_filters.append(filtr)
                    
         async with uow:

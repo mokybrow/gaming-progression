@@ -96,6 +96,7 @@ class Games(Base):
     release_date: Mapped[datetime.datetime] = mapped_column(nullable=True)
     playtime: Mapped[int] = mapped_column(nullable=True)
     completed_count: Mapped[int] = mapped_column(nullable=True)
+    start_count: Mapped[int] = mapped_column(nullable=True)
     wishlist_count: Mapped[int] = mapped_column(nullable=True)
     favorite_count: Mapped[int] = mapped_column(nullable=True)
     avg_rate: Mapped[float] = mapped_column(nullable=True)
@@ -126,6 +127,7 @@ class Games(Base):
             slug=self.slug,
             release_date=self.release_date,
             playtime=self.playtime,
+            start_count=self.start_count,
             completed_count=self.completed_count,
             wishlist_count=self.wishlist_count,
             favorite_count=self.favorite_count,
@@ -149,7 +151,7 @@ class AgeRatingsGames(Base):
     __tablename__ = 'age_rating_games'
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    game_id: Mapped[UUID] = mapped_column(ForeignKey("games.id"))
+    game_id: Mapped[UUID] = mapped_column(ForeignKey("games.id", ondelete='CASCADE'))
     age_rating_id: Mapped[UUID] = mapped_column(ForeignKey("age_ratings.id"))
     __table_args__ = (UniqueConstraint('game_id', 'age_rating_id', name='_age_rating_game_uc'),)
 
@@ -210,7 +212,7 @@ class GamePlatforms(Base):
     __tablename__ = 'game_platforms'
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    game_id: Mapped[UUID] = mapped_column(ForeignKey("games.id"))
+    game_id: Mapped[UUID] = mapped_column(ForeignKey("games.id", ondelete='CASCADE'))
     platform_id: Mapped[UUID] = mapped_column(ForeignKey("platforms.id"))
 
     __table_args__ = (UniqueConstraint('game_id', 'platform_id', name='_game_platform_uc'),)
@@ -398,7 +400,7 @@ class UserActivity(Base):
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
-    game_id: Mapped[UUID] = mapped_column(ForeignKey("games.id"))
+    game_id: Mapped[UUID] = mapped_column(ForeignKey("games.id", ondelete='CASCADE'))
     activity_id: Mapped[UUID] = mapped_column(ForeignKey("activity_types.id"))
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
 

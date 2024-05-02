@@ -38,7 +38,6 @@ class PostsService:
                         return repost
                     except exc.SQLAlchemyError as ex:
                         return f'Some error {type(ex)}'
-            
 
             post_data = post_data.model_dump()
             post_data['wall_id'] = presence_of_wall.id

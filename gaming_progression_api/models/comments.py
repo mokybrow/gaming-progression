@@ -66,7 +66,6 @@ class CommentsResponseModel(BaseModel):
     child_comment: list["ChildCommentDTO"] | None
 
 
-
 class UserCommentsLikes(BaseModel):
     id: UUID4
     hasAuthorLike: int

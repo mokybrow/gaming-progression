@@ -17,8 +17,8 @@ class SearchService:
             games = await uow.games.search_game(true_filters, search_words.limit)
             games_count = await uow.games.search_game_count(true_filters)
             headers = {
-            "x-games-count": f'{games_count[0][0]}',
-        }
+                "x-games-count": f'{games_count[0][0]}',
+            }
             return JSONResponse(content=jsonable_encoder(games), headers=headers)
 
             return presence_of_wall
