@@ -18,6 +18,7 @@ from gaming_progression_api.services.games import GamesService
 from gaming_progression_api.services.redis import RedisTools
 from gaming_progression_api.settings import get_settings
 
+
 settings = get_settings()
 
 
@@ -132,3 +133,6 @@ async def get_user_rate_game(uow: UOWDep, game_id: UUID4, current_user: Annotate
 async def delete_game_grade(uow: UOWDep, game_id: UUID4, current_user: Annotated[User, Depends(get_current_user)]):
     result = await GamesService().delete_rate(uow, game_id=game_id, user_id=current_user.id)
     return result
+
+
+
