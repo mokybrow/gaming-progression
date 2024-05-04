@@ -22,11 +22,3 @@ async def get_game_data(uow: UOWDep, search_str: SearchModel):
 
     return result
 
-
-@router.post('/games/count', response_model=SearchResult)
-async def get_game_data(uow: UOWDep, search_str: SearchModel):
-    # type_adapter = TypeAdapter(GamesModel)
-
-    result = await SearchService().search_game_count(uow, search_str)
-
-    return result

@@ -260,8 +260,8 @@ class SQLAlchemyRepository(AbstractRepository):
         except:
             return False
 
-    async def search_game(self, filters: list, limit: int):
-        query = select(self.model).filter(*filters).limit(limit)
+    async def search_game(self, filters: list, page: int):
+        query = (select(self.model).filter(*filters).limit(20).offset(page))
         result = await self.session.execute(query)
         self.session.expunge_all()
         try:

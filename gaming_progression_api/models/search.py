@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 class SearchModel(BaseModel):
     search_string: str
-    limit: int
+    page: int
 
 
 class SearchResult(BaseModel):
