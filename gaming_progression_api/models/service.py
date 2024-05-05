@@ -11,11 +11,11 @@ class SortGet(BaseModel):
 
 
 class FilterAdd(BaseModel):
-    genre: list[str | None] | None
-    platform: list[str | None] | None
-    age: str | None
-    release: list[int | None] | None
-    page: int | None
+    genre: list[int]  | None
+    platform: list[int]  | None
+    age: list[int]  | None
+    release: list[int] | None
+    page: int 
     sort: SortGet | None
 
 

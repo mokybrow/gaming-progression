@@ -37,14 +37,6 @@ class GamesService:
             }
             return JSONResponse(content=jsonable_encoder(games), headers=headers)
         
-    async def get_games_count_with_filters(self, uow: IUnitOfWork, filters: FilterAdd):
-        true_filters = await validate_filters(filters)
-        async with uow:
-            games = await uow.games.get_games_count_with_filters(filters=true_filters)
-            if not games:
-                return False
-            return GamesCountResponseModel.model_validate(games[0], from_attributes=True)
-
 
     async def get_game(self, uow: IUnitOfWork, **filter_by):
         async with uow:

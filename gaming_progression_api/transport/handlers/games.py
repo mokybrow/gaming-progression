@@ -51,7 +51,6 @@ async def get_game_data(uow: UOWDep, slug: str) -> GamesResponseModel:
 
 @router.post('')
 async def get_games(uow: UOWDep, filters: FilterAdd):
-    print(filters)
     # print(filters)
     # type_adapter_filter = TypeAdapter(FilterAdd)
     # type_adapter = TypeAdapter(list[GamesResponseModel])
@@ -75,26 +74,6 @@ async def get_games(uow: UOWDep, filters: FilterAdd):
     return result
 
 
-@router.post('/count', response_model=GamesCountResponseModel)
-async def get_games_count(uow: UOWDep, filters: FilterCount) -> GamesCountResponseModel:
-    type_adapter_filter = TypeAdapter(FilterCount)
-    type_adapter = TypeAdapter(GamesCountResponseModel)
-    encoded_filters = type_adapter_filter.dump_json(filters).decode("utf-8")
-
-    result = await RedisTools().get_pair(key=encoded_filters)
-    if not result:
-        result = await GamesService().get_games_count_with_filters(uow, filters)
-        if not result:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail='Games not found',
-            )
-        encoded = type_adapter.dump_json(result).decode("utf-8")
-        await RedisTools().set_pair(encoded_filters, encoded, exp=120)
-        return result
-    result = type_adapter.validate_json(result)
-
-    return result
 
 
 @router.post('/statuses')
@@ -119,6 +98,7 @@ async def change_game_status(
 
 @router.post('/rate')
 async def rate_game(uow: UOWDep, rate_game: RateGame, current_user: Annotated[User, Depends(get_current_user)]):
+    print(rate_game)
     result = await GamesService().rate_game(uow, rate_game, user_id=current_user.id)
     return result
 
