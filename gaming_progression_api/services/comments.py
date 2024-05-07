@@ -1,12 +1,12 @@
 from fastapi import HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
+from markdownify import markdownify as md
 from pydantic import UUID4
 
 from gaming_progression_api.models.comments import AddComment, CommentsResponseModel, UserCommentsLikes
 from gaming_progression_api.services.unitofwork import IUnitOfWork
 from gaming_progression_api.settings import get_settings
-from markdownify import markdownify as md
 
 settings = get_settings()
 

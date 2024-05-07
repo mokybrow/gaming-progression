@@ -10,12 +10,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from gaming_progression_api.integrations.database import Base
 from gaming_progression_api.models.comments import CommentsSchema
 from gaming_progression_api.models.followers import FollowersSchema
-from gaming_progression_api.models.games import (
-    ChangeGameFavorite,
-    GamesModel,
-    RateGameScheme,
-    UserActivitySchema,
-)
+from gaming_progression_api.models.games import ChangeGameFavorite, GamesModel, RateGameScheme, UserActivitySchema
 from gaming_progression_api.models.likes import LikeLogSchema
 from gaming_progression_api.models.playlists import AddGameListSchema, PlaylistsSchema, UserListsSchema
 from gaming_progression_api.models.posts import PostsSchema
@@ -63,9 +58,8 @@ class Users(Base):
         back_populates="sub_data",
         viewonly=True,
     )
-
-    lists: Mapped[list["UserLists"]] = relationship(back_populates="users")
-    sub_data: Mapped["Playlists"] = relationship("Playlists", primaryjoin="Playlists.owner_id==Users.id")
+    lists: Mapped[list["UserPlaylists"]] = relationship(back_populates="users")
+    playlist_data: Mapped["Playlists"] = relationship("Playlists", primaryjoin="Playlists.owner_id==Users.id")
 
     def to_read_model(self) -> UserSchema:
         return UserSchema(
@@ -114,7 +108,7 @@ class Games(Base):
         back_populates="game_data",
     )
 
-    list_data_replied: Mapped[list["ListGames"]] = relationship(
+    list_data_replied: Mapped[list["PlaylistGames"]] = relationship(
         back_populates="game_data",
     )
 
@@ -235,17 +229,17 @@ class Playlists(Base):
     is_private: Mapped[bool] = mapped_column(default=False)
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
 
-    playlists_replied: Mapped[list["UserLists"]] = relationship(
+    playlists_replied: Mapped[list["UserPlaylists"]] = relationship(
         back_populates="playlists",
     )
 
-    list_games: Mapped[list["ListGames"]] = relationship(
+    list_games: Mapped[list["PlaylistGames"]] = relationship(
         back_populates="playlists",
     )
     owner_data: Mapped[list["Users"]] = relationship(
         "Users",
         primaryjoin="Users.id==Playlists.owner_id",
-        back_populates="sub_data",
+        back_populates="playlist_data",
         viewonly=True,
     )
 
@@ -260,8 +254,8 @@ class Playlists(Base):
         )
 
 
-class UserLists(Base):
-    __tablename__ = 'user_lists'
+class UserPlaylists(Base):
+    __tablename__ = 'user_playlists'
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     list_id: Mapped[UUID] = mapped_column(ForeignKey("playlists.id"))
@@ -281,8 +275,8 @@ class UserLists(Base):
         return UserListsSchema(id=self.id, list_id=self.list_id, user_id=self.user_id, created_at=self.created_at)
 
 
-class ListGames(Base):
-    __tablename__ = 'list_games'
+class PlaylistGames(Base):
+    __tablename__ = 'playlist_games'
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     game_id: Mapped[UUID] = mapped_column(ForeignKey("games.id"))

@@ -3,13 +3,6 @@ from fastapi.security import OAuth2PasswordBearer
 from pydantic import UUID4
 from sqlalchemy import or_
 
-from gaming_progression_api.models.schemas import Users
-from gaming_progression_api.models.user_settings import AddMailing
-from gaming_progression_api.models.users import PatchUser, UserCreate
-from gaming_progression_api.services.auth import AuthService
-from gaming_progression_api.services.email import email_sender
-from gaming_progression_api.services.unitofwork import IUnitOfWork
-from gaming_progression_api.settings import get_settings
 from gaming_progression_api.dependencies import (
     UOWDep,
     access_token_expires,
@@ -17,6 +10,13 @@ from gaming_progression_api.dependencies import (
     reset_token_expires,
     verify_token_expires,
 )
+from gaming_progression_api.models.schemas import Users
+from gaming_progression_api.models.user_settings import AddMailing
+from gaming_progression_api.models.users import PatchUser, UserCreate
+from gaming_progression_api.services.auth import AuthService
+from gaming_progression_api.services.email import email_sender
+from gaming_progression_api.services.unitofwork import IUnitOfWork
+from gaming_progression_api.settings import get_settings
 
 settings = get_settings()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')

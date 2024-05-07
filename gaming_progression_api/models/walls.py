@@ -1,4 +1,5 @@
 import datetime
+
 from pydantic import UUID4, BaseModel
 
 from gaming_progression_api.models.users import PrivateBaseUser

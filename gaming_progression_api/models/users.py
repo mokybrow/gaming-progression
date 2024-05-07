@@ -1,4 +1,5 @@
 import datetime
+
 from typing import Optional
 
 from pydantic import UUID4, BaseModel, ConfigDict, EmailStr
@@ -59,19 +60,6 @@ class UserSubscriptions(BaseModel):
     sub_data: UserFriendsDTO | None
 
 
-class UserListsDTO(BaseModel):
-    id: UUID4
-    owner_id: UUID4
-    name: str
-    about: str | None
-    is_private: bool
-    created_at: datetime.datetime
-
-
-class UserLists(BaseModel):
-    playlists: UserListsDTO | None
-
-
 class User(BaseUser):
     id: UUID4
     is_verified: bool
@@ -84,7 +72,6 @@ class User(BaseUser):
     user_favorite: list['UserFavorite'] | None
     followers: list['UserFollowers'] | None
     subscriptions: list['UserSubscriptions'] | None
-    lists: list['UserLists'] | None
 
 
 class PrivateBaseUser(BaseModel):
@@ -100,7 +87,6 @@ class PrivateUser(PrivateBaseUser):
     user_favorite: list['UserFavorite'] | None
     followers: list['UserFollowers'] | None
     subscriptions: list['UserSubscriptions'] | None
-    lists: list['UserLists'] | None
 
 
 class UserSchema(BaseUser):

@@ -1,5 +1,5 @@
 from gaming_progression_api.integrations.repository import SQLAlchemyRepository
-from gaming_progression_api.models.schemas import ListGames, Playlists, UserLists
+from gaming_progression_api.models.schemas import PlaylistGames, Playlists, UserPlaylists
 
 
 class CreatePlaylistsRepository(SQLAlchemyRepository):
@@ -7,8 +7,8 @@ class CreatePlaylistsRepository(SQLAlchemyRepository):
 
 
 class AddPlaylistsRepository(SQLAlchemyRepository):
-    model = UserLists
+    model = UserPlaylists
 
 
 class AddListGameRepository(SQLAlchemyRepository):
-    model = ListGames
+    model = PlaylistGames

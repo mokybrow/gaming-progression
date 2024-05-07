@@ -1,4 +1,5 @@
 from typing import Annotated
+
 from fastapi import APIRouter, Depends
 
 from gaming_progression_api.dependencies import UOWDep, get_current_user

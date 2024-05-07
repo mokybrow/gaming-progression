@@ -35,18 +35,34 @@ class AddPlaylist(BaseModel):
 
 
 class GetPlaylists(BaseModel):
-    limit: int
-    offser: int
+    page: int
+    user_id: UUID4 | None
+
+
+class GetUserPlaylists(BaseModel):
+    username: str
+    user_id: UUID4 | None
+
+
+class AddGameToPlaylist(BaseModel):
+    list_id: UUID4
+    game_id: UUID4
+
+
+class GamesPlaylistDTO(BaseModel):
+    game_data: GameDataActivityDTO
 
 
 class PlaylistDTO(BaseModel):
-    game_data: GameDataActivityDTO | None
-
-
-class PlaylistResponseModel(BaseModel):
     id: UUID4
+    owner_id: UUID4
     name: str
     about: str | None
     created_at: datetime.datetime
     owner_data: PrivateBaseUser
-    list_games: list["PlaylistDTO"]
+    list_games: list["GamesPlaylistDTO"]
+
+
+class PlaylistResponseModel(BaseModel):
+    Playlists: PlaylistDTO
+    addedPlaylist: int | None = None

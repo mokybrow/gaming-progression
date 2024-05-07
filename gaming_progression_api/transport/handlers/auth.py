@@ -127,7 +127,7 @@ async def password_reset(new_data: ChangeUserPassword, uow: UOWDep) -> ServiceRe
     return ServiceResponseModel(details=f'Password for {reset_user} successfully changed')
 
 
-@router.patch('/users/me', response_model=ServiceResponseModel)
+@router.patch('/users/me')
 async def edit_user(
     new_data: PatchUser,
     uow: UOWDep,

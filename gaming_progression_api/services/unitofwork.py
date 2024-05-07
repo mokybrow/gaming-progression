@@ -34,10 +34,10 @@ class IUnitOfWork(ABC):
     likes: type[LikesRepository]
     like_types: type[LikeTypesRepository]
     playlists: type[CreatePlaylistsRepository]
-    add_playlists: type[AddPlaylistsRepository]
+    user_playlists: type[AddPlaylistsRepository]
     followers: type[FollowersRepository]
     activity_types: type[ActivityTypesRepository]
-    list_games: type[AddListGameRepository]
+    playlist_games: type[AddListGameRepository]
     mailings: type[MailingRepository]
     mailing_types: type[MailingTypesRepository]
 
@@ -81,10 +81,10 @@ class UnitOfWork:
         self.likes = LikesRepository(self.session)
         self.like_types = LikeTypesRepository(self.session)
         self.playlists = CreatePlaylistsRepository(self.session)
-        self.add_playlists = AddPlaylistsRepository(self.session)
+        self.user_playlists = AddPlaylistsRepository(self.session)
         self.followers = FollowersRepository(self.session)
         self.activity_types = ActivityTypesRepository(self.session)
-        self.list_games = AddListGameRepository(self.session)
+        self.playlist_games = AddListGameRepository(self.session)
         self.mailings = MailingRepository(self.session)
         self.mailing_types = MailingTypesRepository(self.session)
 

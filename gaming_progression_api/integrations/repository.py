@@ -15,12 +15,13 @@ from gaming_progression_api.models.schemas import (
     GamePlatforms,
     Genres,
     LikeLog,
-    ListGames,
     Platforms,
+    PlaylistGames,
+    Playlists,
     Posts,
     UserActivity,
     UserFavorite,
-    UserLists,
+    UserPlaylists,
 )
 
 
@@ -50,8 +51,8 @@ class SQLAlchemyRepository(AbstractRepository):
         await self.session.execute(stmt)
         # return result.scalar_one()
 
-    async def find_all(self, limit: int | None = None, offset: int | None = None) -> list | bool:
-        query = select(self.model).limit(limit).offset(offset)
+    async def find_all(self, page: int) -> list | bool:
+        query = select(self.model).limit(20).offset(page)
         result = await self.session.execute(query)
         result = [row[0].to_read_model() for row in result.all()]
         return result
@@ -152,7 +153,12 @@ class SQLAlchemyRepository(AbstractRepository):
             .options(selectinload(self.model.user_favorite).selectinload(UserFavorite.game_data))
             .options(selectinload(self.model.followers).selectinload(Friends.follower_data))
             .options(selectinload(self.model.subscriptions).selectinload(Friends.sub_data))
-            .options(selectinload(self.model.lists).selectinload(UserLists.playlists))
+            .options(
+                selectinload(self.model.lists)
+                .selectinload(UserPlaylists.playlists)
+                .selectinload(Playlists.list_games)
+                .selectinload(PlaylistGames.game_data)
+            )
             .filter_by(**filter_by)
         )
         result = await self.session.execute(query)
@@ -233,10 +239,117 @@ class SQLAlchemyRepository(AbstractRepository):
         except:
             return False
 
+    async def get_all_playlist(self, page: int, user_id: UUID4, filter: list):
+        query = (
+            select(
+                self.model,
+                func.sum(
+                    distinct(
+                        case(
+                            (
+                                and_(
+                                    UserPlaylists.list_id == self.model.id,
+                                    UserPlaylists.user_id == user_id,
+                                ),
+                                1,
+                            ),
+                            else_=0,
+                        ),
+                    ),
+                ).label('addedPlaylist'),
+            )
+            .join(PlaylistGames, isouter=True, onclause=self.model.id == PlaylistGames.list_id)
+            .options(selectinload(self.model.list_games).selectinload(PlaylistGames.game_data))
+            .options(selectinload(self.model.owner_data))
+            .filter(*filter)
+            .group_by(self.model.id)
+            .limit(20)
+            .offset(page)
+            .distinct()
+        )
+        result = await self.session.execute(query)
+        self.session.expunge_all()
+
+        try:
+            result = result.all()
+            return result
+        except:
+            return False
+
+    async def get_my_playlists(self, filter: list):
+        query = (
+            select(
+                self.model,
+            )
+            .join(PlaylistGames, isouter=True, onclause=self.model.id == PlaylistGames.list_id)
+            .join(UserPlaylists, isouter=True)
+            .options(selectinload(self.model.list_games).selectinload(PlaylistGames.game_data))
+            .options(selectinload(self.model.owner_data))
+            .filter(*filter)
+            .distinct()
+        )
+        result = await self.session.execute(query)
+        self.session.expunge_all()
+
+        try:
+            result = result.scalars().all()
+            return result
+        except:
+            return False
+
+    async def get_user_playlists(self, user_id: UUID4, filter: list):
+        query = (
+            select(
+                self.model,
+                func.sum(
+                    distinct(
+                        case(
+                            (
+                                and_(
+                                    UserPlaylists.list_id == self.model.id,
+                                    UserPlaylists.user_id == user_id,
+                                ),
+                                1,
+                            ),
+                            else_=0,
+                        ),
+                    ),
+                ).label('addedPlaylist'),
+            )
+            .join(PlaylistGames, isouter=True, onclause=self.model.id == PlaylistGames.list_id)
+            .join(UserPlaylists, isouter=True)
+            .options(selectinload(self.model.list_games).selectinload(PlaylistGames.game_data))
+            .options(selectinload(self.model.owner_data))
+            .filter(*filter)
+            .group_by(self.model.id)
+            .distinct()
+        )
+        result = await self.session.execute(query)
+        self.session.expunge_all()
+
+        try:
+            result = result.all()
+            return result
+        except:
+            return False
+
+    async def get_playlists_count(self, filter: list):
+        query = (
+            select(func.count(self.model.id.distinct()).label("playlists_count"))
+            .join(PlaylistGames, isouter=True, onclause=self.model.id == PlaylistGames.list_id)
+            .filter(*filter)
+        )
+        result = await self.session.execute(query)
+        try:
+            result = result.all()
+            return result
+        except:
+            return False
+
     async def get_playlist_data(self, **filter_by):
         query = (
             select(self.model)
-            .options(selectinload(self.model.list_games).selectinload(ListGames.game_data))
+            .options(selectinload(self.model.list_games).selectinload(PlaylistGames.game_data))
             .options(selectinload(self.model.owner_data))
             .filter_by(**filter_by)
         )
@@ -261,7 +374,7 @@ class SQLAlchemyRepository(AbstractRepository):
             return False
 
     async def search_game(self, filters: list, page: int):
-        query = (select(self.model).filter(*filters).limit(20).offset(page))
+        query = select(self.model).filter(*filters).limit(20).offset(page)
         result = await self.session.execute(query)
         self.session.expunge_all()
         try:
@@ -331,7 +444,6 @@ class SQLAlchemyRepository(AbstractRepository):
             .offset(page)
         )
         result = await self.session.execute(query)
-        print(query)
         self.session.expunge_all()
         try:
             result = result.all()

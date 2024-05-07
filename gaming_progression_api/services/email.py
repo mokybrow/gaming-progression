@@ -1,6 +1,6 @@
 import os
 
-from typing import Any, List, Optional, Dict
+from typing import Any, Dict, List, Optional
 
 from fastapi import BackgroundTasks
 from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType
@@ -8,7 +8,6 @@ from pydantic import BaseModel, EmailStr, Field
 from starlette.responses import JSONResponse
 
 from gaming_progression_api.settings import get_settings
-
 
 settings = get_settings()
 

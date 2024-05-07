@@ -1,5 +1,7 @@
 import json
+
 from fastapi import HTTPException, status
+from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from pydantic import UUID4
 from sqlalchemy import or_
@@ -10,7 +12,6 @@ from gaming_progression_api.models.posts import PostsResponseModel
 from gaming_progression_api.models.schemas import Posts
 from gaming_progression_api.services.unitofwork import IUnitOfWork
 from gaming_progression_api.settings import get_settings
-from fastapi.encoders import jsonable_encoder
 
 settings = get_settings()
 

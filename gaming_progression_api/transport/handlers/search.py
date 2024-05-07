@@ -21,4 +21,3 @@ async def get_game_data(uow: UOWDep, search_str: SearchModel):
     result = await SearchService().search_game_tsv(uow, search_str)
 
     return result
-
