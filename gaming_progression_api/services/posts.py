@@ -43,7 +43,6 @@ class PostsService:
             post_data['wall_id'] = presence_of_wall.id
             post_data['user_id'] = user_id
             post_data['text'] = post_text
-            print(post_text)
             try:
                 post = await uow.posts.add_one(post_data)
                 await uow.commit()

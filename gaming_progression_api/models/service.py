@@ -1,3 +1,4 @@
+import datetime
 from pydantic import UUID4, BaseModel
 
 
@@ -30,3 +31,21 @@ class ObjectTypesSchema(BaseModel):
     id: UUID4
     name: str
     code: int
+
+
+class ReportSchema(BaseModel):
+    id: UUID4
+    user_id: UUID4
+    type: str
+    content_id: UUID4
+    content_type: str
+    description: str | None
+    created_at: datetime.datetime
+    
+
+class CreateReportModel(BaseModel):
+    type: str
+    content_id: UUID4
+    content_type: str
+    description: str | None
+    

@@ -16,6 +16,7 @@ from gaming_progression_api.integrations.playlists import (
     CreatePlaylistsRepository,
 )
 from gaming_progression_api.integrations.posts import PostsRepository
+from gaming_progression_api.integrations.service import ReportsRepository
 from gaming_progression_api.integrations.user_settings import MailingRepository, MailingTypesRepository
 from gaming_progression_api.integrations.users import UsersRepository
 from gaming_progression_api.integrations.walls import WallsRepository, WallsTypesRepository
@@ -40,6 +41,7 @@ class IUnitOfWork(ABC):
     playlist_games: type[AddListGameRepository]
     mailings: type[MailingRepository]
     mailing_types: type[MailingTypesRepository]
+    reports: type[ReportsRepository]
 
     @abstractmethod
     def __init__(self) -> None:
@@ -87,6 +89,7 @@ class UnitOfWork:
         self.playlist_games = AddListGameRepository(self.session)
         self.mailings = MailingRepository(self.session)
         self.mailing_types = MailingTypesRepository(self.session)
+        self.reports = ReportsRepository(self.session)
 
     async def __aexit__(self, *args) -> None:
         await self.rollback()

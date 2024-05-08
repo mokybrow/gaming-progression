@@ -113,14 +113,15 @@ class PlaylistsService:
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail='You cant add game in this list',
                 )
-            game_count = await uow.playlist_games.find_all_with_filters(game_id=game_id, list_id=list_id)
-            if len(game_count)== 20:
-                raise HTTPException(
+            game_count = await uow.playlist_games.find_all_with_filters(list_id=list_id)
+        
+            found_game = await uow.playlist_games.find_one(game_id=game_id, list_id=list_id)
+            if not found_game:
+                if len(game_count) == 20:
+                    raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail='Only 20 games',
                 )
-            found_game = await uow.playlist_games.find_one(game_id=game_id, list_id=list_id)
-            if not found_game:
                 result = await uow.playlist_games.add_one({"game_id": game_id, "list_id": list_id})
                 await uow.commit()
                 raise HTTPException(

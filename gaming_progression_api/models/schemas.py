@@ -14,7 +14,7 @@ from gaming_progression_api.models.games import ChangeGameFavorite, GamesModel, 
 from gaming_progression_api.models.likes import LikeLogSchema
 from gaming_progression_api.models.playlists import AddGameListSchema, PlaylistsSchema, UserListsSchema
 from gaming_progression_api.models.posts import PostsSchema
-from gaming_progression_api.models.service import ObjectTypesSchema
+from gaming_progression_api.models.service import ObjectTypesSchema, ReportSchema
 from gaming_progression_api.models.users import UserMailingsSchema, UserSchema
 from gaming_progression_api.models.walls import WallsSchema
 
@@ -635,4 +635,28 @@ class MailingTypes(Base):
             id=self.id,
             name=self.name,
             code=self.code,
+        )
+
+
+
+class Reports(Base):
+    __tablename__ = 'reports'
+
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
+    type: Mapped[str]
+    content_id: Mapped[UUID]
+    content_type: Mapped[str]
+    description: Mapped[str]= mapped_column(nullable=True)
+    created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
+
+    def to_read_model(self) -> ReportSchema:
+        return ReportSchema(
+            id=self.id,
+            user_id=self.user_id,
+            type=self.type,
+            content_id=self.content_id,
+            content_type=self.content_type,
+            description=self.description,
+            created_at=self.created_at
         )
