@@ -20,7 +20,12 @@ class PlaylistsService:
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail='Youre already heave playlist with this name',
                 )
-
+            lists_count = await uow.playlists.find_all_with_filters(owner_id=user_id)
+            if len(lists_count)== 15:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail='Youre already have 15 lists',
+                )
             playlist_data = playlist_data.model_dump()
             playlist_data["owner_id"] = user_id
             list_id = await uow.playlists.add_one(playlist_data)
@@ -107,6 +112,12 @@ class PlaylistsService:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail='You cant add game in this list',
+                )
+            game_count = await uow.playlist_games.find_all_with_filters(game_id=game_id, list_id=list_id)
+            if len(game_count)== 20:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail='Only 20 games',
                 )
             found_game = await uow.playlist_games.find_one(game_id=game_id, list_id=list_id)
             if not found_game:
