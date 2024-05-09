@@ -132,6 +132,12 @@ class UsersService:
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail='This email are same',
                 )
+            unique_email  = await uow.users.find_one(email=email)
+            if unique_email:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail='User with this email already exist',
+                )
             email_schema = {
                 "email": [current_email],
                 "subject": "Запрос на смену почты mbrw.ru",
