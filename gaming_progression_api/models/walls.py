@@ -1,4 +1,5 @@
 import datetime
+from typing import List
 
 from pydantic import UUID4, BaseModel
 
@@ -23,6 +24,11 @@ class AddWallType(BaseModel):
     code: int
 
 
+class PicturesDTO(BaseModel):
+    picture_path: str
+    created_at: datetime.datetime
+
+
 class ParentPostData(BaseModel):
     id: UUID4
     user_id: UUID4
@@ -35,6 +41,7 @@ class ParentPostData(BaseModel):
     created_at: datetime.datetime
     updated_at: datetime.datetime
     author_data: PrivateBaseUser | None
+    pictures: List[PicturesDTO] | None
 
 
 class PostDTO(BaseModel):
@@ -50,6 +57,7 @@ class PostDTO(BaseModel):
     updated_at: datetime.datetime
     parent_post_data: ParentPostData | None
     author_data: PrivateBaseUser
+    pictures: List[PicturesDTO] | None
 
 
 class WallResponseModel(BaseModel):

@@ -485,7 +485,7 @@ class Posts(Base):
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
     wall_id: Mapped[UUID] = mapped_column(ForeignKey("walls.id"))
     parent_post_id: Mapped[UUID] = mapped_column(ForeignKey("posts.id", ondelete='CASCADE'), nullable=True)
-    text: Mapped[str]
+    text: Mapped[str | None]
     likes_count: Mapped[int] = mapped_column(default=0)
     comments_count: Mapped[int] = mapped_column(default=0)
     disabled: Mapped[bool] = mapped_column(default=False)
@@ -500,6 +500,8 @@ class Posts(Base):
         foreign_keys=[id],
         primaryjoin="Posts.id==Posts.parent_post_id",
     )
+
+    pictures: Mapped[list["Pictures"]] = relationship("Pictures")
 
     def to_read_model(self) -> PostsSchema:
         return PostsSchema(
@@ -587,9 +589,8 @@ class Pictures(Base):
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     author_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
-    item_id: Mapped[UUID]
+    item_id: Mapped[UUID] = mapped_column(ForeignKey("posts.id", ondelete='CASCADE'))
     picture_path: Mapped[str]
-    og_picture_path: Mapped[str]
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
     updated_at: Mapped[datetime.datetime] = mapped_column(
         server_default=text("TIMEZONE('utc', now())"),
@@ -638,7 +639,6 @@ class MailingTypes(Base):
         )
 
 
-
 class Reports(Base):
     __tablename__ = 'reports'
 
@@ -647,7 +647,7 @@ class Reports(Base):
     type: Mapped[str]
     content_id: Mapped[UUID]
     content_type: Mapped[str]
-    description: Mapped[str]= mapped_column(nullable=True)
+    description: Mapped[str] = mapped_column(nullable=True)
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
 
     def to_read_model(self) -> ReportSchema:
@@ -658,5 +658,5 @@ class Reports(Base):
             content_id=self.content_id,
             content_type=self.content_type,
             description=self.description,
-            created_at=self.created_at
+            created_at=self.created_at,
         )

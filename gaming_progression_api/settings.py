@@ -28,6 +28,9 @@ class Settings(
     mail_server: str
     front_host: str
 
+    s3_id: str
+    s3_key: str
+
     model_config = SettingsConfigDict(env_file='.env', env_prefix='API_')
 
 

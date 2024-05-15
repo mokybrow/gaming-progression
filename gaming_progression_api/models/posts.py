@@ -1,9 +1,11 @@
 import datetime
+from typing import List
 import uuid
 
 from pydantic import UUID4, BaseModel
 
 from gaming_progression_api.models.users import PrivateBaseUser
+from gaming_progression_api.models.walls import PicturesDTO
 
 
 class PostsSchema(BaseModel):
@@ -49,11 +51,11 @@ class ParentPostData(BaseModel):
     text: str
     likes_count: int | None
     comments_count: int
-
     disabled: bool | None
     created_at: datetime.datetime
     updated_at: datetime.datetime
     author_data: PrivateBaseUser | None
+    pictures: List[PicturesDTO] | None
 
 
 class PostDTO(BaseModel):
@@ -69,6 +71,7 @@ class PostDTO(BaseModel):
     updated_at: datetime.datetime
     parent_post_data: ParentPostData | None
     author_data: PrivateBaseUser
+    pictures: List[PicturesDTO] | None
 
 
 class PostsResponseModel(BaseModel):

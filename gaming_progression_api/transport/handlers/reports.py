@@ -18,8 +18,10 @@ router = APIRouter(
 
 
 @router.post('')
-async def create_report(uow: UOWDep, report: CreateReportModel,     
-                        current_user: Annotated[User, Depends(get_current_active_user)],
+async def create_report(
+    uow: UOWDep,
+    report: CreateReportModel,
+    current_user: Annotated[User, Depends(get_current_active_user)],
 ):
     result = await ReportsService().create_report(uow, current_user.id, report)
 

@@ -267,7 +267,6 @@ class SQLAlchemyRepository(AbstractRepository):
             .offset(page)
             .distinct()
             .order_by(self.model.created_at.desc())
-
         )
         result = await self.session.execute(query)
         self.session.expunge_all()
@@ -288,7 +287,7 @@ class SQLAlchemyRepository(AbstractRepository):
             .options(selectinload(self.model.list_games).selectinload(PlaylistGames.game_data))
             .options(selectinload(self.model.owner_data))
             .filter(*filter)
-                    .distinct()
+            .distinct()
             .order_by(self.model.created_at.desc())
         )
         result = await self.session.execute(query)
@@ -325,7 +324,7 @@ class SQLAlchemyRepository(AbstractRepository):
             .options(selectinload(self.model.owner_data))
             .filter(*filter)
             .group_by(self.model.id)
-                 .distinct()
+            .distinct()
             .order_by(self.model.created_at.desc())
         )
         result = await self.session.execute(query)
@@ -441,7 +440,9 @@ class SQLAlchemyRepository(AbstractRepository):
             )
             .filter_by(**filter_by)
             .options(selectinload(self.model.parent_post_data).selectinload(self.model.author_data))
+            .options(selectinload(self.model.parent_post_data).selectinload(self.model.pictures))
             .options(selectinload(self.model.author_data))
+            .options(selectinload(self.model.pictures))
             .group_by(self.model.id)
             .order_by(desc(self.model.created_at))
             .limit(10)
@@ -454,6 +455,30 @@ class SQLAlchemyRepository(AbstractRepository):
             return result
         except:
             return False
+
+    # async def get_user_wall(self, user_id: UUID4, page: int = 10, **filter_by) -> dict | bool:
+    #     query = (
+    #         select(
+    #             self.model,
+
+    #         )
+    #         .filter_by(**filter_by)
+    #         .options(selectinload(self.model.parent_post_data).selectinload(self.model.author_data))
+    #         .options(selectinload(self.model.parent_post_data).selectinload(self.model.pictures))
+    #         .options(selectinload(self.model.author_data))
+    #         .options(selectinload(self.model.pictures))
+    #         .group_by(self.model.id)
+    #         .order_by(desc(self.model.created_at))
+    #         .limit(10)
+    #         .offset(page)
+    #     )
+    #     result = await self.session.execute(query)
+    #     self.session.expunge_all()
+    #     try:
+    #         result = result.scalars().all()
+    #         return result
+    #     except:
+    #         return False
 
     async def get_post(self, user_id: UUID4, **filter_by) -> dict | bool:
         query = (
@@ -477,7 +502,9 @@ class SQLAlchemyRepository(AbstractRepository):
             )
             .filter_by(**filter_by)
             .options(selectinload(self.model.parent_post_data).selectinload(self.model.author_data))
+            .options(selectinload(self.model.parent_post_data).selectinload(self.model.pictures))
             .options(selectinload(self.model.author_data))
+            .options(selectinload(self.model.pictures))
             .group_by(self.model.id)
             .order_by(desc(self.model.created_at))
         )
@@ -519,7 +546,9 @@ class SQLAlchemyRepository(AbstractRepository):
                 ).label('hasAuthorLike'),
             )
             .options(selectinload(self.model.parent_post_data).selectinload(self.model.author_data))
+            .options(selectinload(self.model.parent_post_data).selectinload(self.model.pictures))
             .options(selectinload(self.model.author_data))
+            .options(selectinload(self.model.pictures))
             .filter(*filters)
             .group_by(self.model.id)
             .order_by(desc(self.model.created_at))
