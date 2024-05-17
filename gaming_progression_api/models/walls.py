@@ -34,7 +34,7 @@ class ParentPostData(BaseModel):
     user_id: UUID4
     wall_id: UUID4
     parent_post_id: UUID4 | None
-    text: str
+    text:str | None
     likes_count: int
     comments_count: int
     disabled: bool | None
@@ -49,7 +49,7 @@ class PostDTO(BaseModel):
     user_id: UUID4
     wall_id: UUID4 | None
     parent_post_id: UUID4 | None
-    text: str
+    text: str | None
     likes_count: int
     comments_count: int
     disabled: bool

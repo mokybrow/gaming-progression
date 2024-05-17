@@ -23,6 +23,7 @@ class PostsService:
         file: List[UploadFile] | None,
         user_id: UUID4,
     ):
+        post_text = None
         if text:
             post_text = md(text)
 
@@ -83,12 +84,12 @@ class PostsService:
             )
             if file:
                 for f in file:
-                    s3_client.upload_fileobj(f.file, 'mbrw', f.filename + str(id), ExtraArgs={'ACL': 'public-read'})
+                    s3_client.upload_fileobj(f.file, 'mbrw', str(id) + f.filename , ExtraArgs={'ACL': 'public-read'})
                     await uow.pictures.add_one(
                         {
                             'author_id': user_id,
                             'item_id': id,
-                            'picture_path': 'http://pictures.mbrw.ru/' + f.filename + str(id),
+                            'picture_path': 'http://pictures.mbrw.ru/' + str(id) + f.filename,
                         }
                     )
 
