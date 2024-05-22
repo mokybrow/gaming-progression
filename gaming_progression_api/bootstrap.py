@@ -16,6 +16,7 @@ from gaming_progression_api.transport.handlers.users import router as users_rout
 from gaming_progression_api.transport.handlers.walls import router as walls_router
 from gaming_progression_api.transport.handlers.reports import router as reports_router
 from gaming_progression_api.transport.handlers.pictures import router as pic_router
+from gaming_progression_api.transport.handlers.calendar import router as calendar_router
 
 
 def _setup_api_routers(
@@ -33,6 +34,7 @@ def _setup_api_routers(
     api.include_router(search_router)
     api.include_router(reports_router)
     api.include_router(pic_router)
+    api.include_router(calendar_router)
 
 
 @lru_cache

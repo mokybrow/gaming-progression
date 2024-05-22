@@ -7,7 +7,6 @@ from gaming_progression_api.models.service import FilterAdd
 
 async def validate_filters(filters: FilterAdd):
     true_filters = []
-    print(filters)
     if filters.genre != None and filters.genre:
         genre = or_(Genres.code == i for i in filters.genre)
         true_filters.append(genre)

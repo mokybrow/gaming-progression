@@ -48,3 +48,9 @@ class CreateReportModel(BaseModel):
     content_id: UUID4
     content_type: str
     description: str | None
+
+
+class GetFamesByMonth(BaseModel):
+    date: datetime.datetime
+    days: int
+

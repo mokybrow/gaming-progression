@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 from pydantic import UUID4
-from sqlalchemy import and_, case, delete, desc, distinct, func, funcfilter, insert, or_, select, update
+from sqlalchemy import and_, asc, case, delete, desc, distinct, func, funcfilter, insert, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -456,29 +456,7 @@ class SQLAlchemyRepository(AbstractRepository):
         except:
             return False
 
-    # async def get_user_wall(self, user_id: UUID4, page: int = 10, **filter_by) -> dict | bool:
-    #     query = (
-    #         select(
-    #             self.model,
 
-    #         )
-    #         .filter_by(**filter_by)
-    #         .options(selectinload(self.model.parent_post_data).selectinload(self.model.author_data))
-    #         .options(selectinload(self.model.parent_post_data).selectinload(self.model.pictures))
-    #         .options(selectinload(self.model.author_data))
-    #         .options(selectinload(self.model.pictures))
-    #         .group_by(self.model.id)
-    #         .order_by(desc(self.model.created_at))
-    #         .limit(10)
-    #         .offset(page)
-    #     )
-    #     result = await self.session.execute(query)
-    #     self.session.expunge_all()
-    #     try:
-    #         result = result.scalars().all()
-    #         return result
-    #     except:
-    #         return False
 
     async def get_post(self, user_id: UUID4, **filter_by) -> dict | bool:
         query = (
@@ -569,6 +547,37 @@ class SQLAlchemyRepository(AbstractRepository):
         result = await self.session.execute(query)
         try:
             result = result.all()
+            return result
+        except:
+            return False
+
+
+
+
+    async def games_by_month(
+        self,
+        filters: list,
+    ):
+        query = (
+            select(self.model)
+            .join(GameGenres, isouter=True)
+            .join(Genres, isouter=True)
+            .join(GamePlatforms, isouter=True)
+            .join(Platforms, isouter=True)
+            .join(AgeRatingsGames, isouter=True)
+            .join(AgeRatings, isouter=True)
+            .options(selectinload(self.model.genres).selectinload(GameGenres.genre))
+            .options(selectinload(self.model.platforms).selectinload(GamePlatforms.platform))
+            .options(selectinload(self.model.age_ratings).selectinload(AgeRatingsGames.age_rating))
+            .filter(*filters)
+            .distinct()
+            # .group_by(self.model.release_date)
+            .order_by(asc(self.model.release_date))
+        )
+        result = await self.session.execute(query)
+        self.session.expunge_all()
+        try:
+            result = result.scalars().all()
             return result
         except:
             return False

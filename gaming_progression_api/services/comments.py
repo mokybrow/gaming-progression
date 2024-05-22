@@ -25,7 +25,6 @@ class CommentsService:
 
         comment["user_id"] = user_id
         comment['text'] = comment_text
-        print(comment_text)
         async with uow:
             try:
                 item_data = await uow.posts.find_one(id=comment["item_id"])
