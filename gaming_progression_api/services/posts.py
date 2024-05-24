@@ -113,11 +113,12 @@ class PostsService:
             wall = PostsResponseModel.model_validate(post[0], from_attributes=True)
             return wall
 
-    async def delete_post(self, uow: IUnitOfWork, post_data: DeletePost, user_id: UUID4):
+    async def delete_post(self, uow: IUnitOfWork, post_id: UUID4, user_id: UUID4):
         async with uow:
-            is_owner = await uow.posts.find_one(id=post_data.post_id, user_id=user_id)
+            is_owner = await uow.posts.find_one(id=post_id, user_id=user_id)
             if is_owner:
-                post_id = await uow.posts.delete_one(id=post_data.post_id)
+                post_id = await uow.posts.edit_one(data={'disabled': True}, id=post_id)
+                # post_id = await uow.posts.delete_one(id=post_data.post_id)
                 await uow.commit()
                 return f'Post with id {post_id} was deleted'
         raise HTTPException(

@@ -7,6 +7,9 @@ from gaming_progression_api.models.schemas import Games
 from gaming_progression_api.models.service import GetFamesByMonth
 from gaming_progression_api.services.unitofwork import IUnitOfWork
 from gaming_progression_api.settings import get_settings
+from collections import Counter
+from itertools import groupby
+from operator import itemgetter
 
 settings = get_settings()
 
@@ -22,14 +25,13 @@ class CalendarService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Games not found",
             )
+            # print(games)
             games = [GamesResponseModel.model_validate(row, from_attributes=True) for row in games]
-            grouped_games = {}
             games_list = []
-            for i in games:
-                if i.release_date.day in grouped_games:
-                    grouped_games[i.release_date.day] = grouped_games[i.release_date.day] + [i]
-                else:
-                    games_list.append(grouped_games.copy())
-                    grouped_games.clear()
-                    grouped_games[i.release_date.day] = [i]
+            keyfunc = lambda x:x.release_date.day
+            tasks = sorted(games, key=keyfunc)
+            for task, action in groupby(tasks , key=keyfunc):
+                order_action = sorted(action, key=lambda x:x.release_date.day)
+                games_list.append({task: order_action})
+
             return games_list

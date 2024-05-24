@@ -45,13 +45,13 @@ async def get_post(uow: UOWDep, id: UUID4, user_id: UUID4 | None = None):
 
 
 @router.delete(
-    '',
+    '/{post_id}',
 )
 async def delete_post(
     uow: UOWDep,
-    post_data: DeletePost,
+    post_id: UUID4,
     current_user: Annotated[User, Depends(get_current_active_user)],
 ):
-    '''Создание поста должно сопровождаться привязкой его к стене'''
-    result = await PostsService().delete_post(uow, post_data, current_user.id)
+    '''Удаление поста происходит путём его деактивации'''
+    result = await PostsService().delete_post(uow, post_id, current_user.id)
     return result

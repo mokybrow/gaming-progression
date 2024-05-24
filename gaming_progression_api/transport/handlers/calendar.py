@@ -28,4 +28,5 @@ async def get_games_by_month(
 ):
     '''Получить глобальную ленту новостей для авторизованного пользователя'''
     result = await CalendarService().get_games_by_mont(uow, data)
+    # print(result)
     return  result
