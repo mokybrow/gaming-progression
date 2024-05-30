@@ -22,19 +22,19 @@ from gaming_progression_api.transport.handlers.calendar import router as calenda
 def _setup_api_routers(
     api: APIRouter,
 ) -> None:
-    api.include_router(auth_router)
-    api.include_router(games_router)
-    api.include_router(comm_router)
-    api.include_router(posts_router)
-    api.include_router(walls_router)
-    api.include_router(likes_router)
-    api.include_router(users_router)
-    api.include_router(playlists_router)
-    api.include_router(feeds_router)
-    api.include_router(search_router)
-    api.include_router(reports_router)
-    api.include_router(pic_router)
-    api.include_router(calendar_router)
+    api.include_router(auth_router, prefix='/api')
+    api.include_router(games_router, prefix='/api')
+    api.include_router(comm_router, prefix='/api')
+    api.include_router(posts_router, prefix='/api')
+    api.include_router(walls_router, prefix='/api')
+    api.include_router(likes_router, prefix='/api')
+    api.include_router(users_router, prefix='/api')
+    api.include_router(playlists_router, prefix='/api')
+    api.include_router(feeds_router, prefix='/api')
+    api.include_router(search_router, prefix='/api')
+    api.include_router(reports_router, prefix='/api')
+    api.include_router(pic_router, prefix='/api')
+    api.include_router(calendar_router, prefix='/api')
 
 
 @lru_cache
@@ -47,6 +47,8 @@ def make_app() -> FastAPI:
     origins = [
         'http://localhost:3000',
         'http://localhost:3000/feed',
+        'http://localhost',
+        'https://mbrw.ru',
     ]
 
     app.add_middleware(

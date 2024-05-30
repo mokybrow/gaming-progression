@@ -50,6 +50,7 @@ async def get_game_data(uow: UOWDep, slug: str) -> GamesResponseModel:
 
 @router.post('')
 async def get_games(uow: UOWDep, filters: FilterAdd):
+    print(settings.database_url)
     # print(filters)
     # type_adapter_filter = TypeAdapter(FilterAdd)
     # type_adapter = TypeAdapter(list[GamesResponseModel])
@@ -69,8 +70,8 @@ async def get_games(uow: UOWDep, filters: FilterAdd):
     #     return result
     # result = type_adapter.validate_json(result)
     result = await GamesService().get_games_with_filters(uow, filters)
-
     return result
+
 
 
 @router.post('/statuses')

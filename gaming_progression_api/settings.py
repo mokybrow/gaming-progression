@@ -30,7 +30,8 @@ class Settings(
 
     s3_id: str
     s3_key: str
-
+    redis_host: str
+    redis_port: int
     model_config = SettingsConfigDict(env_file='.env', env_prefix='API_')
 
 
