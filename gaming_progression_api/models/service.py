@@ -1,4 +1,5 @@
 import datetime
+
 from pydantic import UUID4, BaseModel
 
 
@@ -53,4 +54,3 @@ class CreateReportModel(BaseModel):
 class GetFamesByMonth(BaseModel):
     date: datetime.datetime
     days: int
-

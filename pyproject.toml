@@ -26,8 +26,36 @@ markdownify = "^0.12.1"
 boto3 = "^1.34.139"
 gunicorn = "^22.0.0"
 uvicorn = "^0.30.1"
+fastapi-mail = "^1.4.1"
+redis = "^5.0.7"
 
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+
+[tool.isort]
+line_length = 120
+force_grid_wrap = 0
+multi_line_output = 3
+use_parentheses = true
+include_trailing_comma = true
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+lines_between_types = 1
+
+[tool.black]
+line-length = 120
+skip-string-normalization = true
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+\.git
+| \.mypy_cache
+| \.pytest_cache
+| \.venv
+| \.vscode
+| \.idea
+)
+'''

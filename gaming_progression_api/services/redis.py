@@ -1,4 +1,5 @@
 from redis.asyncio import Redis
+
 from gaming_progression_api.settings import get_settings
 
 settings = get_settings()

@@ -73,7 +73,6 @@ async def get_games(uow: UOWDep, filters: FilterAdd):
     return result
 
 
-
 @router.post('/statuses')
 async def change_game_status(
     uow: UOWDep,

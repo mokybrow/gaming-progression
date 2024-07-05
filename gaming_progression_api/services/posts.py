@@ -1,4 +1,7 @@
 from typing import List
+
+import boto3
+
 from fastapi import HTTPException, UploadFile, status
 from markdownify import markdownify as md
 from pydantic import UUID4
@@ -7,8 +10,6 @@ from sqlalchemy import exc
 from gaming_progression_api.models.posts import AddPost, DeletePost, PostsResponseModel
 from gaming_progression_api.services.unitofwork import IUnitOfWork
 from gaming_progression_api.settings import get_settings
-import boto3
-
 
 settings = get_settings()
 
@@ -84,7 +85,7 @@ class PostsService:
             )
             if file:
                 for f in file:
-                    s3_client.upload_fileobj(f.file, 'mbrw', str(id) + f.filename , ExtraArgs={'ACL': 'public-read'})
+                    s3_client.upload_fileobj(f.file, 'mbrw', str(id) + f.filename, ExtraArgs={'ACL': 'public-read'})
                     await uow.pictures.add_one(
                         {
                             'author_id': user_id,

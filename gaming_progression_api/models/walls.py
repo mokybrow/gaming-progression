@@ -1,4 +1,5 @@
 import datetime
+
 from typing import List
 
 from pydantic import UUID4, BaseModel
@@ -34,7 +35,7 @@ class ParentPostData(BaseModel):
     user_id: UUID4
     wall_id: UUID4
     parent_post_id: UUID4 | None
-    text:str | None
+    text: str | None
     likes_count: int
     comments_count: int
     disabled: bool | None

@@ -28,7 +28,7 @@ class FeedsService:
             true_filters = []
             filters = or_(Posts.user_id == i.user_id for i in user_subs)
             true_filters.append(filters)
-            true_filters.append(Posts.disabled==False)
+            true_filters.append(Posts.disabled == False)
             posts = await uow.posts.get_global_wall_for_auth(filters=true_filters, page=page, user_id=user_id)
             posts = [FeedResponseModel.model_validate(row, from_attributes=True) for row in posts]
             if not posts:

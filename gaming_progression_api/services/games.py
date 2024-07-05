@@ -23,20 +23,19 @@ class GamesService:
             sort = direction(getattr(Games, filters.sort.name))
             filtr = getattr(Games, filters.sort.name) != None
             true_filters.append(filtr)
-                   
+
         async with uow:
             games = await uow.games.find_all_games_with_filters(sort=sort, page=filters.page, filters=true_filters)
             if not games:
                 return False
             games = [GamesResponseModel.model_validate(row, from_attributes=True) for row in games]
-            
+
             games_count = await uow.games.get_games_count_with_filters(filters=true_filters)
 
             headers = {
                 "x-games-count": f'{games_count[0][0]}',
             }
             return JSONResponse(content=jsonable_encoder(games), headers=headers)
-        
 
     async def get_game(self, uow: IUnitOfWork, **filter_by):
         async with uow:
@@ -48,18 +47,18 @@ class GamesService:
     async def rate_game(self, uow: IUnitOfWork, rate_game: RateGame, user_id: UUID4):
         if rate_game.grade > 10 or rate_game.grade < 1:
             raise HTTPException(
-                        status_code=status.HTTP_200_OK,
-                        detail='Invalid grade number',
-                    )
+                status_code=status.HTTP_200_OK,
+                detail='Invalid grade number',
+            )
         async with uow:
             unique_string = await uow.rates.find_one(user_id=user_id, game_id=rate_game.game_id)
             if unique_string:
                 await uow.rates.edit_one(data={'grade': rate_game.grade}, id=unique_string.id)
                 await uow.commit()
                 raise HTTPException(
-                        status_code=status.HTTP_200_OK,
-                        detail=f'Game {rate_game.game_id} grade changed to {rate_game.grade}',
-                    )
+                    status_code=status.HTTP_200_OK,
+                    detail=f'Game {rate_game.game_id} grade changed to {rate_game.grade}',
+                )
             rate_game = rate_game.model_dump()
             rate_game['user_id'] = user_id
             await uow.rates.add_one(rate_game)
@@ -68,15 +67,15 @@ class GamesService:
                 status_code=status.HTTP_200_OK,
                 detail=f'Game {rate_game['game_id']} added grade {rate_game['grade']}',
             )
-    
+
     async def get_user_rate(self, uow: IUnitOfWork, game_id: RateGame, user_id: UUID4):
         async with uow:
             unique_string = await uow.rates.find_one(user_id=user_id, game_id=game_id)
             if unique_string:
                 return unique_string.grade
             return 0
-        
-    async def delete_rate(self, uow: IUnitOfWork,  game_id: UUID4, user_id: UUID4):
+
+    async def delete_rate(self, uow: IUnitOfWork, game_id: UUID4, user_id: UUID4):
 
         async with uow:
             unique_string = await uow.rates.find_one(user_id=user_id, game_id=game_id)

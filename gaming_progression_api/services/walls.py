@@ -40,7 +40,9 @@ class WallsService:
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail="User have no posts",
                 )
-            posts = await uow.posts.get_user_wall(wall_id=wall_id.id, user_id=params.user_id, page=params.page, disabled=False)
+            posts = await uow.posts.get_user_wall(
+                wall_id=wall_id.id, user_id=params.user_id, page=params.page, disabled=False
+            )
             if not posts:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,

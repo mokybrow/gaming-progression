@@ -456,8 +456,6 @@ class SQLAlchemyRepository(AbstractRepository):
         except:
             return False
 
-
-
     async def get_post(self, user_id: UUID4, **filter_by) -> dict | bool:
         query = (
             select(
@@ -550,9 +548,6 @@ class SQLAlchemyRepository(AbstractRepository):
             return result
         except:
             return False
-
-
-
 
     async def games_by_month(
         self,
