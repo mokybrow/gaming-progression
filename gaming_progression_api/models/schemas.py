@@ -15,7 +15,7 @@ from gaming_progression_api.models.likes import LikeLogSchema
 from gaming_progression_api.models.playlists import AddGameListSchema, PlaylistsSchema, UserListsSchema
 from gaming_progression_api.models.posts import PostsSchema
 from gaming_progression_api.models.service import ObjectTypesSchema, ReportSchema
-from gaming_progression_api.models.users import UserMailingsSchema, UserSchema
+from gaming_progression_api.models.users import UserMailingsSchema, UserRolesSchema, UserSchema
 from gaming_progression_api.models.walls import WallsSchema
 
 
@@ -29,11 +29,7 @@ class Users(Base):
     full_name: Mapped[str] = mapped_column(nullable=True)
     biography: Mapped[str] = mapped_column(nullable=True)
     birthdate: Mapped[datetime.datetime] = mapped_column(nullable=True, type_=TIMESTAMP(timezone=True))
-    disabled: Mapped[bool] = mapped_column(default=False)
-
-    is_verified: Mapped[bool] = mapped_column(default=False)
-    is_superuser: Mapped[bool] = mapped_column(default=False)
-    is_moderator: Mapped[bool] = mapped_column(default=False)
+    
 
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
     updated_at: Mapped[datetime.datetime] = mapped_column(
@@ -41,9 +37,12 @@ class Users(Base):
         onupdate=datetime.datetime.utcnow,
     )
 
+    user_roles: Mapped["UserRoles"] = relationship(back_populates="users")
+
     user_activity: Mapped[list["UserActivity"]] = relationship(back_populates="users")
     user_posts: Mapped[list["Posts"]] = relationship(back_populates="author_data")
     user_favorite: Mapped[list["UserFavorite"]] = relationship(back_populates="users")
+
 
     followers: Mapped[list["Friends"]] = relationship(
         "Friends",
@@ -70,15 +69,41 @@ class Users(Base):
             password=self.password,
             biography=self.biography,
             birthdate=self.birthdate,
-            disabled=self.disabled,
-            is_verified=self.is_verified,
-            is_superuser=self.is_superuser,
-            is_moderator=self.is_moderator,
             created_at=self.created_at,
             updated_at=self.updated_at,
         )
 
+class UserRoles(Base):
+    __tablename__ = 'user_roles'
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
 
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"), unique=True)
+
+    disabled: Mapped[bool] = mapped_column(default=False)
+    is_verified: Mapped[bool] = mapped_column(default=False)
+    is_superuser: Mapped[bool] = mapped_column(default=False)
+    is_moderator: Mapped[bool] = mapped_column(default=False)
+    created_at: Mapped[datetime.datetime] = mapped_column(server_default=text("TIMEZONE('utc', now())"))
+    updated_at: Mapped[datetime.datetime] = mapped_column(
+        server_default=text("TIMEZONE('utc', now())"),
+        onupdate=datetime.datetime.utcnow,
+    )
+
+    users: Mapped["Users"] = relationship(
+        back_populates="user_roles",
+    )
+    def to_read_model(self) -> UserRolesSchema:
+        return UserRolesSchema(
+                id=self.id,
+                user_id=self.user_id,
+                disabled=self.disabled,
+                is_verified=self.is_verified,
+                is_superuser=self.is_superuser,
+                is_moderator=self.is_moderator,
+                created_at=self.created_at,
+                updated_at=self.updated_at,
+        )
+    
 class Games(Base):
     __tablename__ = 'games'
 

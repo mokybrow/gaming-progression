@@ -29,29 +29,16 @@ router = APIRouter(
 @router.post('/sign-in', description='Выдача пользователю токена доступа', response_model=Token)
 async def login_for_access_token(uow: UOWDep, form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> Token:
     user = await UsersService().authenticate_user(uow, form_data.username, form_data.password)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Incorrect username or password',
-            headers={'WWW-Authenticate': 'Bearer'},
-        )
-    access_token = await AuthService().create_token(
-        {'sub': user.username, 'aud': settings.auth_audience},
-        access_token_expires,
-    )
-    return Token(access_token=access_token, token_type='bearer')
+    return user
 
+@router.post('/sign-up', description='Регистрация пользователя', response_model=Token)
+async def add_user(user: UserCreate, uow: UOWDep) -> Token:
+    result = await UsersService().add_user(uow, user)
+    return result
 
 @router.get('/users/me', response_model=User)
 async def read_users_me(current_user: Annotated[User, Depends(get_current_user)]) -> User:
     return current_user
-
-
-@router.post('/sign-up', description='Регистрация пользователя', response_model=ServiceResponseModel)
-async def add_user(user: UserCreate, uow: UOWDep) -> ServiceResponseModel:
-    result = await UsersService().add_user(uow, user)
-
-    return result
 
 
 @router.post('/verify/request', response_model=VerifyToken)

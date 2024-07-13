@@ -19,5 +19,6 @@ checks:
 
 test:
 	poetry run pytest -vv -s --disable-warnings ${TESTS_DIR}
+
 run:
 	poetry run python -m $(SOURCE_DIR_API)

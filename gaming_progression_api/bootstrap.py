@@ -21,18 +21,18 @@ from gaming_progression_api.transport.handlers.walls import router as walls_rout
 def _setup_api_routers(
     api: APIRouter,
 ) -> None:
-    api.include_router(auth_router, prefix='/api')
-    api.include_router(games_router, prefix='/api')
-    api.include_router(comm_router, prefix='/api')
-    api.include_router(posts_router, prefix='/api')
-    api.include_router(walls_router, prefix='/api')
-    api.include_router(likes_router, prefix='/api')
-    api.include_router(users_router, prefix='/api')
-    api.include_router(playlists_router, prefix='/api')
-    api.include_router(feeds_router, prefix='/api')
-    api.include_router(search_router, prefix='/api')
-    api.include_router(reports_router, prefix='/api')
-    api.include_router(pic_router, prefix='/api')
+    api.include_router(auth_router, prefix='/api/v1')
+    api.include_router(games_router, prefix='/api/v1')
+    api.include_router(comm_router, prefix='/api/v1')
+    api.include_router(posts_router, prefix='/api/v1')
+    api.include_router(walls_router, prefix='/api/v1')
+    api.include_router(likes_router, prefix='/api/v1')
+    api.include_router(users_router, prefix='/api/v1')
+    api.include_router(playlists_router, prefix='/api/v1')
+    api.include_router(feeds_router, prefix='/api/v1')
+    api.include_router(search_router, prefix='/api/v1')
+    api.include_router(reports_router, prefix='/api/v1')
+    api.include_router(pic_router, prefix='/api/v1')
 
 
 @lru_cache

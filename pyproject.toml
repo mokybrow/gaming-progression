@@ -5,7 +5,6 @@ description = "Сайт для отслеживания и обсуждения 
 authors = ["Mikhail Panin <mokybrow@gmail.com>"]
 license = "Proprietary"
 readme = "README.md"
-package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.12"

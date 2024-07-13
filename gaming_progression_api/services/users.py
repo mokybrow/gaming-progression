@@ -11,6 +11,7 @@ from gaming_progression_api.dependencies import (
     verify_token_expires,
 )
 from gaming_progression_api.models.schemas import Users
+from gaming_progression_api.models.tokens import Token
 from gaming_progression_api.models.user_settings import AddMailing
 from gaming_progression_api.models.users import PatchUser, UserCreate
 from gaming_progression_api.services.auth import AuthService
@@ -31,37 +32,40 @@ class UsersService:
             if unique_username:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail='A user with the same username already exists',
+                    detail='Пользователь с таким именем уже существует',
                 )
             unique_email = await uow.users.find_one(email=user.email)
             if unique_email:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail='A user with this email already exists',
+                    detail='Пользователь с такой почтой уже существует',
                 )
-            user_id = await uow.users.add_one(user_dict)
+            user = await uow.users.add_one(user_dict)
             await uow.commit()
-            verify_token = await AuthService().create_token(
-                {'sub': str(user_id), 'aud': settings.verify_audience},
-                verify_token_expires,
-            )
-            email_schema = {
-                "email": [user.email],
-                "subject": "Добро пожаловать в клуб",
-                "body": {
-                    "title": "Добро пожаловать в клуб mbrw",
-                    "message": "Просто хотели сказать спасибо за регистрацию.",
-                    "button": f"Сменить почту",
-                    "link": f"{settings.front_host}change/email?token={verify_token}",
-                    "footer": """Ссылка действительна в течение суток.
-                    Если это были не вы, то просто проигнорируйте это письмо.""",
-                },
-            }
-            await email_sender(email_schema, "mail_without_button.html")
-            raise HTTPException(
-                status_code=status.HTTP_201_CREATED,
-                detail='User has been successfully created',
-            )
+            await uow.user_roles.add_one({"user_id": user.id, "disabled": False, "is_verified": False, "is_superuser": False, "is_moderator": False })
+            await uow.commit()
+            access_token = await AuthService().create_token(
+            {'sub': user.username, 'aud': settings.auth_audience},
+            access_token_expires)
+            return Token(access_token=access_token, token_type='bearer')
+            # verify_token = await AuthService().create_token(
+            #     {'sub': str(user_id), 'aud': settings.verify_audience},
+            #     verify_token_expires,
+            # )
+            # email_schema = {
+            #     "email": [user.email],
+            #     "subject": "Добро пожаловать в клуб",
+            #     "body": {
+            #         "title": "Добро пожаловать в клуб mbrw",
+            #         "message": "Просто хотели сказать спасибо за регистрацию.",
+            #         "button": f"Сменить почту",
+            #         "link": f"{settings.front_host}change/email?token={verify_token}",
+            #         "footer": """Ссылка действительна в течение суток.
+            #         Если это были не вы, то просто проигнорируйте это письмо.""",
+            #     },
+            # }
+            # await email_sender(email_schema, "mail_without_button.html")
+
 
     async def get_user_profile(self, uow: IUnitOfWork, username: str):
         async with uow:
@@ -102,10 +106,20 @@ class UsersService:
         async with uow:
             user = await uow.users.find_one(username=username)
         if not user:
-            return False
+            raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='Пользователь с таким именем не существует',
+            headers={'WWW-Authenticate': 'Bearer'})
         if not await AuthService.verify_password(plain_password=password, hashed_password=user.password):
-            return False
-        return user
+            raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='Неверное имя пользователя или пароль',
+            headers={'WWW-Authenticate': 'Bearer'})
+        
+        access_token = await AuthService().create_token(
+        {'sub': user.username, 'aud': settings.auth_audience},
+        access_token_expires)
+        return Token(access_token=access_token, token_type='bearer')
 
     async def patch_user(self, uow: IUnitOfWork, user_id: UUID4, user: PatchUser):
         user_dict = user.model_dump()

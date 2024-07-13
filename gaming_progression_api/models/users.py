@@ -9,7 +9,6 @@ class BaseUser(BaseModel):
     username: str
     email: EmailStr
     full_name: str | None = None
-    disabled: bool = False
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -62,9 +61,6 @@ class UserSubscriptions(BaseModel):
 
 class User(BaseUser):
     id: UUID4
-    is_verified: bool
-    is_superuser: bool
-    is_moderator: bool
     biography: str | None
     created_at: datetime.datetime
     birthdate: datetime.datetime | None
@@ -72,7 +68,7 @@ class User(BaseUser):
     user_favorite: list['UserFavorite'] | None
     followers: list['UserFollowers'] | None
     subscriptions: list['UserSubscriptions'] | None
-
+    user_roles: "UserRolesSchema"
 
 class PrivateBaseUser(BaseModel):
     id: UUID4
@@ -94,9 +90,6 @@ class UserSchema(BaseUser):
     password: str
     biography: str | None
     birthdate: datetime.datetime | None
-    is_verified: bool
-    is_superuser: bool
-    is_moderator: bool
     created_at: datetime.datetime
     updated_at: datetime.datetime
 
@@ -125,3 +118,14 @@ class UserForSearchModel(BaseModel):
     id: UUID4
     username: str
     full_name: str | None = None
+
+
+class UserRolesSchema(BaseModel):
+    id: UUID4
+    user_id: UUID4
+    disabled: bool
+    is_verified: bool
+    is_superuser: bool
+    is_moderator: bool
+    created_at: datetime.datetime
+    updated_at: datetime.datetime

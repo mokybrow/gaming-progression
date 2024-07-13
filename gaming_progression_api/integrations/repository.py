@@ -153,6 +153,7 @@ class SQLAlchemyRepository(AbstractRepository):
             .options(selectinload(self.model.user_favorite).selectinload(UserFavorite.game_data))
             .options(selectinload(self.model.followers).selectinload(Friends.follower_data))
             .options(selectinload(self.model.subscriptions).selectinload(Friends.sub_data))
+            .options(selectinload(self.model.user_roles))
             .options(
                 selectinload(self.model.lists)
                 .selectinload(UserPlaylists.playlists)
