@@ -19,7 +19,7 @@ alembic = "^1.13.2"
 sqlalchemy = "^2.0.31"
 asyncpg = "^0.29.0"
 pre-commit = "^3.7.1"
-python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+python-jose = {extras = ["cryptography"], version = "^3.4.0"}
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 markdownify = "^0.12.1"
 boto3 = "^1.34.139"
